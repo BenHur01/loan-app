@@ -1,109 +1,297 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Application - Final Signup</title>
-	<link rel="stylesheet" href="/assets/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/style.css"> 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f7f9fb;
+        }
+        .content-box {
+            max-width: 700px;
+            width: 95%;
+            padding: 2.5rem;
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .header-line {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+        /* Modal styles from script.js */
+        .modal {
+            display: none; 
+            position: fixed;
+            z-index: 100;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            overflow: auto;
+            background-color: rgba(0,0,0,0.4);
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-content {
+            background-color: #fefefe;
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 500px;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+    </style>
 </head>
-<body>
-    <main class="content-box">
-        <header>
-            <h1>Final Application: Submit Your Details</h1>
-            <p>Please enter your correct details below. This information will be sent to Isando Finances for review and immediate processing.</p>
-        </header>
+<body class="main-class-signup-layout">
 
-        <form id="signupForm">
-            
-            <h2>Personal Details</h2>
-            <div class="form-group">
-                <label for="fullName">Full Name:</label>
-                <input type="text" id="fullName" placeholder="e.g., John M. Dlamini" required>
-            </div>
+    <main class="content-box">
+        <header>
+            <h1 class="text-3xl font-bold text-gray-900">Final Loan Application</h1>
+            <h2 class="text-xl text-gray-700 mt-2">Personal & Financial Details</h2>
+            <hr class="header-line">
+        </header>
 
-            <div class="form-group">
-                <label for="idNumber">ID Number:</label>
-                <input type="number" id="idNumber" placeholder="ID or Passport Number" required>
-            </div>
+        <form id="signupForm" class="space-y-6">
+            <h3 class="text-xl font-semibold text-gray-800 border-b pb-2">Personal Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="fullName" class="block text-gray-700">Full Name</label>
+                    <input type="text" id="fullName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="idNumber" class="block text-gray-700">ID Number</label>
+                    <input type="text" id="idNumber" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="contactNumber" class="block text-gray-700">Contact Number</label>
+                    <input type="tel" id="contactNumber" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div class="md:col-span-2">
+                    <label for="residentialAddress" class="block text-gray-700">Residential Address</label>
+                    <input type="text" id="residentialAddress" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
 
-            <div class="form-group">
-                <label for="contactNumber">Contact Number:</label>
-                <input type="number" id="contactNumber" placeholder="e.g., 071 123 4567" required>
-            </div>
+            <h3 class="text-xl font-semibold text-gray-800 border-b pb-2 pt-4">Banking Information</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label for="bankName" class="block text-gray-700">Bank Name</label>
+                    <input type="text" id="bankName" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+                <div>
+                    <label for="bankAccountNumber" class="block text-gray-700">Bank Account Number</label>
+                    <input type="text" id="bankAccountNumber" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+                </div>
+            </div>
 
-            <div class="form-group">
-                <label for="residentialAddress">Residential Address:</label>
-                <input type="text" id="residentialAddress" placeholder="Street address, Suburb, City" required>
-            </div>
-            
-            <hr>
+            <h3 class="text-xl font-semibold text-gray-800 border-b pb-2 pt-4">Document Uploads</h3>
+            <div class="space-y-4">
+                <div>
+                    <label for="idDoc" class="block text-gray-700">Upload ID Document (front and back)</label>
+                    <input type="file" id="idDoc" required class="w-full mt-1">
+                </div>
+                <div>
+                    <label for="addressDoc" class="block text-gray-700">Upload Proof of Residential Address</label>
+                    <input type="file" id="addressDoc" required class="w-full mt-1">
+                </div>
+                <div>
+                    <label for="bankDoc" class="block text-gray-700">Upload Bank Statement (latest)</label>
+                    <input type="file" id="bankDoc" required class="w-full mt-1">
+                </div>
+            </div>
 
-            <h2>Loan Payout Account Details</h2>
-            <div class="form-group">
-                <label for="bankName">Bank Name:</label>
-                <input type="text" id="bankName" placeholder="e.g., Capitec Bank" required>
-            </div>
+            <h3 class="text-xl font-semibold text-gray-800 border-b pb-2 pt-4">Final Confirmation</h3>
+            <div class="space-y-4">
+                <div class="flex items-center">
+                    <input type="checkbox" id="agreedChecked" required class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
+                    <label for="agreedChecked" class="ml-2 text-sm text-gray-700">I confirm that all details provided are true and accurate.</label>
+                </div>
+                <div>
+                    <label for="signatureText" class="block text-gray-700">Type "YES" to digitally sign the application:</label>
+                    <input type="text" id="signatureText" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500 uppercase">
+                </div>
+            </div>
 
-            <div class="form-group">
-                <label for="bankAccountNumber">Bank Account Number:</label>
-                <input type="number" id="bankAccountNumber" placeholder="Bank Account Number" required>
-            </div>
+            <button type="submit" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 shadow-xl">
+                Submit Loan Application
+            </button>
+        </form>
+    </main>
 
-            <hr>
+    <!-- Modal for confirmation (Hidden by default) -->
+    <div id="confirmationModal" class="modal">
+        <div class="modal-content">
+            <h2 class="text-2xl font-bold mb-4">Confirm Submission</h2>
+            <p class="mb-4">Please verify the details before final submission:</p>
+            <div id="confirmedDetails" class="bg-gray-100 p-3 rounded-md mb-6 space-y-1 text-sm">
+                <!-- Details will be populated by JavaScript -->
+            </div>
+            <div class="flex justify-end space-x-4">
+                <button id="cancelSubmitBtn" type="button" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-100">Cancel</button>
+                <button id="confirmSubmitBtn" type="button" class="px-4 py-2 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700">Confirm & Submit</button>
+            </div>
+        </div>
+    </div>
 
-            <h2>Upload Required Documents</h2>
-            <div class="form-group">
-                <label for="idDoc">Proof of ID (PDF/JPG/PNG):</label>
-                <input type="file" id="idDoc" accept=".pdf,.jpg,.jpeg,.png" required>
-            </div>
+    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
+    <script type="module">
+// START OF ORIGINAL SCRIPT.JS CONTENT (Copied for all pages)
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-            <div class="form-group">
-                <label for="addressDoc">Proof of Address (PDF/JPG/PNG):</label>
-                <input type="file" id="addressDoc" accept=".pdf,.jpg,.jpeg,.png" required>
-            </div>
+const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+const SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
-            <div class="form-group">
-                <label for="bankDoc">Bank Statement / Confirmation Letter (PDF/JPG/PNG):</label>
-                <input type="file" id="bankDoc" accept=".pdf,.jpg,.jpeg,.png" required>
-            </div>
-            
-            <hr>
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            <h2>Agreement Acceptance</h2>
-            <p>I confirm that I have read and agree to the full terms of the Isando Finances Loan Agreement (including the 50% interest and 30-day repayment period).</p>
-            
-            <div class="form-group">
-                <label>
-                    <input type="checkbox" id="agreedChecked" required> 
-                    I hereby accept and agree to all terms outlined in the Loan Agreement.
-                </label>
-            </div>
+export function goToPage(page) {
+    window.location.href = page;
+}
 
-            <div class="form-group">
-                <label for="signatureText">Digital Signature (Type "YES" to confirm):</label>
-                <input type="text" id="signatureText" required>
-            </div>
+// Helper function to handle the submission logic
+async function submitApplication(data) {
+    const { idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, idDocFile, addressDocFile, bankDocFile } = data;
 
-           <button type="submit">Submit Application</button>
-        </form>
-    
-        <div id="confirmationModal" class="modal-overlay" style="display: none;">
-            <div class="modal-content">
-                <h2>Confirmation of Details</h2>
-                <p>Please **CONFIRM** that the following details are accurate before submitting your application. Once submitted, changes cannot be made.</p>
-                
-                <div id="confirmedDetails" style="padding: 10px; border: 1px solid #ccc; background-color: #f0f0f0; margin-bottom: 15px;">
-                </div>
+    const timestamp = Date.now();
+    const idPath = `id_documents/${idNumber}_id_${timestamp}`;
+    const addrPath = `address_documents/${idNumber}_address_${timestamp}`;
+    const bankPath = `bank_documents/${idNumber}_bank_${timestamp}`;
 
-                <button id="confirmSubmitBtn" class="confirm-btn">Confirm and Submit Application</button>
-                <button id="cancelSubmitBtn" class="cancel-btn">Cancel and Edit Details</button>
-            </div>
-        </div>
-    </main>
-    
-    <p><a href="agreement.html">Review Agreement Again</a></p>
+    // Upload files
+    const { error: idErr } = await supabase.storage.from('loan_documents').upload(idPath, idDocFile);
+    if (idErr) { alert("Failed to upload ID document."); console.error(idErr); return; }
 
-    <!-- Corrected Link: Use the root-level path -->
-    <script type="module" defer src="/script.js"></script>
+    const { error: addrErr } = await supabase.storage.from('loan_documents').upload(addrPath, addressDocFile);
+    if (addrErr) { alert("Failed to upload Address document."); console.error(addrErr); return; }
+
+    const { error: bankErr } = await supabase.storage.from('loan_documents').upload(bankPath, bankDocFile);
+    if (bankErr) { alert("Failed to upload Bank document."); console.error(bankErr); return; }
+
+    // Insert into Supabase
+    try {
+        const { data, error } = await supabase.from('borrowers').insert([{
+            full_name: fullName,
+            id_number: idNumber,
+            contact_number: contactNumber,
+            residential_address: residentialAddress,
+            requested_amount: requestedAmount,
+            bank_name: bankName,
+            amount_borrowed: requestedAmount,
+            interest_rate: '0.50',
+            repayment_period: 30,
+            bank_account: bankAccountNumber,
+            status: 'pending',
+            document_id_url: idPath,
+            document_address_url: addrPath,
+            document_bank_url: bankPath
+        }]).select();
+
+        if (error) { console.error(error); alert("Failed to submit application."); return; }
+
+        localStorage.setItem('currentUserId', data[0].id_number);
+        alert('Application Submitted Successfully!');
+        window.location.href = 'dashboard.html';
+
+    } catch(e){ console.error(e); alert("Unexpected error occurred."); }
+}
+
+async function handleFormSubmission(event) {
+    event.preventDefault();
+
+    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
+    if (!requestedAmountString || parseFloat(requestedAmountString) < 200 || parseFloat(requestedAmountString) > 2000) {
+        alert('Error: Start from agreement page with amount R200-R2000.');
+        return window.location.href = 'agreement.html';
+    }
+    const requestedAmount = parseFloat(requestedAmountString);
+
+    const fullName = document.getElementById('fullName').value;
+    const idNumber = document.getElementById('idNumber').value;
+    const contactNumber = document.getElementById('contactNumber').value;
+    const residentialAddress = document.getElementById('residentialAddress').value;
+    const bankName = document.getElementById('bankName').value;
+    const bankAccountNumber = document.getElementById('bankAccountNumber').value;
+    const agreedChecked = document.getElementById('agreedChecked').checked;
+    const signatureText = document.getElementById('signatureText').value;
+
+    if (!agreedChecked || signatureText.toUpperCase() !== 'YES') {
+        alert('You must check the agreement box and type "YES".'); return;
+    }
+
+    // Documents
+    const idDocFile = document.getElementById('idDoc').files[0];
+    const addressDocFile = document.getElementById('addressDoc').files[0];
+    const bankDocFile = document.getElementById('bankDoc').files[0];
+
+    if (!idDocFile || !addressDocFile || !bankDocFile) {
+        alert("Please upload all required documents."); return;
+    }
+
+    const modal = document.getElementById('confirmationModal');
+    const confirmedDetails = document.getElementById('confirmedDetails');
+    const confirmBtn = document.getElementById('confirmSubmitBtn');
+    const cancelBtn = document.getElementById('cancelSubmitBtn');
+
+    // Only show the modal if the elements exist (they exist only on signup.html)
+    if (modal && confirmedDetails && confirmBtn && cancelBtn) {
+        confirmedDetails.innerHTML = `
+            <p><strong>Loan Amount:</strong> R${requestedAmount.toFixed(2)}</p>
+            <p><strong>Full Name:</strong> ${fullName}</p>
+            <p><strong>ID Number:</strong> ${idNumber}</p>
+            <p><strong>Contact Number:</strong> ${contactNumber}</p>
+            <p><strong>Residential Address:</strong> ${residentialAddress}</p>
+            <p><strong>Bank Name:</strong> ${bankName}</p>
+            <p><strong>Bank Account:</strong> ${bankAccountNumber}</p>
+            <p><strong>Digital Signature:</strong> YES</p>
+        `;
+
+        modal.style.display = 'flex';
+
+        return new Promise((resolve) => {
+            const handleConfirm = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(true); };
+            const handleCancel = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(false); };
+            confirmBtn.addEventListener('click', handleConfirm);
+            cancelBtn.addEventListener('click', handleCancel);
+        })
+        .then(async shouldSubmit => {
+            if (!shouldSubmit) return;
+            await submitApplication({ idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, idDocFile, addressDocFile, bankDocFile });
+        });
+    } else {
+        return; 
+    }
+}
+
+
+export async function lookupBorrowerStatus(idNumber){
+    if (!idNumber) return null;
+    try {
+        const { data, error } = await supabase.from('borrowers')
+            .select('id_number, full_name, bank_name, bank_account, status, requested_amount, interest_rate, repayment_period, document_id_url, document_address_url, document_bank_url')
+            .eq('id_number', idNumber).single();
+        if (error && error.code!=='PGRST116')
+		{ console.error(error); return null; }
+        return data || null;
+    } catch(e){ console.error(e); return null; }
+}
+
+const signupForm = document.getElementById('signupForm');
+if (signupForm){ signupForm.addEventListener('submit', handleFormSubmission); console.log("Signup listener attached."); 
+}
+// END OF ORIGINAL SCRIPT.JS CONTENT
+    </script>
 </body>
 </html>
