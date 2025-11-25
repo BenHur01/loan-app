@@ -1,125 +1,308 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Dashboard</title>
-    <link rel="stylesheet" href="/assets/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Status Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/style.css"> 
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f7f9fb;
+        }
+        .content-box {
+            max-width: 700px;
+            width: 95%;
+            padding: 2.5rem;
+            background-color: #fff;
+            border-radius: 0.75rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .header-line {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+        }
+        .status-pending { background-color: #fcd34d; color: #92400e; }
+        .status-approved { background-color: #6ee7b7; color: #065f46; }
+        .status-rejected { background-color: #fca5a5; color: #991b1b; }
+        .document-link {
+            color: #4f46e5;
+            text-decoration: underline;
+            cursor: pointer;
+        }
+    </style>
 </head>
-<body>
-    <main class="content-box">
-        <header>
-            <h1>Application Status Dashboard</h1>
-            <p>Welcome, <span id="displayName"></span>.</p>
-        </header>
+<body class="main-class-dashboard-layout">
 
-        <p>Your Application Status for: <span id="displayNameStatus"></span></p>
-        <h2 id="statusMessage"></h2>
-        <hr>
+    <main class="content-box">
+        <header>
+            <h1 class="text-3xl font-bold text-gray-900">Loan Application Dashboard</h1>
+            <h2 class="text-xl text-gray-700 mt-2">Check Your Current Status</h2>
+            <hr class="header-line">
+        </header>
 
-        <h2>Loan Terms:</h2>
-        <div id="loanTermsArea">
-            <p>Amount Requested: R<span id="displayRequestedAmount"></span></p>
-            <p>Interest Rate: <span id="displayInterest"></span>%</p>
-            <p>Repayment Period: <span id="displayPeriod"></span> Days</p>
-        </div>
+        <div id="statusContainer" class="space-y-6">
+            <div id="loadingMessage" class="text-center text-indigo-600 font-medium">
+                Loading status...
+            </div>
+            
+            <div id="noApplicationMessage" class="hidden text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
+                <p class="text-lg text-gray-700 font-semibold mb-3">No Application Found</p>
+                <p class="text-gray-500">Please ensure you have completed the <a href="agreement.html" class="text-indigo-600 hover:underline">Loan Agreement</a> and <a href="signup.html" class="text-indigo-600 hover:underline">Application Form</a> first.</p>
+            </div>
 
-        <h2>Your Submitted Details:</h2>
-        <div id="detailsArea">
-            <p>ID Number: <span id="displayId"></span></p>
-            <p>Bank Name: <span id="displayBankName"></span></p>
-            <p>Bank Account: <span id="displayAccount"></span></p>
-        </div>
+            <div id="loanDetails" class="hidden">
+                <h3 class="text-2xl font-bold mb-4">Application Details</h3>
 
-        <div id="error-message" style="color: red; margin-top: 20px; display: none;">
-            <p>No application found under this ID number. Please check your application ID or contact the lender.</p>
-            <a href="index.html">Start New Application</a>
-        </div>
-    </main>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                    <div class="font-medium text-gray-600">Name:</div>
+                    <div id="detailName" class="text-gray-800"></div>
 
-    <p><a href="index.html">Back to Home</a></p>
+                    <div class="font-medium text-gray-600">ID Number:</div>
+                    <div id="detailID" class="text-gray-800"></div>
+                    
+                    <div class="font-medium text-gray-600">Requested Amount:</div>
+                    <div id="detailAmount" class="text-gray-800"></div>
 
-    <script type="module">
-        // CORRECTED PATH: Changed './assets/script.js' to just '/script.js'
-        import { lookupBorrowerStatus } from '/script.js';
+                    <div class="font-medium text-gray-600">Repayment Period:</div>
+                    <div id="detailRepayment" class="text-gray-800"></div>
+                    
+                    <div class="font-medium text-gray-600">Interest Rate:</div>
+                    <div id="detailInterest" class="text-gray-800"></div>
+                </div>
 
-        async function loadDashboard() {
-            // CRITICAL: Get the ID saved when the user submitted the form
-            const idNumber = localStorage.getItem('currentUserId'); 
-            const errorElement = document.getElementById('error-message');
-            const mainContent = document.querySelector('main');
-            const statusMessage = document.getElementById('statusMessage');
+                <h4 class="text-xl font-semibold mt-6 mb-3">Current Status:</h4>
+                <div id="detailStatus" class="text-2xl font-extrabold">
+                    <!-- Status badge inserted here -->
+                </div>
+                
+                <h4 class="text-xl font-semibold mt-6 mb-3">Submitted Documents:</h4>
+                <div id="documentLinks" class="space-y-2 text-sm text-gray-700">
+                    <!-- Document confirmation text inserted here -->
+                </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Go back to Home</a>
+        </div>
+    </main>
 
-            if (!idNumber) {
-                // If no ID is in local storage (e.g., user cleared browser data), show error
-                statusMessage.textContent = 'Please submit an application first.';
-                statusMessage.style.color = 'red';
-                document.getElementById('loanTermsArea').style.display = 'none';
-                document.getElementById('detailsArea').style.display = 'none';
-                errorElement.style.display = 'block';
-                return;
-            }
+    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
+    <script type="module">
+// START OF ORIGINAL SCRIPT.JS CONTENT (Copied for all pages)
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-            // CRITICAL: Call the Supabase lookup function
-            const data = await lookupBorrowerStatus(idNumber);
+const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+const SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
-            if (data) {
-                // Application found! Update the page with fetched data.
-                mainContent.style.display = 'block';
-                errorElement.style.display = 'none';
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-                // Display Personal Details
-                document.getElementById('displayName').textContent = data.full_name;
-                document.getElementById('displayNameStatus').textContent = data.full_name;
-                document.getElementById('displayId').textContent = data.id_number;
+export function goToPage(page) {
+    window.location.href = page;
+}
 
-                // Display Loan Terms
-                document.getElementById('displayRequestedAmount').textContent = parseFloat(data.requested_amount).toLocaleString('en-ZA', { minimumFractionDigits: 2 });
-                document.getElementById('displayInterest').textContent = (data.interest_rate * 100).toFixed(2);
-                document.getElementById('displayPeriod').textContent = data.repayment_period;
+// Helper function to handle the submission logic
+async function submitApplication(data) {
+    const { idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, idDocFile, addressDocFile, bankDocFile } = data;
 
-                // Display Bank Details
-                document.getElementById('displayBankName').textContent = data.bank_name;
-                document.getElementById('displayAccount').textContent = data.bank_account;
+    const timestamp = Date.now();
+    const idPath = `id_documents/${idNumber}_id_${timestamp}`;
+    const addrPath = `address_documents/${idNumber}_address_${timestamp}`;
+    const bankPath = `bank_documents/${idNumber}_bank_${timestamp}`;
+
+    // Upload files
+    const { error: idErr } = await supabase.storage.from('loan_documents').upload(idPath, idDocFile);
+    if (idErr) { alert("Failed to upload ID document."); console.error(idErr); return; }
+
+    const { error: addrErr } = await supabase.storage.from('loan_documents').upload(addrPath, addressDocFile);
+    if (addrErr) { alert("Failed to upload Address document."); console.error(addrErr); return; }
+
+    const { error: bankErr } = await supabase.storage.from('loan_documents').upload(bankPath, bankDocFile);
+    if (bankErr) { alert("Failed to upload Bank document."); console.error(bankErr); return; }
+
+    // Insert into Supabase
+    try {
+        const { data, error } = await supabase.from('borrowers').insert([{
+            full_name: fullName,
+            id_number: idNumber,
+            contact_number: contactNumber,
+            residential_address: residentialAddress,
+            requested_amount: requestedAmount,
+            bank_name: bankName,
+            amount_borrowed: requestedAmount,
+            interest_rate: '0.50',
+            repayment_period: 30,
+            bank_account: bankAccountNumber,
+            status: 'pending',
+            document_id_url: idPath,
+            document_address_url: addrPath,
+            document_bank_url: bankPath
+        }]).select();
+
+        if (error) { console.error(error); alert("Failed to submit application."); return; }
+
+        localStorage.setItem('currentUserId', data[0].id_number);
+        alert('Application Submitted Successfully!');
+        window.location.href = 'dashboard.html';
+
+    } catch(e){ console.error(e); alert("Unexpected error occurred."); }
+}
+
+async function handleFormSubmission(event) {
+    event.preventDefault();
+
+    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
+    if (!requestedAmountString || parseFloat(requestedAmountString) < 200 || parseFloat(requestedAmountString) > 2000) {
+        alert('Error: Start from agreement page with amount R200-R2000.');
+        return window.location.href = 'agreement.html';
+    }
+    const requestedAmount = parseFloat(requestedAmountString);
+
+    const fullName = document.getElementById('fullName').value;
+    const idNumber = document.getElementById('idNumber').value;
+    const contactNumber = document.getElementById('contactNumber').value;
+    const residentialAddress = document.getElementById('residentialAddress').value;
+    const bankName = document.getElementById('bankName').value;
+    const bankAccountNumber = document.getElementById('bankAccountNumber').value;
+    const agreedChecked = document.getElementById('agreedChecked').checked;
+    const signatureText = document.getElementById('signatureText').value;
+
+    if (!agreedChecked || signatureText.toUpperCase() !== 'YES') {
+        alert('You must check the agreement box and type "YES".'); return;
+    }
+
+    // Documents
+    const idDocFile = document.getElementById('idDoc').files[0];
+    const addressDocFile = document.getElementById('addressDoc').files[0];
+    const bankDocFile = document.getElementById('bankDoc').files[0];
+
+    if (!idDocFile || !addressDocFile || !bankDocFile) {
+        alert("Please upload all required documents."); return;
+    }
+
+    const modal = document.getElementById('confirmationModal');
+    const confirmedDetails = document.getElementById('confirmedDetails');
+    const confirmBtn = document.getElementById('confirmSubmitBtn');
+    const cancelBtn = document.getElementById('cancelSubmitBtn');
+
+    // Only show the modal if the elements exist (they exist only on signup.html)
+    if (modal && confirmedDetails && confirmBtn && cancelBtn) {
+        confirmedDetails.innerHTML = `
+            <p><strong>Loan Amount:</strong> R${requestedAmount.toFixed(2)}</p>
+            <p><strong>Full Name:</strong> ${fullName}</p>
+            <p><strong>ID Number:</strong> ${idNumber}</p>
+            <p><strong>Contact Number:</strong> ${contactNumber}</p>
+            <p><strong>Residential Address:</strong> ${residentialAddress}</p>
+            <p><strong>Bank Name:</strong> ${bankName}</p>
+            <p><strong>Bank Account:</strong> ${bankAccountNumber}</p>
+            <p><strong>Digital Signature:</strong> YES</p>
+        `;
+
+        modal.style.display = 'flex';
+
+        return new Promise((resolve) => {
+            const handleConfirm = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(true); };
+            const handleCancel = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(false); };
+            confirmBtn.addEventListener('click', handleConfirm);
+            cancelBtn.addEventListener('click', handleCancel);
+        })
+        .then(async shouldSubmit => {
+            if (!shouldSubmit) return;
+            await submitApplication({ idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, idDocFile, addressDocFile, bankDocFile });
+        });
+    } else {
+        return; 
+    }
+}
 
 
-                let statusText = '';
-                let statusColor = '#333';
+export async function lookupBorrowerStatus(idNumber){
+    if (!idNumber) return null;
+    try {
+        const { data, error } = await supabase.from('borrowers')
+            .select('id_number, full_name, bank_name, bank_account, status, requested_amount, interest_rate, repayment_period, document_id_url, document_address_url, document_bank_url')
+            .eq('id_number', idNumber).single();
+        if (error && error.code!=='PGRST116') // PGRST116 means no rows found
+		{ console.error(error); return null; }
+        return data || null;
+    } catch(e){ console.error(e); return null; }
+}
 
-                // Status Message Logic
-                switch (data.status) {
-                    case 'pending':
-                        statusText = '⏳ PENDING REVIEW ⏳';
-                        statusColor = '#ffc107'; // Yellow/Orange
-                        break;
-                    case 'approved':
-                        statusText = '✅ APPROVED - FUNDS DISBURSED ✅';
-                        statusColor = '#28a745'; // Green
-                        break;
-                    case 'rejected':
-                        statusText = '❌ APPLICATION REJECTED ❌';
-                        statusColor = '#dc3545'; // Red
-                        break;
-                    default:
-                        statusText = 'STATUS UNKNOWN';
-                        statusColor = '#6c757d'; // Gray
-                }
+const signupForm = document.getElementById('signupForm');
+if (signupForm){ signupForm.addEventListener('submit', handleFormSubmission); console.log("Signup listener attached."); 
+}
 
-                statusMessage.textContent = statusText;
-                statusMessage.style.color = statusColor;
+// Logic for the Dashboard Page
+document.addEventListener('DOMContentLoaded', async () => {
+    const userId = localStorage.getItem('currentUserId');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const noApplicationMessage = document.getElementById('noApplicationMessage');
+    const loanDetails = document.getElementById('loanDetails');
 
-            } else {
-                // If data is null (meaning no entry found in Supabase for the ID)
-                statusMessage.textContent = 'Application data could not be retrieved.';
-                statusMessage.style.color = 'red';
-                document.getElementById('loanTermsArea').style.display = 'none';
-                document.getElementById('detailsArea').style.display = 'none';
-                errorElement.style.display = 'block';
-            }
-        }
+    if (!userId) {
+        loadingMessage.classList.add('hidden');
+        noApplicationMessage.classList.remove('hidden');
+        return;
+    }
 
-        loadDashboard();
-    </script>
-    <!-- Removed redundant <script src="/script.js"></script> -->
+    const statusData = await lookupBorrowerStatus(userId);
+    loadingMessage.classList.add('hidden');
+
+    if (!statusData) {
+        noApplicationMessage.classList.remove('hidden');
+        return;
+    }
+
+    const { status, full_name, requested_amount, repayment_period, interest_rate, document_id_url, document_address_url, document_bank_url } = statusData;
+
+    // Display loan details
+    document.getElementById('detailName').textContent = full_name;
+    document.getElementById('detailID').textContent = userId;
+    document.getElementById('detailAmount').textContent = `R${requested_amount.toFixed(2)}`;
+    document.getElementById('detailRepayment').textContent = `${repayment_period} days`;
+    document.getElementById('detailInterest').textContent = `${(parseFloat(interest_rate) * 100).toFixed(2)}%`;
+    
+    // Display status badge
+    let statusClass = 'status-pending';
+    if (status === 'approved') {
+        statusClass = 'status-approved';
+    } else if (status === 'rejected') {
+        statusClass = 'status-rejected';
+    }
+    
+    document.getElementById('detailStatus').innerHTML = `
+        <span class="status-badge ${statusClass}">${status}</span>
+    `;
+
+    // Display document confirmation (since we don't have public URLs, we just confirm they exist)
+    document.getElementById('documentLinks').innerHTML = `
+        <p><span class="font-bold">ID Document:</span> ${document_id_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
+        <p><span class="font-bold">Proof of Address:</span> ${document_address_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
+        <p><span class="font-bold">Bank Statement:</span> ${document_bank_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
+    `;
+
+    loanDetails.classList.remove('hidden');
+});
+
+// END OF ORIGINAL SCRIPT.JS CONTENT + DASHBOARD LOGIC
+    </script>
 </body>
 </html>
