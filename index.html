@@ -3,62 +3,71 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Fixed Single-File Application</title>
-    <!-- Load Tailwind CSS -->
+    <title>Isando Finances - Home</title>
+    <!-- Load Tailwind CSS for modern styling -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/style.css">
+    
     <style>
-        /* Custom styles for a clean, modern look */
+        /* Custom styles to match the original look with modern resets */
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #f7f9fb;
+            font-family: Arial, sans-serif; /* Matching your style.css */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #f7f9fb; /* Light background */
         }
-        .card {
+        .content-box {
+            max-width: 600px;
+            width: 90%;
+            padding: 2.5rem;
+            background-color: #fff;
+            border-radius: 0.75rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+        .header-line {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-4">
+<body class="main-class-home-layout">
 
-    <div id="app" class="w-full max-w-md bg-white card rounded-xl p-8 space-y-6">
-        <h1 class="text-3xl font-bold text-gray-800 text-center">
-            Application Fixed!
-        </h1>
-        <p class="text-gray-600 text-center">
-            Your JavaScript is now running inline, resolving the module resolution error.
-            Place your application logic inside the script tag below.
-        </p>
-        <div class="p-4 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-700 text-sm">
-            <span id="message-output">Initialization complete. Ready for action.</span>
+    <main class="content-box">
+        <header>
+            <h1 class="text-3xl font-bold text-gray-900">Welcome to IsandoTom Finances</h1>
+            <h2 class="text-xl text-gray-700 mt-2">Quick Loan Application System</h2>
+            <hr class="header-line">
+        </header>
+
+        <div class="space-y-4">
+            <p class="text-gray-600">This is the official platform to apply for a loan under the agreed-upon terms with Sylvester Masango.</p>
+            <p class="text-gray-600">Before applying, you must review and agree to the full Loan Agreement.</p>
+
+            <a href="agreement.html" class="inline-block px-6 py-2 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300 shadow-md">
+                View Loan Agreement & Start Application
+            </a>
+            
+            <p class="mt-8 text-sm text-gray-500">
+                If you have already applied, your status is currently being reviewed by the Lender. 
+                <a href="dashboard.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Check Status Here</a>
+            </p>
+            <p style="margin-top: 20px;" class="text-xs text-gray-400">&copy; 2025 Isando Finances</p>
         </div>
-        
-        <button id="testButton" class="w-full py-3 bg-indigo-600 text-white font-semibold rounded-lg hover:bg-indigo-700 transition duration-300">
-            Click to Test
-        </button>
-    </div>
+    </main>
 
-    <!-- ALL JAVASCRIPT LOGIC IS CONTAINED HERE -->
-    <script type="module">
-        // The previous error was caused by trying to import an external file
-        // like <script type="module" src="/script.js">.
-        // All necessary JS logic must be defined here directly.
-
-        document.addEventListener('DOMContentLoaded', () => {
-            const outputElement = document.getElementById('message-output');
-            const testButton = document.getElementById('testButton');
-
-            console.log("Application started successfully.");
-            outputElement.textContent = "Application initialized and ready.";
-
-            testButton.addEventListener('click', () => {
-                outputElement.textContent = `Button clicked at ${new Date().toLocaleTimeString()}!`;
-                console.log("Button clicked.");
-            });
-
-            // If you had specific functions or logic in your original script.js, 
-            // paste them here to restore your application's functionality.
-            // Example:
-            // function myOriginalFunction() { ... }
-        });
+    <!-- 
+        *** CRITICAL FIX: The external link to script.js caused the error. ***
+        We now paste the content of script.js directly here.
+    -->
+    <script>
+        // PASTE YOUR SCRIPT.JS CODE HERE
+        // (You must copy the entire content of your original assets/script.js 
+        // and put it in this block.)
     </script>
 </body>
 </html>
