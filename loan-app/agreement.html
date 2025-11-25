@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Agreement Terms</title>
+	<link rel="stylesheet" href="./assets/style.css">
+</head>
+<body>
+    <main class="content-box">
+        <h1>Loan Agreement Terms</h1>
+        
+        <div class="form-group">
+            <label for="borrowAmount">Enter amount you'd like to borrow (ZAR):</label>
+            
+            <input type="number" id="borrowAmount" placeholder="e.g., 500" min="200" max="2000" required oninput="updateAgreement()">
+            
+            <span style="color: red; font-size: 0.9em; display: block; margin-top: 5px;">
+                Loan amounts are currently limited to between R200 and R2000.
+            </span>
+        </div>
+
+        <p>Please read these terms carefully before proceeding with the application. The contract below updates based on the amount entered above.</p>
+
+        <div id="agreement-text">
+            <p>This Loan Agreement is made this day of <span id="currentDate"></span> between IsandoTom Finances and the individual submitting this electronic application.</p>
+
+            <h2>1. Loan Amount and Disbursement</h2>
+            <p>The Lender agrees to lend the Borrower the sum of R<span id="dynamicAmount">0.00</span> (the "Principal Sum"). The Principal Sum will be disbursed to the Borrower's nominated bank account upon successful application review and approval.</p>
+
+            <h2>2. Interest Rate</h2>
+            <p>The Loan shall bear an annual interest rate of 50%. This rate is fixed for the duration of the repayment period.</p>
+
+            <h2>3. Repayment Terms</h2>
+            <p>The Borrower agrees to repay the Principal Sum, including accrued interest, in a single payment of R<span id="dynamicRepayment">0.00</span>. This full repayment must be made within 30 days of the Principal Sum being deposited into the Borrower's account.</p>
+
+            <p>If the Borrower is unable to repay the agreed amount of R<span id="dynamicRepayment2">0.00</span> by the agreed-upon date, the Borrower has the option to pay R<span id="dynamicRenewalFee">0.00</span> (50% of the Principal Sum) which will renew the Agreement for an additional Month. Renewal will require written confirmation from both parties.</p>
+
+            <h2>4. Default and Penalties</h2>
+            <p>Failure by the Borrower to repay the total amount (Principal Sum plus interest) within the 30-day period will constitute a default, and the Borrower will be liable for additional penalty charges as stipulated in the Lender's terms of service.</p>
+            
+            <h2>5. Repayment Account Details</h2>
+            <p>The Borrower must make the full repayment (Principal Sum plus Interest) to the following account details by the due date:</p>
+            <div style="margin-left: 20px; padding: 10px; border: 1px solid #ccc; background-color: #f9f9f9;">
+                <ul>
+                    <li>Account Name: Savings Account</li>
+                    <li>Bank: Capitec</li>
+                    <li>Account Number: 1213614048</li>
+                    <li>Branch Code: 470010</li>
+                    <li>REFERENCE: [Borrower's Name / ID Number]</li>
+                </ul>
+            </div>
+
+            <h2>6. Acceptance and Proceeding</h2>
+            <p>By proceeding to the application form, the Borrower acknowledges that they have read, understood, and agree to all the terms and conditions outlined in this Loan Agreement.</p>
+        </div>
+
+        <hr>
+
+        <button id="proceedButton" onclick="proceedToApplication()" disabled>Proceed to Application</button>
+    </main>
+    
+    <p><a href="index.html">Back to Home</a></p>
+
+    <script>
+        // Fixed Lender terms
+        const INTEREST_RATE = 0.50; // 50%
+
+        function setAgreementDate() {
+            const today = new Date();
+            const dd = String(today.getDate()).padStart(2, '0');
+            const mm = String(today.getMonth() + 1).padStart(2, '0'); // January is 0!
+            const yyyy = today.getFullYear();
+
+            const formattedDate = dd + '/' + mm + '/' + yyyy;
+            document.getElementById('currentDate').textContent = formattedDate;
+        }
+
+        function updateAgreement() {
+            const amountInput = document.getElementById('borrowAmount');
+            const amount = parseFloat(amountInput.value);
+
+            const dynamicAmountSpan = document.getElementById('dynamicAmount');
+            const dynamicRepaymentSpan = document.getElementById('dynamicRepayment');
+            const dynamicRepayment2Span = document.getElementById('dynamicRepayment2'); 
+            const dynamicRenewalFeeSpan = document.getElementById('dynamicRenewalFee'); 
+            const proceedButton = document.getElementById('proceedButton');
+
+            if (isNaN(amount) || amount <= 0 || amount < 200 || amount > 2000) {
+                // Invalid amount entered: set to zero and disable button
+                dynamicAmountSpan.textContent = '0.00';
+                dynamicRepaymentSpan.textContent = '0.00';
+                dynamicRepayment2Span.textContent = '0.00';
+                dynamicRenewalFeeSpan.textContent = '0.00'; 
+                proceedButton.disabled = true;
+                return;
+            }
+
+            // Calculations
+            const totalRepayment = amount * (1 + INTEREST_RATE);
+            const renewalFee = amount * 0.50; // 50% of the principal amount
+
+            // Formatting
+            const formattedAmount = amount.toLocaleString('en-ZA', { minimumFractionDigits: 2 });
+            const formattedRepayment = totalRepayment.toLocaleString('en-ZA', { minimumFractionDigits: 2 });
+            const formattedRenewalFee = renewalFee.toLocaleString('en-ZA', { minimumFractionDigits: 2 }); 
+
+            // Update the contract fields
+            dynamicAmountSpan.textContent = formattedAmount;
+            dynamicRepaymentSpan.textContent = formattedRepayment;
+            dynamicRepayment2Span.textContent = formattedRepayment; 
+            dynamicRenewalFeeSpan.textContent = formattedRenewalFee; 
+            proceedButton.disabled = false;
+        }
+
+        function proceedToApplication() {
+            const amountInput = document.getElementById('borrowAmount');
+            const requestedAmount = amountInput.value;
+
+            if (requestedAmount && parseFloat(requestedAmount) >= 200 && parseFloat(requestedAmount) <= 2000) {
+                // Save the requested amount to local storage for use in signup.html
+                localStorage.setItem('requestedLoanAmount', requestedAmount);
+                window.location.href = 'signup.html';
+            } else {
+                alert('Please enter a valid amount between R200 and R2000 before proceeding.');
+            }
+        }
+        
+        // Run once on load to initialize the fields
+        setAgreementDate(); 
+        updateAgreement(); 
+    </script>
+</body>
+</html>

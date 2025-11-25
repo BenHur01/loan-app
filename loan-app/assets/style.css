@@ -1,0 +1,182 @@
+/* --- Global Styles --- */
+:root {
+    --primary-blue: #004d99; /* Deep Professional Blue */
+    --secondary-blue: #007bff; /* Brighter accent blue */
+    --light-gray: #f4f4f9; /* Light background */
+    --text-color: #333;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--primary-blue); /* NEW: Deep Blue Background */
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    min-height: 100vh;
+}
+
+main {
+    width: 100%;
+    max-width: 800px;
+    padding: 20px;
+    box-sizing: border-box;
+}
+
+h1 {
+    color: #fff; /* Default title color for the blue body background */
+    text-align: center;
+    margin-bottom: 5px;
+}
+
+h2 {
+    color: #fff; /* Default subtitle color for the blue body background */
+    text-align: center;
+    margin-top: 0;
+    font-size: 1.5em;
+    font-weight: normal;
+}
+
+/* Specific styling for the Home Page titles when they are centered */
+.header-line {
+    border: 0;
+    height: 1px;
+    background: #007bff; /* Accent blue line */
+    margin: 15px auto 30px auto;
+    width: 50%;
+}
+
+
+/* --- Content Box Styling (The White Box for all main content) --- */
+.content-box {
+    background-color: white; /* Applies the desired white background */
+    padding: 30px;
+    border-radius: 8px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    margin-top: 20px;
+}
+
+/* Titles/Headings inside the white content box */
+.content-box h1, .content-box h2 {
+    color: var(--primary-blue); /* Titles inside the white box should be blue */
+    text-align: left; /* Alignment specific to agreement/signup headings */
+    font-weight: bold;
+}
+
+.content-box p {
+    line-height: 1.6;
+    margin-bottom: 15px;
+}
+
+/* --- Form and Input Styles (Used on agreement.html and signup.html) --- */
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: bold;
+}
+
+input[type="text"],
+input[type="number"] {
+    width: 100%;
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    box-sizing: border-box;
+    font-size: 1em;
+}
+
+/* --- Button Styling --- */
+.button, button[type="submit"], a.button {
+    display: inline-block;
+    padding: 12px 25px;
+    background-color: var(--secondary-blue); /* Bright blue */
+    color: white;
+    text-decoration: none;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: background-color 0.3s;
+    margin-top: 10px;
+}
+
+.button:hover, button[type="submit"]:hover, a.button:hover {
+    background-color: var(--primary-blue); /* Darker blue on hover */
+}
+
+/* Disabled button state */
+#proceedButton[disabled] {
+    background-color: #6c757d;
+    cursor: not-allowed;
+}
+
+/* --- Footer and Link Styles --- */
+footer {
+    color: #bbb; /* Light gray text for the footer */
+    font-size: 0.9em;
+    padding: 20px;
+    text-align: center;
+    margin-top: auto; /* Pushes footer to the bottom */
+}
+
+a {
+    color: var(--secondary-blue);
+    text-decoration: none;
+}
+
+a:hover {
+    text-decoration: underline;
+}
+
+/* Style for the check status link on the home page */
+.sub-link {
+    font-weight: bold;
+    color: #dc3545; /* A subtle red highlight for the link */
+}
+/* --- Modal Styling --- */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7); /* Dark semi-transparent background */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000; /* Ensure it is on top of everything */
+}
+
+.modal-content {
+    background-color: white;
+    padding: 30px;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+}
+
+.confirm-btn {
+    background-color: #4CAF50; /* Green */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-right: 10px;
+}
+
+.cancel-btn {
+    background-color: #f44336; /* Red */
+    color: white;
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
