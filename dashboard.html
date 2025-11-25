@@ -1,125 +1,125 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Application Dashboard</title>
-    <link rel="stylesheet" href="/assets/style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Application Dashboard</title>
+    <link rel="stylesheet" href="/assets/style.css">
 </head>
 <body>
-    <main class="content-box">
-        <header>
-            <h1>Application Status Dashboard</h1>
-            <p>Welcome, <span id="displayName"></span>.</p>
-        </header>
+    <main class="content-box">
+        <header>
+            <h1>Application Status Dashboard</h1>
+            <p>Welcome, <span id="displayName"></span>.</p>
+        </header>
 
-        <p>Your Application Status for: <span id="displayNameStatus"></span></p>
-        <h2 id="statusMessage"></h2>
-        <hr>
+        <p>Your Application Status for: <span id="displayNameStatus"></span></p>
+        <h2 id="statusMessage"></h2>
+        <hr>
 
-        <h2>Loan Terms:</h2>
-        <div id="loanTermsArea">
-            <p>Amount Requested: R<span id="displayRequestedAmount"></span></p>
-            <p>Interest Rate: <span id="displayInterest"></span>%</p>
-            <p>Repayment Period: <span id="displayPeriod"></span> Days</p>
-        </div>
+        <h2>Loan Terms:</h2>
+        <div id="loanTermsArea">
+            <p>Amount Requested: R<span id="displayRequestedAmount"></span></p>
+            <p>Interest Rate: <span id="displayInterest"></span>%</p>
+            <p>Repayment Period: <span id="displayPeriod"></span> Days</p>
+        </div>
 
-        <h2>Your Submitted Details:</h2>
-        <div id="detailsArea">
-            <p>ID Number: <span id="displayId"></span></p>
-            <p>Bank Name: <span id="displayBankName"></span></p>
-            <p>Bank Account: <span id="displayAccount"></span></p>
-        </div>
+        <h2>Your Submitted Details:</h2>
+        <div id="detailsArea">
+            <p>ID Number: <span id="displayId"></span></p>
+            <p>Bank Name: <span id="displayBankName"></span></p>
+            <p>Bank Account: <span id="displayAccount"></span></p>
+        </div>
 
-        <div id="error-message" style="color: red; margin-top: 20px; display: none;">
-            <p>No application found under this ID number. Please check your application ID or contact the lender.</p>
-            <a href="index.html">Start New Application</a>
-        </div>
-    </main>
+        <div id="error-message" style="color: red; margin-top: 20px; display: none;">
+            <p>No application found under this ID number. Please check your application ID or contact the lender.</p>
+            <a href="index.html">Start New Application</a>
+        </div>
+    </main>
 
-    <p><a href="index.html">Back to Home</a></p>
+    <p><a href="index.html">Back to Home</a></p>
 
-    <script type="module">
-        import { lookupBorrowerStatus } from './assets/script.js';
+    <script type="module">
+        // CORRECTED PATH: Changed './assets/script.js' to just '/script.js'
+        import { lookupBorrowerStatus } from '/script.js';
 
-        async function loadDashboard() {
-            // CRITICAL: Get the ID saved when the user submitted the form
-            const idNumber = localStorage.getItem('currentUserId'); 
-            const errorElement = document.getElementById('error-message');
-            const mainContent = document.querySelector('main');
-            const statusMessage = document.getElementById('statusMessage');
+        async function loadDashboard() {
+            // CRITICAL: Get the ID saved when the user submitted the form
+            const idNumber = localStorage.getItem('currentUserId'); 
+            const errorElement = document.getElementById('error-message');
+            const mainContent = document.querySelector('main');
+            const statusMessage = document.getElementById('statusMessage');
 
-            if (!idNumber) {
-                // If no ID is in local storage (e.g., user cleared browser data), show error
-                statusMessage.textContent = 'Please submit an application first.';
-                statusMessage.style.color = 'red';
-                document.getElementById('loanTermsArea').style.display = 'none';
-                document.getElementById('detailsArea').style.display = 'none';
-                errorElement.style.display = 'block';
-                return;
-            }
+            if (!idNumber) {
+                // If no ID is in local storage (e.g., user cleared browser data), show error
+                statusMessage.textContent = 'Please submit an application first.';
+                statusMessage.style.color = 'red';
+                document.getElementById('loanTermsArea').style.display = 'none';
+                document.getElementById('detailsArea').style.display = 'none';
+                errorElement.style.display = 'block';
+                return;
+            }
 
-            // CRITICAL: Call the Supabase lookup function
-            const data = await lookupBorrowerStatus(idNumber);
+            // CRITICAL: Call the Supabase lookup function
+            const data = await lookupBorrowerStatus(idNumber);
 
-            if (data) {
-                // Application found! Update the page with fetched data.
-                mainContent.style.display = 'block';
-                errorElement.style.display = 'none';
+            if (data) {
+                // Application found! Update the page with fetched data.
+                mainContent.style.display = 'block';
+                errorElement.style.display = 'none';
 
-                // Display Personal Details
-                document.getElementById('displayName').textContent = data.full_name;
-                document.getElementById('displayNameStatus').textContent = data.full_name;
-                document.getElementById('displayId').textContent = data.id_number;
+                // Display Personal Details
+                document.getElementById('displayName').textContent = data.full_name;
+                document.getElementById('displayNameStatus').textContent = data.full_name;
+                document.getElementById('displayId').textContent = data.id_number;
 
-                // Display Loan Terms
-                document.getElementById('displayRequestedAmount').textContent = parseFloat(data.requested_amount).toLocaleString('en-ZA', { minimumFractionDigits: 2 });
-                document.getElementById('displayInterest').textContent = (data.interest_rate * 100).toFixed(2);
-                document.getElementById('displayPeriod').textContent = data.repayment_period;
+                // Display Loan Terms
+                document.getElementById('displayRequestedAmount').textContent = parseFloat(data.requested_amount).toLocaleString('en-ZA', { minimumFractionDigits: 2 });
+                document.getElementById('displayInterest').textContent = (data.interest_rate * 100).toFixed(2);
+                document.getElementById('displayPeriod').textContent = data.repayment_period;
 
-                // Display Bank Details
-                document.getElementById('displayBankName').textContent = data.bank_name;
-                document.getElementById('displayAccount').textContent = data.bank_account;
+                // Display Bank Details
+                document.getElementById('displayBankName').textContent = data.bank_name;
+                document.getElementById('displayAccount').textContent = data.bank_account;
 
 
-                let statusText = '';
-                let statusColor = '#333';
+                let statusText = '';
+                let statusColor = '#333';
 
-                // Status Message Logic
-                switch (data.status) {
-                    case 'pending':
-                        statusText = '⏳ PENDING REVIEW ⏳';
-                        statusColor = '#ffc107'; // Yellow/Orange
-                        break;
-                    case 'approved':
-                        statusText = '✅ APPROVED - FUNDS DISBURSED ✅';
-                        statusColor = '#28a745'; // Green
-                        break;
-                    case 'rejected':
-                        statusText = '❌ APPLICATION REJECTED ❌';
-                        statusColor = '#dc3545'; // Red
-                        break;
-                    default:
-                        statusText = 'STATUS UNKNOWN';
-                        statusColor = '#6c757d'; // Gray
-                }
+                // Status Message Logic
+                switch (data.status) {
+                    case 'pending':
+                        statusText = '⏳ PENDING REVIEW ⏳';
+                        statusColor = '#ffc107'; // Yellow/Orange
+                        break;
+                    case 'approved':
+                        statusText = '✅ APPROVED - FUNDS DISBURSED ✅';
+                        statusColor = '#28a745'; // Green
+                        break;
+                    case 'rejected':
+                        statusText = '❌ APPLICATION REJECTED ❌';
+                        statusColor = '#dc3545'; // Red
+                        break;
+                    default:
+                        statusText = 'STATUS UNKNOWN';
+                        statusColor = '#6c757d'; // Gray
+                }
 
-                statusMessage.textContent = statusText;
-                statusMessage.style.color = statusColor;
+                statusMessage.textContent = statusText;
+                statusMessage.style.color = statusColor;
 
-            } else {
-                // If data is null (meaning no entry found in Supabase for the ID)
-                statusMessage.textContent = 'Application data could not be retrieved.';
-                statusMessage.style.color = 'red';
-                document.getElementById('loanTermsArea').style.display = 'none';
-                document.getElementById('detailsArea').style.display = 'none';
-                errorElement.style.display = 'block';
-            }
-        }
+            } else {
+                // If data is null (meaning no entry found in Supabase for the ID)
+                statusMessage.textContent = 'Application data could not be retrieved.';
+                statusMessage.style.color = 'red';
+                document.getElementById('loanTermsArea').style.display = 'none';
+                document.getElementById('detailsArea').style.display = 'none';
+                errorElement.style.display = 'block';
+            }
+        }
 
-        loadDashboard();
-    </script>
-    <script src="/script.js"></script>
+        loadDashboard();
+    </script>
+    <!-- Removed redundant <script src="/script.js"></script> -->
 </body>
 </html>
-
