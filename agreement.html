@@ -8,94 +8,87 @@
     <link rel="stylesheet" href="./assets/style.css"> 
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             background-color: #f7f9fb;
         }
-        .content-box {
+        .container {
             max-width: 800px;
-            width: 90%;
+            width: 95%;
             padding: 2.5rem;
             background-color: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-        .header-line {
-            border: 0;
-            height: 1px;
-            background: #eee;
-            margin-top: 1rem;
-            margin-bottom: 2rem;
-        }
-        .agreement-text {
-            border: 1px solid #ccc;
-            padding: 1.5rem;
+        .scroll-box {
             height: 300px;
-            overflow-y: scroll;
-            margin-bottom: 1.5rem;
-            background-color: #fafafa;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            padding: 1.5rem;
             border-radius: 0.5rem;
+            background-color: #fafafa;
+            margin-bottom: 1.5rem;
         }
     </style>
 </head>
-<body class="main-class-agreement-layout">
-
-    <main class="content-box">
-        <header>
-            <h1 class="text-3xl font-bold text-gray-900">Loan Agreement Terms</h1>
-            <h2 class="text-xl text-gray-700 mt-2">IsandoTom Finances & Borrower</h2>
-            <hr class="header-line">
+<body>
+    
+    <main class="container">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Loan Agreement and Terms</h1>
+            <p class="text-gray-500 mt-2">Please read carefully before proceeding.</p>
         </header>
 
-        <div class="agreement-text text-sm text-gray-700 space-y-3">
-            <p class="font-bold">1. Parties involved:</p>
-            <p>This agreement is entered into between IsandoTom Finances (The Lender) and the Borrower (Applicant).</p>
-            
-            <p class="font-bold">2. Loan Amount:</p>
-            <p>The Borrower requests a principal loan amount (between R200 and R2000). The final approved amount will be confirmed upon successful application review.</p>
-            
-            <p class="font-bold">3. Interest and Repayment:</p>
-            <p>The loan carries an interest rate of 0.50% (monthly). The repayment period is 30 days from the date of disbursement.</p>
-            
-            <p class="font-bold">4. Default:</p>
-            <p>Failure to repay the loan amount plus interest within the 30-day period will result in penalties and legal action.</p>
-            
-            <p class="font-bold">5. Requirements:</p>
-            <p>The Borrower must provide a valid ID, proof of residence, and bank statement. All information must be truthful.</p>
-            
-            <p class="font-bold">6. Consent:</p>
-            <p>By proceeding, the Borrower acknowledges and agrees to these terms.</p>
+        <!-- Loan Amount Input -->
+        <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+            <label for="loanAmount" class="block text-lg font-medium text-indigo-700 mb-2">Enter Requested Loan Amount (R200 - R2000):</label>
+            <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
         </div>
 
-        <form id="loanAmountForm" class="space-y-4">
-            <label for="requestedAmount" class="block text-gray-700 font-semibold">
-                I hereby request a loan amount (R200 - R2000):
-            </label>
-            <input type="number" id="requestedAmount" name="requestedAmount" min="200" max="2000" required
-                   class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-            
-            <div class="flex items-center">
-                <input type="checkbox" id="agreedToTerms" required class="h-4 w-4 text-indigo-600 border-gray-300 rounded">
-                <label for="agreedToTerms" class="ml-2 text-sm text-gray-700">I have read and agree to the Loan Agreement Terms.</label>
-            </div>
+        <div class="scroll-box text-sm text-gray-700 leading-relaxed">
+            <h2 class="text-lg font-semibold mb-3 text-gray-800">Terms and Conditions</h2>
+            <p class="mb-4">1. Loan Contract: This agreement constitutes a legally binding contract between the Borrower (you) and the Lender (IsandoTom Finances). By agreeing to these terms, you confirm your intent and ability to repay the borrowed funds.</p>
 
-            <button type="submit" class="w-full py-3 bg-green-600 text-white font-semibold rounded-lg hover:bg-green-700 transition duration-300 shadow-md">
-                Agree & Proceed to Application
+            <p class="mb-4">2. Interest Rate: All loans issued through this platform carry a fixed interest rate of 50% (fifty percent) simple interest over the repayment period. This rate is non-negotiable.</p>
+
+            <p class="mb-4">3. Repayment Period: The standard repayment period for all approved loans is thirty (30) calendar days from the date the funds are disbursed to your nominated bank account.</p>
+
+            <p class="mb-4">4. Default: Failure to repay the full amount (principal + interest) within the 30-day period will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.</p>
+
+            <p class="mb-4">5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely using Supabase Storage and will only be used for the purpose of loan verification and fraud prevention.</p>
+
+            <p class="mb-4">6. Verification: By proceeding, you consent to background checks and verification of the documents and personal details you provide in the subsequent application form.</p>
+            
+            <p class="mb-4">7. Eligibility: You must be a South African citizen or permanent resident, over the age of 18, and currently employed to be eligible for a loan.</p>
+        </div>
+        
+        <form id="agreementForm" class="space-y-4">
+            <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+                <input type="checkbox" id="termsCheck" required class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and 30-day repayment period.</label>
+            </div>
+            
+            <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
+                Agree & Proceed to Application Form
             </button>
         </form>
+
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Go back to Home</a>
+        </div>
     </main>
 
     <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
     <script type="module">
-// START OF ORIGINAL SCRIPT.JS CONTENT (Copied for all pages)
+// START OF SHARED/SUPABASE SCRIPT CONTENT
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -103,158 +96,35 @@ export function goToPage(page) {
     window.location.href = page;
 }
 
-// Helper function to handle the submission logic
-async function submitApplication(data) {
-    const { idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, idDocFile, addressDocFile, bankDocFile } = data;
+// END OF SHARED/SUPABASE SCRIPT CONTENT
 
-    const timestamp = Date.now();
-    const idPath = `id_documents/${idNumber}_id_${timestamp}`;
-    const addrPath = `address_documents/${idNumber}_address_${timestamp}`;
-    const bankPath = `bank_documents/${idNumber}_bank_${timestamp}`;
+document.getElementById('agreementForm').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-    // Upload files
-    const { error: idErr } = await supabase.storage.from('loan_documents').upload(idPath, idDocFile);
-    if (idErr) { alert("Failed to upload ID document."); console.error(idErr); return; }
+    const loanAmountInput = document.getElementById('loanAmount');
+    const amount = parseFloat(loanAmountInput.value);
 
-    const { error: addrErr } = await supabase.storage.from('loan_documents').upload(addrPath, addressDocFile);
-    if (addrErr) { alert("Failed to upload Address document."); console.error(addrErr); return; }
-
-    const { error: bankErr } = await supabase.storage.from('loan_documents').upload(bankPath, bankDocFile);
-    if (bankErr) { alert("Failed to upload Bank document."); console.error(bankErr); return; }
-
-    // Insert into Supabase
-    try {
-        const { data, error } = await supabase.from('borrowers').insert([{
-            full_name: fullName,
-            id_number: idNumber,
-            contact_number: contactNumber,
-            residential_address: residentialAddress,
-            requested_amount: requestedAmount,
-            bank_name: bankName,
-            amount_borrowed: requestedAmount,
-            interest_rate: '0.50',
-            repayment_period: 30,
-            bank_account: bankAccountNumber,
-            status: 'pending',
-            document_id_url: idPath,
-            document_address_url: addrPath,
-            document_bank_url: bankPath
-        }]).select();
-
-        if (error) { console.error(error); alert("Failed to submit application."); return; }
-
-        localStorage.setItem('currentUserId', data[0].id_number);
-        alert('Application Submitted Successfully!');
-        window.location.href = 'dashboard.html';
-
-    } catch(e){ console.error(e); alert("Unexpected error occurred."); }
-}
-
-async function handleFormSubmission(event) {
-    event.preventDefault();
-
-    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
-    if (!requestedAmountString || parseFloat(requestedAmountString) < 200 || parseFloat(requestedAmountString) > 2000) {
-        alert('Error: Start from agreement page with amount R200-R2000.');
-        return window.location.href = 'agreement.html';
-    }
-    const requestedAmount = parseFloat(requestedAmountString);
-
-    const fullName = document.getElementById('fullName').value;
-    const idNumber = document.getElementById('idNumber').value;
-    const contactNumber = document.getElementById('contactNumber').value;
-    const residentialAddress = document.getElementById('residentialAddress').value;
-    const bankName = document.getElementById('bankName').value;
-    const bankAccountNumber = document.getElementById('bankAccountNumber').value;
-    const agreedChecked = document.getElementById('agreedChecked').checked;
-    const signatureText = document.getElementById('signatureText').value;
-
-    if (!agreedChecked || signatureText.toUpperCase() !== 'YES') {
-        alert('You must check the agreement box and type "YES".'); return;
-    }
-
-    // Documents
-    const idDocFile = document.getElementById('idDoc').files[0];
-    const addressDocFile = document.getElementById('addressDoc').files[0];
-    const bankDocFile = document.getElementById('bankDoc').files[0];
-
-    if (!idDocFile || !addressDocFile || !bankDocFile) {
-        alert("Please upload all required documents."); return;
-    }
-
-    const modal = document.getElementById('confirmationModal');
-    const confirmedDetails = document.getElementById('confirmedDetails');
-    const confirmBtn = document.getElementById('confirmSubmitBtn');
-    const cancelBtn = document.getElementById('cancelSubmitBtn');
-
-    // Only show the modal if the elements exist (they exist only on signup.html)
-    if (modal && confirmedDetails && confirmBtn && cancelBtn) {
-        confirmedDetails.innerHTML = `
-            <p><strong>Loan Amount:</strong> R${requestedAmount.toFixed(2)}</p>
-            <p><strong>Full Name:</strong> ${fullName}</p>
-            <p><strong>ID Number:</strong> ${idNumber}</p>
-            <p><strong>Contact Number:</strong> ${contactNumber}</p>
-            <p><strong>Residential Address:</strong> ${residentialAddress}</p>
-            <p><strong>Bank Name:</strong> ${bankName}</p>
-            <p><strong>Bank Account:</strong> ${bankAccountNumber}</p>
-            <p><strong>Digital Signature:</strong> YES</p>
-        `;
-
-        modal.style.display = 'flex';
-
-        return new Promise((resolve) => {
-            const handleConfirm = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(true); };
-            const handleCancel = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(false); };
-            confirmBtn.addEventListener('click', handleConfirm);
-            cancelBtn.addEventListener('click', handleCancel);
-        })
-        .then(async shouldSubmit => {
-            if (!shouldSubmit) return;
-            await submitApplication({ idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, idDocFile, addressDocFile, bankDocFile });
-        });
-    } else {
-        // If the form doesn't require modal confirmation, run submission helper immediately (not used here)
-        return; 
+    if (isNaN(amount) || amount < 200 || amount > 2000) {
+        alert("Please enter a valid loan amount between R200 and R2000.");
+        loanAmountInput.focus();
+        return;
     }
-}
 
-
-export async function lookupBorrowerStatus(idNumber){
-    if (!idNumber) return null;
-    try {
-        const { data, error } = await supabase.from('borrowers')
-            .select('id_number, full_name, bank_name, bank_account, status, requested_amount, interest_rate, repayment_period, document_id_url, document_address_url, document_bank_url')
-            .eq('id_number', idNumber).single();
-        if (error && error.code!=='PGRST116')
-		{ console.error(error); return null; }
-        return data || null;
-    } catch(e){ console.error(e); return null; }
-}
-
-const signupForm = document.getElementById('signupForm');
-if (signupForm){ signupForm.addEventListener('submit', handleFormSubmission); console.log("Signup listener attached."); 
-}
-
-// Custom listener for the Agreement page to save the amount and proceed
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('loanAmountForm');
-    if (form) {
-        form.addEventListener('submit', (e) => {
-            e.preventDefault();
-            const amountInput = document.getElementById('requestedAmount');
-            const amount = parseFloat(amountInput.value);
-
-            if (amount >= 200 && amount <= 2000) {
-                localStorage.setItem('requestedLoanAmount', amount.toFixed(2));
-                window.location.href = 'signup.html';
-            } else {
-                alert('Please enter an amount between R200 and R2000.');
-            }
-        });
+    const termsChecked = document.getElementById('termsCheck').checked;
+    if (!termsChecked) {
+        alert("You must agree to the terms and conditions to proceed.");
+        return;
     }
+
+    // Save the requested amount to local storage
+    localStorage.setItem('requestedLoanAmount', amount.toFixed(2));
+
+    // Redirect to the application form
+    window.location.href = 'signup.html';
 });
 
-// END OF ORIGINAL SCRIPT.JS CONTENT + AGREEMENT FIX
+// REMOVED: The page load check that redirected users to the dashboard if an ID was found in localStorage.
+// This ensures that clicking the button is the only way to leave this page, which is what we want.
     </script>
 </body>
 </html>
