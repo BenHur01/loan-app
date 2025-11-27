@@ -52,6 +52,29 @@
             outline: 0;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
+        /* Custom Modal Styles (MUST be used instead of alert()) */
+        .custom-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1001;
+            transition: opacity 0.3s;
+        }
+        .custom-modal-content {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            max-width: 400px;
+            width: 90%;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+        }
+
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -83,6 +106,17 @@
 </head>
 <body>
     
+    <!-- Custom Alert Modal (REQUIRED REPLACEMENT FOR alert()) -->
+    <div id="custom-alert-modal" class="custom-modal hidden">
+        <div class="custom-modal-content">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
+            <p id="modal-message" class="text-gray-600 mb-6"></p>
+            <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                OK
+            </button>
+        </div>
+    </div>
+
     <main class="container">
         <header class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
@@ -170,32 +204,92 @@
     <!-- Loading Overlay (Hidden by default) -->
     <div id="loadingOverlay" class="loading-overlay hidden">
         <div class="loader"></div>
-        <p class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
+        <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
         <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
     </div>
 
     <script type="module">
-// START OF SHARED/SUPABASE SCRIPT CONTENT
+// START OF REQUIRED FIREBASE & SUPABASE SETUP
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
+// --- Global Variables (Provided by Canvas) ---
+const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+// --- Firebase Init (Used for Authentication/User Context) ---
+let auth;
+if (Object.keys(firebaseConfig).length > 0) {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    if (initialAuthToken) {
+        signInWithCustomToken(auth, initialAuthToken).catch(e => {
+            console.error("Firebase custom sign-in failed:", e);
+            signInAnonymously(auth);
+        });
+    } else {
+        signInAnonymously(auth);
+    }
+} else {
+    console.warn("Firebase configuration not found. Skipping Firebase initialization.");
+}
+
+// --- Supabase Config ---
+// NOTE: Using the user-provided keys
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 function goToPage(page) {
-    window.location.href = page;
+    window.location.href = page;
 }
-// END OF SHARED/SUPABASE SCRIPT CONTENT
+// END OF REQUIRED FIREBASE & SUPABASE SETUP
 
-// --- APPLICATION LOGIC ---
+// --- UTILITY FUNCTIONS ---
 
-// Helper function to show/hide loading screen
-function toggleLoading(show) {
-    document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
-    document.body.style.overflow = show ? 'hidden' : 'auto';
+/**
+ * Custom modal replacement for alert()
+ * @param {string} title
+ * @param {string} message
+ */
+function customAlert(title, message) {
+    const modal = document.getElementById('custom-alert-modal');
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-message').textContent = message;
+    modal.classList.remove('hidden');
+
+    return new Promise(resolve => {
+        const okButton = document.getElementById('modal-ok-button');
+        const handler = () => {
+            modal.classList.add('hidden');
+            okButton.removeEventListener('click', handler);
+            resolve();
+        };
+        okButton.addEventListener('click', handler);
+    });
 }
+
+/**
+ * Shows the loading overlay with a specific message.
+ * @param {string} message 
+ */
+function showLoading(message) {
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Hides the loading overlay.
+ */
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
 
 /**
  * Uploads a file to Supabase Storage and returns the public URL.
@@ -237,15 +331,18 @@ async function uploadFile(file, bucket, path) {
 // Main submission handler
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
     event.preventDefault();
-    toggleLoading(true);
+    
+    // NOTE: Updated from toggleLoading(true) to showLoading
+    showLoading("Submitting application and starting file uploads...");
 
     const idNumberInput = document.getElementById('idNumber');
     const borrowerId = idNumberInput.value.trim(); // Use ID number as the unique identifier
 
     const requestedAmountString = localStorage.getItem('requestedLoanAmount');
     if (!requestedAmountString) {
-        alert('Error: Requested loan amount not found. Please restart the process.');
-        toggleLoading(false);
+        // FIX: Using customAlert instead of alert()
+        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
+        hideLoading();
         goToPage('agreement.html');
         return;
     }
@@ -257,11 +354,11 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             full_name: document.getElementById('fullName').value,
             id_number: borrowerId, // Store ID number in its own column too
             contact_number: document.getElementById('contactNumber').value,
-            residential_address: document.getElementById('residentialAddress').value, // <-- THIS IS THE CORRECTED LINE
+            residential_address: document.getElementById('residentialAddress').value,
             monthly_income: parseFloat(document.getElementById('monthlyIncome').value),
             employer_name: document.getElementById('employerName').value, 
             loan_amount_requested: parseFloat(requestedAmountString),
-            // Default values
+            // Default values - MATCHING CONFIRMED COLUMN NAMES
             status: 'Pending Review',
             repayment_period: 30, // Default 30 days
             interest_rate: 0.50, // Default 50%
@@ -277,22 +374,35 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         };
 
         // 3. Upload all files and collect URLs
-        const uploadPromises = [
-            uploadFile(files.idDocument, 'loan-documents', `${borrowerId}/id-document-${Date.now()}`),
-            uploadFile(files.bankStatement, 'loan-documents', `${borrowerId}/bank-statement-${Date.now()}`),
-            uploadFile(files.proofOfAddress, 'loan-documents', `${borrowerId}/proof-of-address-${Date.now()}`),
-            uploadFile(files.selfieDocument, 'loan-documents', `${borrowerId}/document-selfie-${Date.now()}`)
-        ];
+        // Updated loading messages to reflect progress
+        showLoading("Uploading document 1 of 4: ID Document...");
+        const idPromise = uploadFile(files.idDocument, 'loan-documents', `${borrowerId}/id-document-${Date.now()}`);
+        
+        showLoading("Uploading document 2 of 4: Bank Statement...");
+        const statementPromise = uploadFile(files.bankStatement, 'loan-documents', `${borrowerId}/bank-statement-${Date.now()}`);
+        
+        showLoading("Uploading document 3 of 4: Proof of Address...");
+        const addressPromise = uploadFile(files.proofOfAddress, 'loan-documents', `${borrowerId}/proof-of-address-${Date.now()}`);
+        
+        showLoading("Uploading document 4 of 4: Live Selfie...");
+        const selfiePromise = uploadFile(files.selfieDocument, 'loan-documents', `${borrowerId}/document-selfie-${Date.now()}`);
 
-        // Ensure we handle the file uploads in parallel
-        const [id_url, statement_url, address_url, selfie_url] = await Promise.all(uploadPromises);
+        // Wait for all uploads to complete
+        const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
+            idPromise,
+            statementPromise,
+            addressPromise,
+            selfiePromise
+        ]);
 
         // 4. Update data object with document URLs
         data.document_id_url = id_url;
-        data.document_bank_url = statement_url; // Corrected column name: bank_url
+        data.document_bank_url = statement_url;
         data.document_address_url = address_url;
         data.document_selfie_url = selfie_url;
 
+        showLoading("Inserting application data into the database...");
+        
         // 5. Insert data into the 'borrowers' table
         const { error: insertError } = await supabase
             .from('borrowers')
@@ -309,19 +419,18 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         localStorage.setItem('currentUserId', borrowerId);
         localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount
         
-        toggleLoading(false);
-        // Using alert() is okay here to confirm the ID, but it should be a custom modal in production!
-        alert(`Application Submitted! Your ID is ${borrowerId}. You will now be redirected to your dashboard.`);
+        hideLoading();
+        // FIX: Using customAlert instead of alert()
+        await customAlert('Success', `Application Submitted! Your ID is ${borrowerId}. You will now be redirected to your dashboard.`);
         goToPage('dashboard.html');
 
     } catch (error) {
-        toggleLoading(false);
+        hideLoading();
         console.error('Application Submission Error:', error);
-        alert('An error occurred during submission. Please ensure all fields and files are correct, then try again.');
+        // FIX: Using customAlert instead of alert()
+        await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
     }
 });
     </script>
 </body>
 </html>
-
-
