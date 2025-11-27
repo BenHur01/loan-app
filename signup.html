@@ -3,192 +3,323 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Status Dashboard</title>
+    <title>Loan Application Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./assets/style.css"> 
     <style>
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             background-color: #f7f9fb;
         }
-        .content-box {
-            max-width: 700px;
+        .container {
+            max-width: 600px;
             width: 95%;
             padding: 2.5rem;
             background-color: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-        .header-line {
-            border: 0;
-            height: 1px;
-            background: #eee;
-            margin-top: 1rem;
-            margin-bottom: 2rem;
+        .form-group {
+            margin-bottom: 1.25rem;
         }
-        .status-badge {
-            display: inline-block;
-            padding: 0.25rem 0.75rem;
-            border-radius: 9999px;
-            font-weight: 600;
-            text-transform: uppercase;
-            font-size: 0.75rem;
+        label {
+            display: block;
+            font-weight: 500;
+            margin-bottom: 0.5rem;
+            color: #1f2937;
         }
-        .status-pending { background-color: #fcd34d; color: #92400e; }
-        .status-approved { background-color: #6ee7b7; color: #065f46; }
-        .status-rejected { background-color: #fca5a5; color: #991b1b; }
-        .document-link {
-            color: #4f46e5;
-            text-decoration: underline;
-            cursor: pointer;
+        input[type="text"],
+        input[type="number"],
+        input[type="tel"],
+        input[type="file"],
+        select,
+        textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #d1d5db;
+            border-radius: 0.375rem;
+            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
+            resize: vertical;
+        }
+        input:focus,
+        select:focus,
+        textarea:focus {
+            border-color: #4f46e5;
+            outline: 0;
+            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
+        }
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(255, 255, 255, 0.9);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            flex-direction: column;
+            text-align: center;
+        }
+        .loader {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #4f46e5;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin-bottom: 1rem;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
     </style>
 </head>
-<body class="main-class-dashboard-layout">
-
-    <main class="content-box">
-        <header>
-            <h1 class="text-3xl font-bold text-gray-900">Loan Application Dashboard</h1>
-            <h2 class="text-xl text-gray-700 mt-2">Check Your Current Status</h2>
-            <hr class="header-line">
+<body>
+    
+    <main class="container">
+        <header class="text-center mb-8">
+            <h1 class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
+            <p class="text-gray-500 mt-2">Personal, Address, Employment, and Document Uploads</p>
         </header>
 
-        <div id="statusContainer" class="space-y-6">
-            <div id="loadingMessage" class="text-center text-indigo-600 font-medium">
-                Loading status...
-            </div>
+        <form id="loanApplicationForm" class="space-y-6">
             
-            <div id="noApplicationMessage" class="hidden text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
-                <p class="text-lg text-gray-700 font-semibold mb-3">No Application Found</p>
-                <p class="text-gray-500">Please ensure you have completed the <a href="agreement.html" class="text-indigo-600 hover:underline">Loan Agreement</a> and <a href="signup.html" class="text-indigo-600 hover:underline">Application Form</a> first.</p>
-            </div>
-
-            <div id="loanDetails" class="hidden">
-                <h3 class="text-2xl font-bold mb-4">Application Details</h3>
-
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
-                    <div class="font-medium text-gray-600">Name:</div>
-                    <div id="detailName" class="text-gray-800"></div>
-
-                    <div class="font-medium text-gray-600">ID Number:</div>
-                    <div id="detailID" class="text-gray-800"></div>
-                    
-                    <div class="font-medium text-gray-600">Requested Amount:</div>
-                    <div id="detailAmount" class="text-gray-800"></div>
-                    
-                    <div class="font-medium text-gray-600">Employer Name:</div>
-                    <div id="detailEmployer" class="text-gray-800"></div>
-                    
-                    <div class="font-medium text-gray-600">Repayment Period:</div>
-                    <div id="detailRepayment" class="text-gray-800"></div>
-                    
-                    <div class="font-medium text-gray-600">Interest Rate:</div>
-                    <div id="detailInterest" class="text-gray-800"></div>
+            <!-- Applicant Details -->
+            <fieldset class="border p-4 rounded-lg shadow-sm">
+                <legend class="text-lg font-semibold text-indigo-600 px-2">1. Personal Details</legend>
+                <div class="form-group">
+                    <label for="fullName">Full Name</label>
+                    <input type="text" id="fullName" required placeholder="e.g., Jane Doe">
                 </div>
+                <div class="form-group">
+                    <label for="idNumber">South African ID Number</label>
+                    <input type="text" id="idNumber" required pattern="\d{13}" title="Must be a 13-digit ID number" placeholder="e.g., 9001015000087">
+                </div>
+                <div class="form-group">
+                    <label for="contactNumber">Contact Number</label>
+                    <input type="tel" id="contactNumber" required pattern="\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+                </div>
+            </fieldset>
 
-                <h4 class="text-xl font-semibold mt-6 mb-3">Current Status:</h4>
-                <div id="detailStatus" class="text-2xl font-extrabold">
-                    <!-- Status badge inserted here -->
+            <!-- Residential Address -->
+            <fieldset class="border p-4 rounded-lg shadow-sm">
+                <legend class="text-lg font-semibold text-indigo-600 px-2">2. Residential Address</legend>
+                <div class="form-group">
+                    <label for="residentialAddress">Physical Address (Must match Proof of Residence)</label>
+                    <textarea id="residentialAddress" rows="3" required placeholder="Street Address, Suburb, City, Postal Code"></textarea>
+                </div>
+            </fieldset>
+
+            <!-- Employment Details -->
+            <fieldset class="border p-4 rounded-lg shadow-sm">
+                <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details</legend>
+                <div class="form-group">
+                    <label for="employerName">Employer Name</label>
+                    <input type="text" id="employerName" required placeholder="e.g., ABC Pty Ltd">
+                </div>
+                <div class="form-group">
+                    <label for="monthlyIncome">Gross Monthly Income (R)</label>
+                    <input type="number" id="monthlyIncome" required min="1000" step="100" placeholder="e.g., 15000">
+                </div>
+            </fieldset>
+
+            <!-- Document Uploads -->
+            <fieldset class="border p-4 rounded-lg shadow-sm">
+                <legend class="text-lg font-semibold text-indigo-600 px-2">4. Required Documents</legend>
+                <p class="text-sm text-gray-600 mb-4">Please upload clear, legible copies (PDF or JPG format).</p>
+                
+                <div class="form-group">
+                    <label for="idDocument">Copy of ID Document</label>
+                    <input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required>
                 </div>
                 
-                <h4 class="text-xl font-semibold mt-6 mb-3">Submitted Documents:</h4>
-                <div id="documentLinks" class="space-y-2 text-sm text-gray-700">
-                    <!-- Document confirmation text inserted here -->
+                <div class="form-group">
+                    <label for="bankStatement">Latest Bank Statement (Proof of Income)</label>
+                    <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg" required>
                 </div>
-            </div>
-        </div>
-        
+
+                <div class="form-group">
+                    <label for="proofOfAddress">Proof of Residence (e.g., Utility Bill)</label>
+                    <input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required>
+                </div>
+
+                <!-- Live Selfie with ID Document -->
+                <div class="form-group">
+                    <label for="selfieDocument">Live Selfie holding your ID Document</label>
+                    <input type="file" id="selfieDocument" accept=".jpg,.jpeg" required>
+                </div>
+            </fieldset>
+            
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
+                Submit Application
+            </button>
+        </form>
+
         <div class="mt-8 text-center">
-            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Go back to Home</a>
+            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a>
         </div>
     </main>
 
-    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
+    <!-- Loading Overlay (Hidden by default) -->
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loader"></div>
+        <p class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
+        <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
+    </div>
+
     <script type="module">
 // START OF SHARED/SUPABASE SCRIPT CONTENT
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-export function goToPage(page) {
+function goToPage(page) {
     window.location.href = page;
 }
+// END OF SHARED/SUPABASE SCRIPT CONTENT
 
-export async function lookupBorrowerStatus(idNumber){
-    if (!idNumber) return null;
-    try {
-        // NOTE: Added 'employer_name' and 'document_selfie_url' to the select statement
-        const { data, error } = await supabase.from('borrowers')
-            .select('id_number, full_name, employer_name, status, requested_amount, interest_rate, repayment_period, document_id_url, document_address_url, document_bank_url, document_selfie_url')
-            .eq('id_number', idNumber).single();
-        if (error && error.code!=='PGRST116') // PGRST116 means no rows found
-		{ console.error(error); return null; }
-        return data || null;
-    } catch(e){ console.error(e); return null; }
+// --- APPLICATION LOGIC ---
+
+// Helper function to show/hide loading screen
+function toggleLoading(show) {
+    document.getElementById('loadingOverlay').classList.toggle('hidden', !show);
+    document.body.style.overflow = show ? 'hidden' : 'auto';
 }
 
-// Logic for the Dashboard Page
-document.addEventListener('DOMContentLoaded', async () => {
-    const userId = localStorage.getItem('currentUserId');
-    const loadingMessage = document.getElementById('loadingMessage');
-    const noApplicationMessage = document.getElementById('noApplicationMessage');
-    const loanDetails = document.getElementById('loanDetails');
+/**
+ * Uploads a file to Supabase Storage and returns the public URL.
+ * @param {File} file The file object to upload.
+ * @param {string} bucket The Supabase Storage bucket name.
+ * @param {string} path The path within the bucket (e.g., 'documents/user-id/id-doc.pdf').
+ * @returns {Promise<string>} The public URL of the uploaded file.
+ */
+async function uploadFile(file, bucket, path) {
+    if (!file) {
+        throw new Error("File not provided for upload.");
+    }
+    
+    // Upload the file
+    const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, {
+            cacheControl: '3600',
+            upsert: false // We don't want to overwrite if the path is truly unique
+        });
 
-    if (!userId) {
-        loadingMessage.classList.add('hidden');
-        noApplicationMessage.classList.remove('hidden');
+    if (error) {
+        console.error('Supabase upload error:', error);
+        throw new Error('File upload failed: ' + error.message);
+    }
+
+    // Get the public URL for the uploaded file
+    const { data: publicUrlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(data.path);
+        
+    if (!publicUrlData || !publicUrlData.publicUrl) {
+        throw new Error('Could not retrieve public URL after successful upload.');
+    }
+
+    return publicUrlData.publicUrl;
+}
+
+// Main submission handler
+document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    toggleLoading(true);
+
+    const idNumberInput = document.getElementById('idNumber');
+    const borrowerId = idNumberInput.value.trim(); // Use ID number as the unique identifier
+
+    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
+    if (!requestedAmountString) {
+        alert('Error: Requested loan amount not found. Please restart the process.');
+        toggleLoading(false);
+        goToPage('agreement.html');
         return;
     }
 
-    const statusData = await lookupBorrowerStatus(userId);
-    loadingMessage.classList.add('hidden');
+    try {
+        // 1. Get all form values
+        const data = {
+            id: borrowerId, // IMPORTANT: Use ID Number as primary key
+            full_name: document.getElementById('fullName').value,
+            id_number: borrowerId, // Store ID number in its own column too
+            contact_number: document.getElementById('contactNumber').value,
+            residential_address: document.getElementById('residentialAddress').value, // <-- THIS IS THE CORRECTED LINE
+            monthly_income: parseFloat(document.getElementById('monthlyIncome').value),
+            employer_name: document.getElementById('employerName').value, 
+            loan_amount_requested: parseFloat(requestedAmountString),
+            // Default values
+            application_status: 'Pending Review',
+            repayment_period: 30, // Default 30 days
+            interest_rate: 0.50, // Default 50%
+            date_submitted: new Date().toISOString()
+        };
+        
+        // 2. Prepare files for upload
+        const files = {
+            idDocument: document.getElementById('idDocument').files[0],
+            bankStatement: document.getElementById('bankStatement').files[0],
+            proofOfAddress: document.getElementById('proofOfAddress').files[0],
+            selfieDocument: document.getElementById('selfieDocument').files[0]
+        };
 
-    if (!statusData) {
-        noApplicationMessage.classList.remove('hidden');
-        return;
+        // 3. Upload all files and collect URLs
+        const uploadPromises = [
+            uploadFile(files.idDocument, 'loan-documents', `${borrowerId}/id-document-${Date.now()}`),
+            uploadFile(files.bankStatement, 'loan-documents', `${borrowerId}/bank-statement-${Date.now()}`),
+            uploadFile(files.proofOfAddress, 'loan-documents', `${borrowerId}/proof-of-address-${Date.now()}`),
+            uploadFile(files.selfieDocument, 'loan-documents', `${borrowerId}/document-selfie-${Date.now()}`)
+        ];
+
+        // Ensure we handle the file uploads in parallel
+        const [id_url, statement_url, address_url, selfie_url] = await Promise.all(uploadPromises);
+
+        // 4. Update data object with document URLs
+        data.document_id_url = id_url;
+        data.document_bank_url = statement_url; // Corrected column name: bank_url
+        data.document_address_url = address_url;
+        data.document_selfie_url = selfie_url;
+
+        // 5. Insert data into the 'borrowers' table
+        const { error: insertError } = await supabase
+            .from('borrowers')
+            .insert([
+                { ...data }
+            ]);
+
+        if (insertError) {
+            console.error('Supabase Insert Error:', insertError);
+            throw new Error('Database submission failed: ' + insertError.message);
+        }
+
+        // 6. Success: Save the new ID and redirect
+        localStorage.setItem('currentUserId', borrowerId);
+        localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount
+        
+        toggleLoading(false);
+        // Using alert() is okay here to confirm the ID, but it should be a custom modal in production!
+        alert(`Application Submitted! Your ID is ${borrowerId}. You will now be redirected to your dashboard.`);
+        goToPage('dashboard.html');
+
+    } catch (error) {
+        toggleLoading(false);
+        console.error('Application Submission Error:', error);
+        alert('An error occurred during submission. Please ensure all fields and files are correct, then try again.');
     }
-
-    const { status, full_name, employer_name, requested_amount, repayment_period, interest_rate, document_id_url, document_address_url, document_bank_url, document_selfie_url } = statusData;
-
-    // Display loan details
-    document.getElementById('detailName').textContent = full_name;
-    document.getElementById('detailID').textContent = userId;
-    document.getElementById('detailAmount').textContent = `R${requested_amount.toFixed(2)}`;
-    document.getElementById('detailEmployer').textContent = employer_name; // New field display
-    document.getElementById('detailRepayment').textContent = `${repayment_period} days`;
-    document.getElementById('detailInterest').textContent = `${(parseFloat(interest_rate) * 100).toFixed(2)}%`;
-    
-    // Display status badge
-    let statusClass = 'status-pending';
-    if (status === 'approved') {
-        statusClass = 'status-approved';
-    } else if (status === 'rejected') {
-        statusClass = 'status-rejected';
-    }
-    
-    document.getElementById('detailStatus').innerHTML = `
-        <span class="status-badge ${statusClass}">${status}</span>
-    `;
-
-    // Display document confirmation (Confirmation for the four documents)
-    document.getElementById('documentLinks').innerHTML = `
-        <p><span class="font-bold">ID Document:</span> ${document_id_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
-        <p><span class="font-bold">Proof of Address:</span> ${document_address_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
-        <p><span class="font-bold">Bank Statement:</span> ${document_bank_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
-        <p><span class="font-bold text-red-600">Security Selfie:</span> ${document_selfie_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
-    `;
-
-    loanDetails.classList.remove('hidden');
 });
-// END OF SHARED/SUPABASE SCRIPT CONTENT
     </script>
 </body>
 </html>
