@@ -356,7 +356,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             residential_address: document.getElementById('residentialAddress').value,
             monthly_income: parseFloat(document.getElementById('monthlyIncome').value),
             employer_name: document.getElementById('employerName').value, 
-            loan_amount_requested: parseFloat(requestedAmountString),
+            requested_amount: parseFloat(requestedAmountString),
             // Default values - MATCHING CONFIRMED COLUMN NAMES
             status: 'Pending Review',
             repayment_period: 30, // Default 30 days
@@ -433,5 +433,6 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     </script>
 </body>
 </html>
+
 
 
