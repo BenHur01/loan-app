@@ -5,13 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Application Form</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="./assets/style.css"> 
+    <!-- Note: Removed external stylesheet link as all styles must be contained in this single file -->
     <style>
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
+            /* Changed min-height to 100% viewport height to prevent double scroll on mobile */
             min-height: 100vh;
             background-color: #f7f9fb;
         }
@@ -19,6 +20,8 @@
             max-width: 600px;
             width: 95%;
             padding: 2.5rem;
+            margin-top: 2rem; /* Added margin to prevent clash with top of screen */
+            margin-bottom: 2rem;
             background-color: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -163,10 +166,23 @@
                     <input type="number" id="monthlyIncome" required min="1000" step="100" placeholder="e.g., 15000">
                 </div>
             </fieldset>
+            
+            <!-- Bank Details -->
+            <fieldset class="border p-4 rounded-lg shadow-sm">
+                <legend class="text-lg font-semibold text-indigo-600 px-2">4. Bank Details</legend>
+                <div class="form-group">
+                    <label for="bankName">Bank Name</label>
+                    <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
+                </div>
+                <div class="form-group">
+                    <label for="bankAccountNumber">Bank Account Number</label>
+                    <input type="text" id="bankAccountNumber" required pattern="\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
+                </div>
+            </fieldset>
 
             <!-- Document Uploads -->
             <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">4. Required Documents</legend>
+                <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
                 <p class="text-sm text-gray-600 mb-4">Please upload clear, legible copies (PDF or JPG format).</p>
                 
                 <div class="form-group">
@@ -188,6 +204,24 @@
                 <div class="form-group">
                     <label for="selfieDocument">Live Selfie</label>
                     <input type="file" id="selfieDocument" accept=".jpg,.jpeg" required>
+                </div>
+            </fieldset>
+
+            <!-- Final Confirmation & Digital Signature (NEW SECTION 6) -->
+            <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
+                <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
+                <div class="form-group">
+                    <label class="flex items-start cursor-pointer p-3 border border-indigo-200 bg-white rounded-lg shadow-inner">
+                        <input type="checkbox" id="confirmationTick" required class="mt-1 mr-3 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="text-sm text-gray-800 font-medium">
+                            I confirm that all details provided in this loan application are true, accurate, and complete to the best of my knowledge and belief. I understand that any false statement or omission may lead to the rejection of my application, withdrawal of any agreement, and potential legal action.
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-group mt-6">
+                    <label for="digitalSignature" class="block text-base font-bold text-gray-900 mb-2">Type "YES" to digitally sign the application</label>
+                    <input type="text" id="digitalSignature" required placeholder="Type YES in capital letters">
                 </div>
             </fieldset>
             
@@ -331,7 +365,19 @@ async function uploadFile(file, bucket, path) {
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
     event.preventDefault();
     
-    // NOTE: Updated from toggleLoading(true) to showLoading
+    // --- 0. Final Confirmation Validation ---
+    const confirmationTick = document.getElementById('confirmationTick');
+    const digitalSignature = document.getElementById('digitalSignature').value.trim();
+
+    if (!confirmationTick.checked) {
+        await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
+        return;
+    }
+    if (digitalSignature !== 'YES') {
+        await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
+        return;
+    }
+
     showLoading("Submitting application and starting file uploads...");
 
     const idNumberInput = document.getElementById('idNumber');
@@ -339,7 +385,6 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 
     const requestedAmountString = localStorage.getItem('requestedLoanAmount');
     if (!requestedAmountString) {
-        // FIX: Using customAlert instead of alert()
         await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
         hideLoading();
         goToPage('agreement.html');
@@ -356,7 +401,14 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             residential_address: document.getElementById('residentialAddress').value,
             monthly_income: parseFloat(document.getElementById('monthlyIncome').value),
             employer_name: document.getElementById('employerName').value, 
+            // BANK DETAILS
+            bank_name: document.getElementById('bankName').value,
+            bank_account_number: document.getElementById('bankAccountNumber').value,
+            // REQUEST DATA
             requested_amount: parseFloat(requestedAmountString),
+            // Confirmation Data
+            digital_signature: digitalSignature,
+            confirmed_accurate: confirmationTick.checked,
             // Default values - MATCHING CONFIRMED COLUMN NAMES
             status: 'Pending Review',
             repayment_period: 30, // Default 30 days
@@ -419,20 +471,15 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount
         
         hideLoading();
-        // FIX: Using customAlert instead of alert()
         await customAlert('Success', `Application Submitted! Your ID is ${borrowerId}. You will now be redirected to your dashboard.`);
         goToPage('dashboard.html');
 
     } catch (error) {
         hideLoading();
         console.error('Application Submission Error:', error);
-        // FIX: Using customAlert instead of alert()
         await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
     }
 });
     </script>
 </body>
 </html>
-
-
-
