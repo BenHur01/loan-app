@@ -376,16 +376,16 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         // 3. Upload all files and collect URLs
         // Updated loading messages to reflect progress
         showLoading("Uploading document 1 of 4: ID Document...");
-        const idPromise = uploadFile(files.idDocument, 'loan-documents', `${borrowerId}/id-document-${Date.now()}`);
+        const idPromise = uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}`);
         
         showLoading("Uploading document 2 of 4: Bank Statement...");
-        const statementPromise = uploadFile(files.bankStatement, 'loan-documents', `${borrowerId}/bank-statement-${Date.now()}`);
+        const statementPromise = uploadFile(files.bankStatement, 'loan_documents', `${borrowerId}/bank-statement-${Date.now()}`);
         
         showLoading("Uploading document 3 of 4: Proof of Address...");
-        const addressPromise = uploadFile(files.proofOfAddress, 'loan-documents', `${borrowerId}/proof-of-address-${Date.now()}`);
+        const addressPromise = uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}`);
         
         showLoading("Uploading document 4 of 4: Live Selfie...");
-        const selfiePromise = uploadFile(files.selfieDocument, 'loan-documents', `${borrowerId}/document-selfie-${Date.now()}`);
+        const selfiePromise = uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}`);
 
         // Wait for all uploads to complete
         const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
@@ -434,3 +434,4 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     </script>
 </body>
 </html>
+
