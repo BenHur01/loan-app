@@ -3,197 +3,109 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Application Form</title>
+    <title>Loan Status Dashboard</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="./assets/style.css"> 
     <style>
         body {
-            font-family: 'Inter', sans-serif;
+            font-family: Arial, sans-serif;
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             background-color: #f7f9fb;
         }
-        .form-container {
-            max-width: 800px;
+        .content-box {
+            max-width: 700px;
             width: 95%;
-            padding: 2rem;
+            padding: 2.5rem;
             background-color: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
         }
-        .input-group label {
+        .header-line {
+            border: 0;
+            height: 1px;
+            background: #eee;
+            margin-top: 1rem;
+            margin-bottom: 2rem;
+        }
+        .status-badge {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
             font-weight: 600;
-            color: #4b5563;
+            text-transform: uppercase;
+            font-size: 0.75rem;
         }
-        .input-group input:not([type="checkbox"]), .input-group select {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.5rem;
-            margin-top: 0.5rem;
-            transition: border-color 0.2s;
-        }
-        .input-group input:focus, .input-group select:focus {
-            outline: none;
-            border-color: #4f46e5;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.2);
-        }
-        .section-divider {
-            margin-top: 2rem;
-            margin-bottom: 1.5rem;
-            border-top: 2px solid #e5e7eb;
-        }
-        .modal {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            overflow: auto;
-            background-color: rgba(0,0,0,0.4);
-            justify-content: center;
-            align-items: center;
-        }
-        .modal-content {
-            background-color: #fefefe;
-            margin: auto;
-            padding: 20px;
-            border-radius: 10px;
-            width: 90%;
-            max-width: 500px;
-            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        .status-pending { background-color: #fcd34d; color: #92400e; }
+        .status-approved { background-color: #6ee7b7; color: #065f46; }
+        .status-rejected { background-color: #fca5a5; color: #991b1b; }
+        .document-link {
+            color: #4f46e5;
+            text-decoration: underline;
+            cursor: pointer;
         }
     </style>
 </head>
-<body>
-    
-    <main class="form-container">
-        <header class="text-center mb-6">
-            <h1 class="text-3xl font-bold text-gray-900">Final Loan Application Form</h1>
-            <p class="text-gray-500 mt-2">Required information and document uploads.</p>
-            <p class="mt-4 p-2 bg-yellow-100 text-yellow-800 rounded-lg text-sm">
-                Loan Amount Agreed Upon: <span id="loanAmountDisplay" class="font-bold">R0.00</span>
-            </p>
+<body class="main-class-dashboard-layout">
+
+    <main class="content-box">
+        <header>
+            <h1 class="text-3xl font-bold text-gray-900">Loan Application Dashboard</h1>
+            <h2 class="text-xl text-gray-700 mt-2">Check Your Current Status</h2>
+            <hr class="header-line">
         </header>
 
-        <form id="signupForm" class="space-y-6">
-            <h2 class="text-xl font-semibold text-indigo-700 border-b pb-2">Personal & Contact Information</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="input-group">
-                    <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" name="fullName" required>
-                </div>
-                <div class="input-group">
-                    <label for="idNumber">ID Number</label>
-                    <input type="text" id="idNumber" name="idNumber" required>
-                </div>
-            </div>
-
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="input-group">
-                    <label for="contactNumber">Contact Number</label>
-                    <input type="tel" id="contactNumber" name="contactNumber" required>
-                </div>
-                <div class="input-group">
-                    <label for="employerName">Name of Employer (New Field)</label>
-                    <input type="text" id="employerName" name="employerName" required>
-                </div>
-            </div>
-
-            <div class="input-group">
-                <label for="residentialAddress">Residential Address</label>
-                <input type="text" id="residentialAddress" name="residentialAddress" required>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <h2 class="text-xl font-semibold text-indigo-700 border-b pb-2">Banking Details</h2>
-            
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div class="input-group">
-                    <label for="bankName">Bank Name</label>
-                    <input type="text" id="bankName" name="bankName" required>
-                </div>
-                <div class="input-group">
-                    <label for="bankAccountNumber">Bank Account Number</label>
-                    <input type="text" id="bankAccountNumber" name="bankAccountNumber" required>
-                </div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <h2 class="text-xl font-semibold text-indigo-700 border-b pb-2">Document Uploads (Max 1MB per file)</h2>
-            
-            <div class="space-y-4">
-                <div class="input-group">
-                    <label for="idDoc">1. Copy of ID Document</label>
-                    <input type="file" id="idDoc" name="idDoc" accept=".pdf,.jpg,.jpeg,.png" required>
-                </div>
-                <div class="input-group">
-                    <label for="addressDoc">2. Proof of Residential Address (Utility Bill, etc.)</label>
-                    <input type="file" id="addressDoc" name="addressDoc" accept=".pdf,.jpg,.jpeg,.png" required>
-                </div>
-                <div class="input-group">
-                    <label for="bankDoc">3. Latest Bank Statement</label>
-                    <input type="file" id="bankDoc" name="bankDoc" accept=".pdf,.jpg,.jpeg,.png" required>
-                </div>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <h2 class="text-xl font-semibold text-red-600 border-b pb-2">Security Selfie Capture (Camera Only)</h2>
-            <p class="text-sm text-gray-600 mb-4">Please take a clear selfie for security and verification purposes. This input is set to use your device's camera only.</p>
-            <div class="input-group">
-                <label for="selfieDoc">4. Live Selfie</label>
-                <!-- The capture="user" attribute forces the browser/device to open the camera -->
-                <input type="file" id="selfieDoc" name="selfieDoc" accept="image/*" capture="user" required>
-            </div>
-
-            <div class="section-divider"></div>
-
-            <h2 class="text-xl font-semibold text-indigo-700 border-b pb-2">Final Confirmation & Digital Signature</h2>
-            
-            <div class="input-group flex items-center space-x-3 p-3 bg-gray-50 rounded-lg">
-                <input type="checkbox" id="agreedChecked" name="agreedChecked" class="w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                <label for="agreedChecked" class="font-normal text-sm">I certify that all information provided is accurate and I agree to the terms.</label>
+        <div id="statusContainer" class="space-y-6">
+            <div id="loadingMessage" class="text-center text-indigo-600 font-medium">
+                Loading status...
             </div>
             
-            <div class="input-group">
-                <label for="signatureText">Digital Signature: Type the word "YES" to confirm and digitally sign this application.</label>
-                <input type="text" id="signatureText" name="signatureText" placeholder="Type YES" required>
+            <div id="noApplicationMessage" class="hidden text-center p-6 border-2 border-dashed border-gray-300 rounded-lg">
+                <p class="text-lg text-gray-700 font-semibold mb-3">No Application Found</p>
+                <p class="text-gray-500">Please ensure you have completed the <a href="agreement.html" class="text-indigo-600 hover:underline">Loan Agreement</a> and <a href="signup.html" class="text-indigo-600 hover:underline">Application Form</a> first.</p>
             </div>
 
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
-                Submit Application
-            </button>
-        </form>
+            <div id="loanDetails" class="hidden">
+                <h3 class="text-2xl font-bold mb-4">Application Details</h3>
 
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-gray-50 p-4 rounded-lg">
+                    <div class="font-medium text-gray-600">Name:</div>
+                    <div id="detailName" class="text-gray-800"></div>
+
+                    <div class="font-medium text-gray-600">ID Number:</div>
+                    <div id="detailID" class="text-gray-800"></div>
+                    
+                    <div class="font-medium text-gray-600">Requested Amount:</div>
+                    <div id="detailAmount" class="text-gray-800"></div>
+                    
+                    <div class="font-medium text-gray-600">Employer Name:</div>
+                    <div id="detailEmployer" class="text-gray-800"></div>
+                    
+                    <div class="font-medium text-gray-600">Repayment Period:</div>
+                    <div id="detailRepayment" class="text-gray-800"></div>
+                    
+                    <div class="font-medium text-gray-600">Interest Rate:</div>
+                    <div id="detailInterest" class="text-gray-800"></div>
+                </div>
+
+                <h4 class="text-xl font-semibold mt-6 mb-3">Current Status:</h4>
+                <div id="detailStatus" class="text-2xl font-extrabold">
+                    <!-- Status badge inserted here -->
+                </div>
+                
+                <h4 class="text-xl font-semibold mt-6 mb-3">Submitted Documents:</h4>
+                <div id="documentLinks" class="space-y-2 text-sm text-gray-700">
+                    <!-- Document confirmation text inserted here -->
+                </div>
+            </div>
+        </div>
+        
         <div class="mt-8 text-center">
             <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Go back to Home</a>
         </div>
     </main>
-
-    <!-- Confirmation Modal -->
-    <div id="confirmationModal" class="modal">
-        <div class="modal-content">
-            <h2 class="text-2xl font-bold mb-4 text-center text-indigo-700">Confirm Submission</h2>
-            <p class="mb-4 text-gray-700">Please review your details before submitting:</p>
-            <div id="confirmedDetails" class="bg-gray-100 p-4 rounded-lg text-sm space-y-1 mb-6">
-                <!-- Details will be injected here -->
-            </div>
-            <p class="text-sm font-semibold text-red-600 mb-6">Note: Once submitted, you cannot edit this application.</p>
-            <div class="flex justify-end space-x-4">
-                <button id="cancelSubmitBtn" type="button" class="px-4 py-2 bg-gray-300 text-gray-800 rounded-lg hover:bg-gray-400">Cancel</button>
-                <button id="confirmSubmitBtn" type="button" class="px-4 py-2 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700">Confirm & Submit</button>
-            </div>
-        </div>
-    </div>
-
 
     <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
     <script type="module">
@@ -210,148 +122,72 @@ export function goToPage(page) {
     window.location.href = page;
 }
 
-// Helper function to handle the submission logic
-async function submitApplication(data) {
-    const { idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, employerName, idDocFile, addressDocFile, bankDocFile, selfieDocFile } = data;
-
-    const timestamp = Date.now();
-    const idPath = `id_documents/${idNumber}_id_${timestamp}`;
-    const addrPath = `address_documents/${idNumber}_address_${timestamp}`;
-    const bankPath = `bank_documents/${idNumber}_bank_${timestamp}`;
-    const selfiePath = `selfie_documents/${idNumber}_selfie_${timestamp}`; // New selfie path
-
-    const filesToUpload = [
-        { file: idDocFile, path: idPath, name: 'ID document' },
-        { file: addressDocFile, path: addrPath, name: 'Address document' },
-        { file: bankDocFile, path: bankPath, name: 'Bank document' },
-        { file: selfieDocFile, path: selfiePath, name: 'Selfie document' } // New upload
-    ];
-
-    // Upload all files
-    for (const { file, path, name } of filesToUpload) {
-        if (!file) {
-            console.error(`Error: ${name} is missing.`);
-            alert(`Error: ${name} is missing.`);
-            return;
-        }
-        const { error } = await supabase.storage.from('loan_documents').upload(path, file);
-        if (error) {
-            console.error(`Failed to upload ${name}:`, error);
-            alert(`Failed to upload ${name}. Please try again.`);
-            return;
-        }
-    }
-
-    // Insert into Supabase
-    try {
-        const { data, error } = await supabase.from('borrowers').insert([{
-            full_name: fullName,
-            id_number: idNumber,
-            contact_number: contactNumber,
-            residential_address: residentialAddress,
-            requested_amount: requestedAmount,
-            bank_name: bankName,
-            bank_account: bankAccountNumber,
-            employer_name: employerName, // New field insertion
-            amount_borrowed: requestedAmount,
-            interest_rate: '0.50',
-            repayment_period: 30,
-            status: 'pending',
-            document_id_url: idPath,
-            document_address_url: addrPath,
-            document_bank_url: bankPath,
-            document_selfie_url: selfiePath // New field insertion
-        }]).select();
-
-        if (error) { console.error(error); alert("Failed to submit application."); return; }
-
-        localStorage.setItem('currentUserId', data[0].id_number);
-        alert('Application Submitted Successfully! You will now be redirected to your dashboard.');
-        window.location.href = 'dashboard.html';
-
-    } catch(e){ console.error(e); alert("Unexpected error occurred during database insert."); }
+export async function lookupBorrowerStatus(idNumber){
+    if (!idNumber) return null;
+    try {
+        // NOTE: Added 'employer_name' and 'document_selfie_url' to the select statement
+        const { data, error } = await supabase.from('borrowers')
+            .select('id_number, full_name, employer_name, status, requested_amount, interest_rate, repayment_period, document_id_url, document_address_url, document_bank_url, document_selfie_url')
+            .eq('id_number', idNumber).single();
+        if (error && error.code!=='PGRST116') // PGRST116 means no rows found
+		{ console.error(error); return null; }
+        return data || null;
+    } catch(e){ console.error(e); return null; }
 }
 
-async function handleFormSubmission(event) {
-    event.preventDefault();
+// Logic for the Dashboard Page
+document.addEventListener('DOMContentLoaded', async () => {
+    const userId = localStorage.getItem('currentUserId');
+    const loadingMessage = document.getElementById('loadingMessage');
+    const noApplicationMessage = document.getElementById('noApplicationMessage');
+    const loanDetails = document.getElementById('loanDetails');
 
-    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
-    if (!requestedAmountString || parseFloat(requestedAmountString) < 200 || parseFloat(requestedAmountString) > 2000) {
-        alert('Error: Start from agreement page with amount R200-R2000.');
-        return window.location.href = 'agreement.html';
-    }
-    const requestedAmount = parseFloat(requestedAmountString);
-
-    const fullName = document.getElementById('fullName').value;
-    const idNumber = document.getElementById('idNumber').value;
-    const contactNumber = document.getElementById('contactNumber').value;
-    const employerName = document.getElementById('employerName').value; // Get new field
-    const residentialAddress = document.getElementById('residentialAddress').value;
-    const bankName = document.getElementById('bankName').value;
-    const bankAccountNumber = document.getElementById('bankAccountNumber').value;
-    const agreedChecked = document.getElementById('agreedChecked').checked;
-    const signatureText = document.getElementById('signatureText').value;
-
-    if (!agreedChecked || signatureText.toUpperCase() !== 'YES') {
-        alert('You must check the agreement box and type "YES" in the signature field.'); return;
-    }
-
-    // Documents
-    const idDocFile = document.getElementById('idDoc').files[0];
-    const addressDocFile = document.getElementById('addressDoc').files[0];
-    const bankDocFile = document.getElementById('bankDoc').files[0];
-    const selfieDocFile = document.getElementById('selfieDoc').files[0]; // Get new file
-
-    if (!idDocFile || !addressDocFile || !bankDocFile || !selfieDocFile) {
-        alert("Please upload all required documents, including the Live Selfie."); return;
-    }
-
-    const modal = document.getElementById('confirmationModal');
-    const confirmedDetails = document.getElementById('confirmedDetails');
-    const confirmBtn = document.getElementById('confirmSubmitBtn');
-    const cancelBtn = document.getElementById('cancelSubmitBtn');
-
-    // Only show the modal if the elements exist
-    if (modal && confirmedDetails && confirmBtn && cancelBtn) {
-        confirmedDetails.innerHTML = `
-            <p><strong>Loan Amount:</strong> R${requestedAmount.toFixed(2)}</p>
-            <p><strong>Full Name:</strong> ${fullName}</p>
-            <p><strong>ID Number:</strong> ${idNumber}</p>
-            <p><strong>Contact Number:</strong> ${contactNumber}</p>
-            <p><strong>Employer:</strong> ${employerName}</p>
-            <p><strong>Residential Address:</strong> ${residentialAddress}</p>
-            <p><strong>Bank Name:</strong> ${bankName}</p>
-            <p><strong>Bank Account:</strong> ${bankAccountNumber}</p>
-            <p><strong>Digital Signature:</strong> YES</p>
-        `;
-
-        modal.style.display = 'flex';
-
-        return new Promise((resolve) => {
-            const handleConfirm = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(true); };
-            const handleCancel = () => { modal.style.display='none'; confirmBtn.removeEventListener('click', handleConfirm); cancelBtn.removeEventListener('click', handleCancel); resolve(false); };
-            confirmBtn.addEventListener('click', handleConfirm);
-            cancelBtn.addEventListener('click', handleCancel);
-        })
-        .then(async shouldSubmit => {
-            if (!shouldSubmit) return;
-            await submitApplication({ idNumber, requestedAmount, fullName, contactNumber, residentialAddress, bankName, bankAccountNumber, employerName, idDocFile, addressDocFile, bankDocFile, selfieDocFile });
-        });
-    } else {
-        return; 
+    if (!userId) {
+        loadingMessage.classList.add('hidden');
+        noApplicationMessage.classList.remove('hidden');
+        return;
     }
-}
 
+    const statusData = await lookupBorrowerStatus(userId);
+    loadingMessage.classList.add('hidden');
 
-const signupForm = document.getElementById('signupForm');
-if (signupForm){ 
-    signupForm.addEventListener('submit', handleFormSubmission); 
-    const amount = localStorage.getItem('requestedLoanAmount');
-    if (amount) {
-        document.getElementById('loanAmountDisplay').textContent = `R${parseFloat(amount).toFixed(2)}`;
+    if (!statusData) {
+        noApplicationMessage.classList.remove('hidden');
+        return;
     }
-}
 
+    const { status, full_name, employer_name, requested_amount, repayment_period, interest_rate, document_id_url, document_address_url, document_bank_url, document_selfie_url } = statusData;
+
+    // Display loan details
+    document.getElementById('detailName').textContent = full_name;
+    document.getElementById('detailID').textContent = userId;
+    document.getElementById('detailAmount').textContent = `R${requested_amount.toFixed(2)}`;
+    document.getElementById('detailEmployer').textContent = employer_name; // New field display
+    document.getElementById('detailRepayment').textContent = `${repayment_period} days`;
+    document.getElementById('detailInterest').textContent = `${(parseFloat(interest_rate) * 100).toFixed(2)}%`;
+    
+    // Display status badge
+    let statusClass = 'status-pending';
+    if (status === 'approved') {
+        statusClass = 'status-approved';
+    } else if (status === 'rejected') {
+        statusClass = 'status-rejected';
+    }
+    
+    document.getElementById('detailStatus').innerHTML = `
+        <span class="status-badge ${statusClass}">${status}</span>
+    `;
+
+    // Display document confirmation (Confirmation for the four documents)
+    document.getElementById('documentLinks').innerHTML = `
+        <p><span class="font-bold">ID Document:</span> ${document_id_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
+        <p><span class="font-bold">Proof of Address:</span> ${document_address_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
+        <p><span class="font-bold">Bank Statement:</span> ${document_bank_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
+        <p><span class="font-bold text-red-600">Security Selfie:</span> ${document_selfie_url ? '&#10003; Upload Confirmed' : '&#10007; Missing'}</p>
+    `;
+
+    loanDetails.classList.remove('hidden');
+});
 // END OF SHARED/SUPABASE SCRIPT CONTENT
     </script>
 </body>
