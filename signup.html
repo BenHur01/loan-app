@@ -262,7 +262,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             employer_name: document.getElementById('employerName').value, 
             loan_amount_requested: parseFloat(requestedAmountString),
             // Default values
-            application_status: 'Pending Review',
+            status: 'Pending Review',
             repayment_period: 30, // Default 30 days
             interest_rate: 0.50, // Default 50%
             date_submitted: new Date().toISOString()
@@ -323,4 +323,5 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     </script>
 </body>
 </html>
+
 
