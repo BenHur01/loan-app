@@ -238,8 +238,7 @@ if (Object.keys(firebaseConfig).length > 0) {
 // --- Supabase Config ---
 // NOTE: Using the user-provided keys
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
-const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -434,4 +433,5 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     </script>
 </body>
 </html>
+
 
