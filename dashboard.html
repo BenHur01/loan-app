@@ -4,7 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Status Dashboard</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         /* Custom Styles for aesthetics and responsiveness */
@@ -67,6 +66,19 @@
             <p class="text-sm text-red-500 font-medium hidden" id="errorMessage"></p>
         </header>
 
+        <div class="mb-6 p-4 bg-yellow-100 border-l-4 border-yellow-500 rounded-lg shadow-md">
+            <h4 class="text-lg font-bold text-yellow-800 flex items-center mb-1">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.218A2 2 0 0110.53 2h2.94a2 2 0 011.664.89l.812 1.218A2 2 0 0017.07 7H18a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                ACTION REQUIRED: Verify Submission
+            </h4>
+            <p class="text-gray-700 text-base">
+                Please **take a screenshot** of this dashboard page and **send it immediately** to Sylvester on WhatsApp at:
+                <span class="text-green-600 font-extrabold text-xl block mt-1">
+                    073 123 4567 
+                </span>
+                (Note: Replace with Sylvester's actual contact number).
+            </p>
+        </div>
         <div id="statusContainer" class="space-y-8">
             <div id="loadingMessage" class="text-center p-6 bg-indigo-50 rounded-xl shadow-inner">
                 <p class="text-indigo-600 font-semibold text-lg">
@@ -88,12 +100,10 @@
             </div>
 
             <div id="loanDetails" class="hidden">
-                <!-- Status Header -->
                 <div class="mb-6 p-4 border-l-4 border-indigo-500 bg-indigo-50 rounded-r-lg shadow-sm">
                     <h4 class="text-lg font-semibold text-indigo-700">Current Status:</h4>
                     <div id="detailStatus" class="mt-1 text-2xl font-extrabold">
-                        <!-- Status badge inserted here -->
-                    </div>
+                        </div>
                 </div>
 
                 <h3 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Application Details</h3>
@@ -124,15 +134,21 @@
                     </div>
                 </div>
 
+                <div id="repaymentCountdown" class="mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-lg shadow-md hidden">
+                    <h4 class="text-xl font-semibold text-red-700 flex items-center mb-2">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Repayment Due In:
+                    </h4>
+                    <p id="countdownDisplay" class="text-3xl font-extrabold text-red-900"></p>
+                </div>
+
+
                 <h4 class="text-xl font-semibold mt-8 mb-3 text-gray-800 border-b pb-2">Submitted Documents</h4>
                 <div id="documentLinks" class="space-y-2 text-sm text-gray-700 p-4 bg-gray-50 rounded-lg">
-                    <!-- Document confirmation text inserted here -->
-                </div>
+                    </div>
                 
-                <!-- Section for approved/rejected messages -->
                 <div id="statusMessage" class="mt-6 p-4 rounded-lg font-medium hidden">
-                    <!-- Dynamic message based on status -->
-                </div>
+                    </div>
             </div>
         </div>
         
@@ -141,7 +157,6 @@
         </div>
     </main>
 
-    <!-- Supabase and Dashboard Logic -->
     <script type="module">
         // Import Supabase Client
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
@@ -162,7 +177,7 @@
             if (!idNumber) return null;
             try {
                 const { data, error } = await supabase.from('borrowers')
-                    .select('id_number, full_name, status, requested_amount, interest_rate, repayment_period, document_id_url, document_address_url, document_bank_url')
+                    .select('id_number, full_name, status, requested_amount, interest_rate, repayment_period, date_submitted, document_id_url, document_address_url, document_bank_url, document_selfie_url')
                     .eq('id_number', idNumber).single();
                 
                 // PGRST116 means no rows found (ID not in database)
@@ -176,6 +191,56 @@
                 return null; 
             }
         }
+
+        /**
+         * Calculates and updates the countdown timer.
+         * @param {string} submissionDateStr ISO string of submission date.
+         * @param {number} periodDays The repayment period in days (e.g., 30).
+         */
+        function startCountdown(submissionDateStr, periodDays) {
+            const countdownDiv = document.getElementById('repaymentCountdown');
+            const display = document.getElementById('countdownDisplay');
+
+            // Calculate the due date (submission date + repayment period)
+            const submissionDate = new Date(submissionDateStr);
+            const dueDate = new Date(submissionDate.getTime() + (periodDays * 24 * 60 * 60 * 1000));
+            
+            // Immediately show the countdown element
+            countdownDiv.classList.remove('hidden');
+
+            const updateTimer = () => {
+                const now = new Date().getTime();
+                const distance = dueDate.getTime() - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    display.innerHTML = "<strong>OVERDUE</strong> - Please contact support immediately.";
+                    countdownDiv.classList.replace('bg-red-50', 'bg-red-200'); // Make it stand out more
+                    return;
+                }
+
+                // Time calculations for days, hours, minutes and seconds
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                display.innerHTML = `
+                    <span class="text-4xl">${days}</span> Days :
+                    <span class="text-4xl">${String(hours).padStart(2, '0')}</span> Hrs :
+                    <span class="text-4xl">${String(minutes).padStart(2, '0')}</span> Mins
+                `;
+                
+                // Optional: Change color when approaching deadline
+                if (days < 5 && distance > 0) {
+                    countdownDiv.classList.replace('bg-red-50', 'bg-orange-100');
+                }
+            };
+
+            // Run update timer immediately, then every minute (60,000ms) for efficiency
+            updateTimer();
+            const timerInterval = setInterval(updateTimer, 60000);
+        }
+
 
         // Logic for the Dashboard Page
         document.addEventListener('DOMContentLoaded', async () => {
@@ -206,9 +271,11 @@
                 requested_amount, 
                 repayment_period, 
                 interest_rate, 
+                date_submitted, // NEW: Retrieved submission date
                 document_id_url, 
                 document_address_url, 
-                document_bank_url 
+                document_bank_url,
+                document_selfie_url
             } = statusData;
 
             // --- 1. Display Core Details ---
@@ -227,12 +294,17 @@
                 statusClass = 'status-approved';
                 messageBg = 'bg-green-100 border-green-500 text-green-800';
                 messageContent = `Congratulations! Your loan of R${requested_amount.toFixed(2)} has been APPROVED. The funds will be transferred to your bank account within 24 hours.`;
+                // Start countdown only for approved loans
+                if (date_submitted && repayment_period) {
+                    startCountdown(date_submitted, repayment_period);
+                }
             } else if (status === 'rejected') {
                 statusClass = 'status-rejected';
                 messageBg = 'bg-red-100 border-red-500 text-red-800';
                 messageContent = `Your loan application has been REJECTED at this time. This decision is based on a review of the submitted documentation and eligibility criteria.`;
             } else {
                 // Pending
+                statusClass = 'status-pending'; // Ensure status is explicitly set to pending for visual state
                 messageBg = 'bg-yellow-100 border-yellow-500 text-yellow-800';
                 messageContent = `Your application is currently PENDING review by our finance team. We will update you with a final decision within 48 hours. Thank you for your patience.`;
             }
@@ -250,11 +322,24 @@
             // --- 3. Display Document Confirmation ---
             const checkIcon = '&#10003;'; // Check mark
             const crossIcon = '&#10007;'; // Cross mark
+            const infoIcon = '&#x2139;'; // Information icon
 
-            const getDocStatus = (url, name) => {
+            // Standard compulsory document check
+            const getCompulsoryDocStatus = (url, name) => {
                 const icon = url ? checkIcon : crossIcon;
                 const color = url ? 'text-green-600' : 'text-red-500';
-                const text = url ? 'Upload Confirmed' : 'Missing or Error';
+                const text = url ? 'Upload Confirmed' : 'Missing (Compulsory)';
+                return `<p class="flex justify-between">
+                            <span class="font-bold">${name}:</span> 
+                            <span class="${color}">${icon} ${text}</span>
+                        </p>`;
+            };
+
+            // Specific optional document check
+            const getOptionalDocStatus = (url, name) => {
+                const icon = url ? checkIcon : infoIcon;
+                const color = url ? 'text-green-600' : 'text-yellow-600';
+                const text = url ? 'Upload Confirmed' : 'Not Provided (Optional)';
                 return `<p class="flex justify-between">
                             <span class="font-bold">${name}:</span> 
                             <span class="${color}">${icon} ${text}</span>
@@ -262,9 +347,10 @@
             };
 
             document.getElementById('documentLinks').innerHTML = 
-                getDocStatus(document_id_url, 'ID Document') +
-                getDocStatus(document_address_url, 'Proof of Address') +
-                getDocStatus(document_bank_url, 'Bank Statement');
+                getCompulsoryDocStatus(document_id_url, 'ID Document') +
+                getOptionalDocStatus(document_bank_url, 'Bank Statement') +
+                getCompulsoryDocStatus(document_address_url, 'Proof of Address') +
+                getCompulsoryDocStatus(document_selfie_url, 'Live Selfie');
 
             loanDetails.classList.remove('hidden');
         });
