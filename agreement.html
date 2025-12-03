@@ -119,61 +119,89 @@
     </div>
 
     <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE, FIREBASE USED FOR STORAGE -->
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+   <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // --- FIREBASE INITIALIZATION ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+    // --- FIREBASE INITIALIZATION & CONFIGURATION ---
+    // Safely parse the global config variables
+    const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+    const configString = typeof __firebase_config !== 'undefined' ? __firebase_config : '{}';
+    let firebaseConfig;
 
-        let db, auth;
-        let userId = null;
-        let isAuthReady = false;
-        let initialAuthCheckDone = false;
-        let docPath = null;
+    try {
+        firebaseConfig = JSON.parse(configString);
+    } catch (e) {
+        console.error("Error parsing Firebase config:", e);
+        firebaseConfig = {};
+    }
 
+    let db, auth;
+    let userId = null;
+    let isAuthReady = false;
+    let initialAuthCheckDone = false;
+    let docPath = null;
+    let appInitialized = false;
+
+    // *** CRITICAL FIX: Only initialize if the config looks valid ***
+    if (firebaseConfig && firebaseConfig.projectId) {
         try {
             const app = initializeApp(firebaseConfig);
             db = getFirestore(app);
             auth = getAuth(app);
+            appInitialized = true;
+            console.log("Firebase initialized successfully.");
         } catch (e) {
             console.error("Firebase Initialization Error:", e);
         }
+    } else {
+        console.error("Firebase Initialization Skipped: Configuration (projectId) not provided.");
+    }
 
-        // --- CORE LOGIC TO CHECK FOR EXISTING AGREEMENT (The Loop Guard) ---
-        async function checkExistingAgreement() {
-            if (!userId || !docPath) return; // Must have user ID
 
-            const agreementRef = doc(db, docPath);
-            try {
-                const docSnap = await getDoc(agreementRef);
-                if (docSnap.exists() && docSnap.data().applicationStatus === 'agreement_signed') {
-                    console.log("Existing agreement found. Redirecting to signup page.");
-                    // Agreement is done, proceed to the next step
-                    window.location.href = 'signup.html';
-                } else {
-                    console.log("No existing agreement or agreement incomplete. User can proceed with form.");
-                }
-            } catch (e) {
-                console.error("Error checking existing agreement:", e);
+    // --- CORE LOGIC TO CHECK FOR EXISTING AGREEMENT (The Loop Guard) ---
+    async function checkExistingAgreement() {
+        if (!userId || !docPath || !appInitialized) return;
+
+        const agreementRef = doc(db, docPath);
+        try {
+            const docSnap = await getDoc(agreementRef);
+            
+            // Check both Firestore status and local storage
+            const isAgreementSigned = docSnap.exists() && docSnap.data().applicationStatus === 'agreement_signed';
+            const isAmountStored = localStorage.getItem('requestedLoanAmount');
+            
+            if (isAgreementSigned && isAmountStored) {
+                console.log("Existing agreement found. Redirecting to signup page.");
+                window.location.href = 'signup.html';
+            } else {
+                console.log("No existing agreement or agreement incomplete. User can proceed with form.");
             }
+        } catch (e) {
+            console.error("Error checking existing agreement:", e);
         }
+    }
 
-        // --- AUTHENTICATION & SETUP ---
-        async function initializeAuth() {
-            try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Firebase Auth Error:", error);
-            }
+    // --- AUTHENTICATION & SETUP ---
+    async function initializeAuth() {
+        if (!appInitialized) {
+            showMessage('Error', 'Application setup failed. Firebase configuration is missing.');
+            return;
         }
+        
+        try {
+             // Use anonymous sign-in if no custom token logic is needed
+            await signInAnonymously(auth); 
+            console.log("Signed in anonymously.");
+        } catch (error) {
+            console.error("Firebase Auth Error:", error);
+            showMessage('Error', 'Authentication failed. Please check your network connection.');
+        }
+    }
 
+    // *** CRITICAL FIX: Only call onAuthStateChanged if 'auth' is defined ***
+    if (auth) {
         onAuthStateChanged(auth, (user) => {
             isAuthReady = true;
             if (user) {
@@ -184,126 +212,145 @@
                 console.log("User signed out or anonymous.");
             }
 
-            // CRITICAL FIX: Run the check only once after the first definitive auth state is reached
             if (isAuthReady && !initialAuthCheckDone && userId) {
                 initialAuthCheckDone = true;
                 checkExistingAgreement();
             }
         });
+    }
 
 
-        // --- MESSAGE MODAL LOGIC (Replaces alert()) ---
-        const modal = document.getElementById('messageModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const messageBox = document.getElementById('messageBox');
+    // --- MESSAGE MODAL LOGIC (Your custom alert functions) ---
+    const modal = document.getElementById('messageModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const modalMessage = document.getElementById('modalMessage');
+    const closeModalBtn = document.getElementById('closeModalBtn');
+    const messageBox = document.getElementById('messageBox');
 
-        function showMessage(title, message) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            // Trigger animation
-            setTimeout(() => {
-                messageBox.classList.remove('scale-95', 'opacity-0');
-                messageBox.classList.add('scale-100', 'opacity-100');
-            }, 10);
+    function showMessage(title, message) {
+        if (!modal) { // Fallback for missing modal HTML
+            alert(`${title}: ${message}`);
+            return;
+        }
+        modalTitle.textContent = title;
+        modalMessage.textContent = message;
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+        setTimeout(() => {
+            messageBox.classList.remove('scale-95', 'opacity-0');
+            messageBox.classList.add('scale-100', 'opacity-100');
+        }, 10);
+    }
+
+    function hideMessage() {
+        if (!modal) return;
+        messageBox.classList.remove('scale-100', 'opacity-100');
+        messageBox.classList.add('scale-95', 'opacity-0');
+        setTimeout(() => {
+            modal.classList.remove('flex');
+            modal.classList.add('hidden');
+        }, 300);
+    }
+
+    if (closeModalBtn) closeModalBtn.addEventListener('click', hideMessage);
+    if (modal) modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+            hideMessage();
+        }
+    });
+
+    // --- HELPER FUNCTION FOR MONTH-END DATE ---
+    function getMonthEndDueDate() {
+        const today = new Date();
+        const nextMonth = today.getMonth() + 1;
+        const year = today.getFullYear();
+        return new Date(year, nextMonth, 0); 
+    }
+
+    // --- FORM SUBMISSION LOGIC ---
+    const agreementForm = document.getElementById('agreementForm');
+    const proceedBtn = document.getElementById('proceedBtn');
+
+    if (agreementForm) agreementForm.addEventListener('submit', handleFormSubmit);
+
+    async function handleFormSubmit(event) {
+        event.preventDefault();
+
+        const loanAmountInput = document.getElementById('loanAmount');
+        const amount = parseFloat(loanAmountInput.value);
+        const termsChecked = document.getElementById('termsCheck').checked;
+
+        // Basic validation
+        if (isNaN(amount) || amount < 200 || amount > 2000) {
+            showMessage("Validation Error", "Please enter a valid loan amount between R200 and R2000.");
+            loanAmountInput.focus();
+            return;
         }
 
-        function hideMessage() {
-            messageBox.classList.remove('scale-100', 'opacity-100');
-            messageBox.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }, 300); // Wait for transition
+        if (!termsChecked) {
+            showMessage("Validation Error", "You must agree to the terms and conditions to proceed.");
+            return;
+        }
+        
+        // Critical check for Firebase initialization
+        if (!appInitialized) {
+            showMessage('Error', 'Application not initialized. Check Firebase setup.');
+            return;
         }
 
-        closeModalBtn.addEventListener('click', hideMessage);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideMessage();
-            }
-        });
-
-        // --- HELPER FUNCTION FOR MONTH-END DATE ---
-        function getMonthEndDueDate() {
-            const today = new Date();
-            // Setting the day to 0 of the next month automatically rolls back to the last day of the current month.
-            const nextMonth = today.getMonth() + 1;
-            const year = today.getFullYear();
-            return new Date(year, nextMonth, 0); 
+        // Critical check for Auth state
+        if (!isAuthReady || !userId) {
+            showMessage('Loading', 'Authentication is still loading. Please wait a moment and try again.');
+            await initializeAuth(); 
+            // If initializeAuth fails, userId is still null, and we'll check it again on next click.
+            if (!userId) return; // Stop processing if still not authenticated
         }
 
-        // --- FORM SUBMISSION LOGIC ---
-        document.getElementById('agreementForm').addEventListener('submit', handleFormSubmit);
-        const proceedBtn = document.getElementById('proceedBtn');
-
-        async function handleFormSubmit(event) {
-            event.preventDefault();
-
-            const loanAmountInput = document.getElementById('loanAmount');
-            const amount = parseFloat(loanAmountInput.value);
-            const termsChecked = document.getElementById('termsCheck').checked;
-
-            if (isNaN(amount) || amount < 200 || amount > 2000) {
-                showMessage("Validation Error", "Please enter a valid loan amount between R200 and R2000.");
-                loanAmountInput.focus();
-                return;
-            }
-
-            if (!termsChecked) {
-                showMessage("Validation Error", "You must agree to the terms and conditions to proceed.");
-                return;
-            }
-
-            if (!isAuthReady || !userId) {
-                showMessage('Loading', 'Authentication is still loading. Please wait a moment and try again.');
-                await initializeAuth(); // Attempt to force authentication if not ready
-                return;
-            }
-
-            // Disable button and show loading state
+        // Disable button and show loading state
+        if (proceedBtn) {
             proceedBtn.disabled = true;
             proceedBtn.textContent = 'Saving & Proceeding...';
+        }
 
-            try {
-                // Calculate the month-end due date
-                const dueDate = getMonthEndDueDate();
-                const dueDateISO = dueDate.toISOString().split('T')[0]; // Save as YYYY-MM-DD
+        try {
+            const dueDate = getMonthEndDueDate();
+            const dueDateISO = dueDate.toISOString().split('T')[0];
+            const docRef = doc(db, docPath);
 
-                // Save the requested amount and due date to Firestore (private user data)
-                const docRef = doc(db, docPath);
+            // 1. Save to Firestore
+            await setDoc(docRef, {
+                requestedAmount: amount.toFixed(2),
+                agreedToTerms: true,
+                agreementDate: new Date().toISOString(),
+                dueDate: dueDateISO, 
+                applicationStatus: 'agreement_signed', 
+                userId: userId, 
+            });
 
-                await setDoc(docRef, {
-                    requestedAmount: amount.toFixed(2),
-                    agreedToTerms: true,
-                    agreementDate: new Date().toISOString(),
-                    dueDate: dueDateISO, 
-                    // Set an application status flag that can be easily checked by signup.html
-                    applicationStatus: 'agreement_signed', 
-                    userId: userId, 
-                });
+            console.log("Loan agreement details saved to Firestore successfully:", docPath);
 
-                console.log("Loan agreement details saved to Firestore successfully:", docPath);
+            // 2. Save to Local Storage (The initial loop fix)
+            localStorage.setItem('requestedLoanAmount', amount.toFixed(2));
 
-                // Redirect to the application form
-                window.location.href = 'signup.html';
+            // 3. Redirect to the application form
+            window.location.href = 'signup.html';
 
-            } catch (e) {
-                showMessage('Error', 'Failed to save agreement. Please check your connection and try again.');
-                console.error("Error saving document to Firestore: ", e);
-                
-                // Re-enable button on error
+        } catch (e) {
+            showMessage('Error', 'Failed to save agreement. Please check your connection and ensure your Firebase/Firestore rules allow anonymous writes.');
+            console.error("Error saving document to Firestore: ", e);
+            
+            // Re-enable button on error
+            if (proceedBtn) {
                 proceedBtn.disabled = false;
                 proceedBtn.textContent = 'Agree & Proceed to Application Form';
             }
         }
-        
-        // CRITICAL FIX: Start the sign-in process immediately on page load
-        initializeAuth();
-        
+    }
+    
+    // CRITICAL FIX: Start the sign-in process immediately on page load
+    initializeAuth();
+    
     </script>
 </body>
 </html>
+
