@@ -66,6 +66,7 @@
             <p class="text-sm text-red-500 font-medium hidden" id="errorMessage"></p>
         </header>
 
+        <!-- ACTION REQUIRED BOX (WhatsApp) -->
         <div class="mb-6 p-4 bg-green-50 border-l-4 border-green-500 rounded-lg shadow-md">
             <h4 class="text-lg font-bold text-green-800 flex items-center mb-2">
                 <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.218A2 2 0 0110.53 2h2.94a2 2 0 011.664.89l.812 1.218A2 2 0 0017.07 7H18a2 2 0 012 2v8a2 2 0 01-2 2H5a2 2 0 01-2-2V9z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
@@ -75,12 +76,13 @@
                 Please take a screenshot of the below dashboard page and send it immediately to Sylvester on WhatsApp:
             </p>
             <a href="https://wa.me/27832004918?text=Hi%20Sylvester%2C%20attached%20is%20my%20loan%20dashboard%20screenshot%20for%20verification." 
-               target="_blank" 
-               class="inline-flex items-center justify-center w-full md:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 transition duration-150">
+                target="_blank" 
+                class="inline-flex items-center justify-center w-full md:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 transition duration-150">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.04 2C6.58 2 2.1 6.47 2.1 11.93c0 1.74.45 3.39 1.34 4.88l-1.4 5.12 5.25-1.37c1.45.8 3.1 1.24 4.75 1.24 5.46 0 9.94-4.47 9.94-9.94s-4.48-9.94-9.94-9.94zm4.4 13.92c-.22.68-.86 1.48-1.57 1.88-.72.39-1.5.6-2.9.22-.58-.16-1.57-.6-2.07-.8-.48-.2-.84-.26-1.18-.08-.34.18-.7.88-.93 1.13-.23.25-.46.3-.9.1-.4-.18-1.72-.64-3.26-2.07-1.21-1.1-2.02-2.73-2.25-3.13-.22-.4-.03-.64.13-.8.15-.15.34-.2.49-.37.15-.15.22-.22.37-.4.18-.18.15-.34 0-.47-.15-.18-.4-.48-.6-.7-.2-.23-.3-.4-.46-.6-.18-.2-.37-.15-.54-.15-.18-.04-.4-.04-.6-.04s-.47.07-.7.3c-.23.2-.86.85-.86 2.08 0 1.23.88 2.4 1 2.58.18.15 1.74 2.66 4.18 3.66 2.3.9 2.76.78 3.25.72.48-.06 1.57-.64 1.77-1.17.2-.53.2-1.02.13-1.16-.06-.15-.22-.22-.4-.3z"/></svg>
                 Chat with Sylvester on WhatsApp
             </a>
         </div>
+        
         <div id="statusContainer" class="space-y-8">
             <div id="loadingMessage" class="text-center p-6 bg-indigo-50 rounded-xl shadow-inner">
                 <p class="text-indigo-600 font-semibold text-lg">
@@ -125,9 +127,16 @@
                         <div id="detailAmount" class="text-green-600 font-extrabold"></div>
                     </div>
 
+                    <!-- NEW: Final Amount to be Repaid -->
                     <div class="col-span-1">
-                        <div class="font-medium text-gray-600">Repayment Period:</div>
-                        <div id="detailRepayment" class="text-gray-800 font-semibold"></div>
+                        <div class="font-medium text-gray-600">Final Amount to be Repaid:</div>
+                        <div id="detailFinalAmount" class="text-red-600 font-extrabold text-lg"></div>
+                    </div>
+
+                    <!-- MODIFIED: Repayment Period now shows fixed end-of-month date -->
+                    <div class="col-span-1">
+                        <div class="font-medium text-gray-600">Repayment Due Date (30 Days Fixed):</div>
+                        <div id="detailRepaymentDate" class="text-gray-800 font-semibold"></div>
                     </div>
                     
                     <div class="col-span-1">
@@ -148,7 +157,7 @@
                 <h4 class="text-xl font-semibold mt-8 mb-3 text-gray-800 border-b pb-2">Submitted Documents</h4>
                 <div id="documentLinks" class="space-y-2 text-sm text-gray-700 p-4 bg-gray-50 rounded-lg">
                     </div>
-                
+                    
                 <div id="statusMessage" class="mt-6 p-4 rounded-lg font-medium hidden">
                     </div>
             </div>
@@ -171,6 +180,30 @@
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         /**
+         * Helper function to calculate the last day of the current month.
+         * The repayment is fixed to the end of the current month (e.g., 31 Dec 2025).
+         * @returns {{timestamp: number, displayDate: string}}
+         */
+        function getFixedRepaymentDueDate() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = date.getMonth(); // 0-indexed
+
+            // Go to the first day of the *next* month
+            const dueDate = new Date(year, month + 1, 1);
+            // Subtract one millisecond to get the last day of the current month, right before midnight
+            dueDate.setDate(dueDate.getDate() - 1);
+            dueDate.setHours(23, 59, 59, 999); 
+
+            // Format for display: "31 December 2025"
+            const displayOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+            const displayDate = dueDate.toLocaleDateString('en-GB', displayOptions);
+
+            return { timestamp: dueDate.getTime(), displayDate };
+        }
+
+
+        /**
          * Fetches borrower status from Supabase based on ID number.
          * @param {string} idNumber 
          * @returns {Promise<Object | null>}
@@ -178,6 +211,7 @@
         async function lookupBorrowerStatus(idNumber){
             if (!idNumber) return null;
             try {
+                // Ensure we select 'interest_rate' for the final amount calculation
                 const { data, error } = await supabase.from('borrowers')
                     .select('id_number, full_name, status, requested_amount, interest_rate, repayment_period, date_submitted, document_id_url, document_address_url, document_bank_url, document_selfie_url')
                     .eq('id_number', idNumber).single();
@@ -195,24 +229,19 @@
         }
 
         /**
-         * Calculates and updates the countdown timer.
-         * @param {string} submissionDateStr ISO string of submission date.
-         * @param {number} periodDays The repayment period in days (e.g., 30).
+         * Calculates and updates the countdown timer based on a fixed due timestamp.
+         * @param {number} dueDateTimestamp - The calculated due date timestamp.
          */
-        function startCountdown(submissionDateStr, periodDays) {
+        function startCountdown(dueDateTimestamp) {
             const countdownDiv = document.getElementById('repaymentCountdown');
             const display = document.getElementById('countdownDisplay');
 
-            // Calculate the due date (submission date + repayment period)
-            const submissionDate = new Date(submissionDateStr);
-            const dueDate = new Date(submissionDate.getTime() + (periodDays * 24 * 60 * 60 * 1000));
-            
             // Immediately show the countdown element
             countdownDiv.classList.remove('hidden');
 
             const updateTimer = () => {
                 const now = new Date().getTime();
-                const distance = dueDate.getTime() - now;
+                const distance = dueDateTimestamp - now;
 
                 if (distance < 0) {
                     clearInterval(timerInterval);
@@ -271,21 +300,32 @@
                 status, 
                 full_name, 
                 requested_amount, 
-                repayment_period, 
-                interest_rate, 
-                date_submitted, // NEW: Retrieved submission date
+                interest_rate, // Required for calculation
                 document_id_url, 
                 document_address_url, 
                 document_bank_url,
                 document_selfie_url
             } = statusData;
 
-            // --- 1. Display Core Details ---
+            // --- CALCULATIONS ---
+            const interest = parseFloat(interest_rate || 0.50); // Fallback to 50% if rate is missing
+            const finalRepaymentAmount = requested_amount * (1 + interest);
+            const fixedDueDate = getFixedRepaymentDueDate();
+
+
+            // --- 1. Display Core Details (Updated) ---
             document.getElementById('detailName').textContent = full_name;
             document.getElementById('detailID').textContent = userId;
             document.getElementById('detailAmount').textContent = `R${requested_amount.toFixed(2)}`;
-            document.getElementById('detailRepayment').textContent = `${repayment_period} days`;
-            document.getElementById('detailInterest').textContent = `${(parseFloat(interest_rate) * 100).toFixed(2)}%`;
+            
+            // NEW: Final Amount to be Repaid
+            document.getElementById('detailFinalAmount').textContent = `R${finalRepaymentAmount.toFixed(2)}`;
+            
+            // MODIFIED: Repayment Due Date
+            document.getElementById('detailRepaymentDate').textContent = fixedDueDate.displayDate;
+            
+            // Interest Rate
+            document.getElementById('detailInterest').textContent = `${(interest * 100).toFixed(2)}%`;
             
             // --- 2. Display Status Badge ---
             let statusClass = 'status-pending';
@@ -295,11 +335,11 @@
             if (status === 'approved') {
                 statusClass = 'status-approved';
                 messageBg = 'bg-green-100 border-green-500 text-green-800';
-                messageContent = `Congratulations! Your loan of R${requested_amount.toFixed(2)} has been APPROVED. The funds will be transferred to your bank account within 24 hours.`;
-                // Start countdown only for approved loans
-                if (date_submitted && repayment_period) {
-                    startCountdown(date_submitted, repayment_period);
-                }
+                messageContent = `Congratulations! Your loan of R${requested_amount.toFixed(2)} has been APPROVED. The funds will be transferred to your bank account within 24 hours. The total amount due is R${finalRepaymentAmount.toFixed(2)}.`;
+                
+                // Start countdown using the fixed end-of-month date
+                startCountdown(fixedDueDate.timestamp);
+                
             } else if (status === 'rejected') {
                 statusClass = 'status-rejected';
                 messageBg = 'bg-red-100 border-red-500 text-red-800';
@@ -360,4 +400,3 @@
     </script>
 </body>
 </html>
-
