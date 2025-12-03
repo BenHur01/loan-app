@@ -33,6 +33,9 @@
             background-color: #fafafa;
             margin-bottom: 1.5rem;
         }
+        .scroll-box p {
+            margin-bottom: 1rem;
+        }
         /* Style for mobile responsiveness */
         @media (max-width: 640px) {
             .container {
@@ -49,7 +52,7 @@
             <p class="text-gray-500 mt-2">Please read carefully before proceeding.</p>
         </header>
 
-        <!-- Loan Amount Input -->
+        <!-- Loan Amount Input (VALUE="500" REMOVED HERE) -->
         <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
             <label for="loanAmount" class="block text-lg font-medium text-indigo-700 mb-2">Enter Requested Loan Amount (R200 - R2000):</label>
             <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
@@ -64,13 +67,13 @@
             <!-- UPDATED CLAUSE 3 -->
             <p class="mb-4">
                 <strong class="text-indigo-600">3. Repayment Due Date:</strong> 
-                The full repayment (Principal + Interest) for all approved loans is due on the **last calendar day of the month** in which the loan funds are disbursed to your nominated bank account.
+                The full repayment (Principal + Interest) for all approved loans is due on the last calendar day of the month in which the loan funds are disbursed to your nominated bank account.
             </p>
 
             <!-- UPDATED CLAUSE 4 -->
             <p class="mb-4">
                 <strong class="text-indigo-600">4. Default:</strong> 
-                Failure to repay the full amount (principal + interest) by the agreed **month-end due date** will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.
+                Failure to repay the full amount (principal + interest) by the agreed month-end due date will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.
             </p>
 
             <p class="mb-4">5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely using and will only be used for the purpose of loan verification and fraud prevention.</p>
@@ -119,7 +122,7 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, doc, setDoc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // START OF SHARED/SUPABASE SCRIPT CONTENT (Kept for structure, but not used by this form)
         const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
@@ -131,12 +134,39 @@
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
+        let db, auth;
         let userId = null;
         let isAuthReady = false;
+        let initialAuthCheckDone = false;
+        let docPath;
+
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Firebase Initialization Error:", e);
+        }
+
+        // --- CORE LOGIC TO CHECK FOR EXISTING AGREEMENT (The Loop Guard) ---
+        async function checkExistingAgreement() {
+            if (!userId) return; // Wait for user ID to be set
+
+            const agreementRef = doc(db, docPath);
+            try {
+                const docSnap = await getDoc(agreementRef);
+                if (docSnap.exists()) {
+                    console.log("Existing agreement found. Redirecting to signup page.");
+                    // Agreement is done, proceed to the next step
+                    window.location.href = 'signup.html';
+                } else {
+                    console.log("No existing agreement found. User can proceed with form.");
+                }
+            } catch (e) {
+                console.error("Error checking existing agreement:", e);
+                // Allow user to proceed if check fails, better than being stuck
+            }
+        }
 
         // --- AUTHENTICATION & SETUP ---
         async function initializeAuth() {
@@ -155,13 +185,21 @@
             isAuthReady = true;
             if (user) {
                 userId = user.uid;
+                docPath = `artifacts/${appId}/users/${userId}/loan_data/agreement_details`;
                 console.log("Authenticated with UID:", userId);
             } else {
                 console.log("User signed out or anonymous.");
             }
-            // Ensure auth is initialized on every page load
-            if (!user) {
-                initializeAuth();
+
+            // After the initial auth state is resolved (user is set or not), run the check
+            if (isAuthReady && !initialAuthCheckDone) {
+                initialAuthCheckDone = true;
+                if (userId) {
+                    checkExistingAgreement();
+                } else {
+                    // If no user/anonymous sign-in failed, try again to initialize
+                    initializeAuth();
+                }
             }
         });
 
@@ -211,6 +249,7 @@
 
         // --- FORM SUBMISSION LOGIC ---
         document.getElementById('agreementForm').addEventListener('submit', handleFormSubmit);
+        const proceedBtn = document.getElementById('proceedBtn');
 
         async function handleFormSubmit(event) {
             event.preventDefault();
@@ -236,20 +275,26 @@
                 return;
             }
 
+            // Disable button and show loading state
+            proceedBtn.disabled = true;
+            proceedBtn.textContent = 'Saving & Proceeding...';
+
             try {
                 // Calculate the month-end due date
                 const dueDate = getMonthEndDueDate();
                 const dueDateISO = dueDate.toISOString().split('T')[0]; // Save as YYYY-MM-DD
 
-                // MANDATORY: Save the requested amount and due date to Firestore (private user data)
-                const docPath = `artifacts/${appId}/users/${userId}/loan_data/agreement_details`;
+                // Save the requested amount and due date to Firestore (private user data)
                 const docRef = doc(db, docPath);
 
                 await setDoc(docRef, {
                     requestedAmount: amount.toFixed(2),
                     agreedToTerms: true,
                     agreementDate: new Date().toISOString(),
-                    dueDate: dueDateISO, // Saving the calculated month-end due date
+                    dueDate: dueDateISO, 
+                    // Set an initial application status
+                    applicationStatus: 'agreement_signed',
+                    userId: userId, // Added for completeness, though already in path
                 });
 
                 console.log("Loan agreement details saved to Firestore successfully:", docPath);
@@ -258,11 +303,14 @@
                 window.location.href = 'signup.html';
 
             } catch (e) {
-                showMessage('Error', 'Failed to save agreement. Please check your connection and ensure you are authorized.');
+                showMessage('Error', 'Failed to save agreement. Please check your connection and try again.');
                 console.error("Error saving document to Firestore: ", e);
+                
+                // Re-enable button on error
+                proceedBtn.disabled = false;
+                proceedBtn.textContent = 'Agree & Proceed to Application Form';
             }
         }
-        
     </script>
 </body>
 </html>
