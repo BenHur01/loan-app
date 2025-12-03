@@ -94,7 +94,9 @@
         </div>
         
         <form id="agreementForm" class="space-y-4">
+            <!-- Message box for errors and success messages -->
             <div id="messageBox" class="p-3 text-sm rounded-lg hidden" role="alert"></div>
+
             <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <input type="checkbox" id="termsCheck" required class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                 <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and 30-day repayment period.</label>
@@ -114,7 +116,7 @@
     <script type="module">
         // --- FIREBASE IMPORTS AND INITIALIZATION (MANDATORY) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // IMPORTANT: Use the global variables provided by the Canvas environment
@@ -130,6 +132,9 @@
             const messageBox = document.getElementById('messageBox');
             messageBox.textContent = message;
             messageBox.className = 'p-3 text-sm rounded-lg';
+            // Clear all previous style classes
+            messageBox.classList.remove('bg-red-100', 'text-red-800', 'border-red-400', 'bg-green-100', 'text-green-800', 'border-green-400', 'hidden');
+
             if (type === 'error') {
                 messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-400');
             } else if (type === 'success') {
@@ -138,12 +143,24 @@
             messageBox.classList.remove('hidden');
         }
 
+        // Helper function to check if a valid amount is entered
+        function isValidAmount() {
+            const amount = parseFloat(document.getElementById('loanAmount').value);
+            return !isNaN(amount) && amount >= 200 && amount <= 2000;
+        }
+
+        // Helper function to check if terms are checked
+        function areTermsChecked() {
+            return document.getElementById('termsCheck').checked;
+        }
+
         // 1. Calculate the last day of the *current* month
         function getLastDayOfCurrentMonth() {
             const today = new Date();
             // Go to the first day of the *next* month (month + 1)
             const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
             // Go back one day (day 0 of the next month) to get the last day of the current month
+            // Setting the day to 0 of the next month gives us the last day of the current month.
             const lastDay = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 0);
             return lastDay;
         }
@@ -161,9 +178,10 @@
             return totalRepayment;
         }
 
-        // 3. Update all dynamic text elements
-        function updateAgreementText() {
+        // 3. Update all dynamic text elements and button state
+        function updateAgreementTextAndButton() {
             const loanAmountInput = document.getElementById('loanAmount');
+            const termsCheck = document.getElementById('termsCheck');
             const amount = parseFloat(loanAmountInput.value);
 
             const totalRepaymentAmountEl = document.getElementById('totalRepaymentAmount');
@@ -171,24 +189,21 @@
             const dueDateTextEl = document.getElementById('dueDateText');
             const proceedBtn = document.getElementById('proceedBtn');
 
-            // Set initial state for button and elements
-            // The button should be enabled only when a valid amount is entered AND terms are checked
-            // We only enable/disable based on amount here. The form submission handles the checkbox.
-            proceedBtn.disabled = true; 
+            // Default state
             totalRepaymentAmountEl.textContent = 'R0.00';
             calculatedRepaymentEl.textContent = 'R0.00';
+            proceedBtn.disabled = true;
 
-            if (isNaN(amount) || amount < 200 || amount > 2000) {
+            const validAmount = isValidAmount();
+            const termsAgreed = areTermsChecked();
+
+            if (!validAmount) {
                 dueDateTextEl.textContent = 'Enter amount to calculate.';
                 return;
             }
 
             const totalRepayment = calculateRepayment(amount);
-            
-            // *** MODIFIED FUNCTION CALL ***
-            const dueDate = getLastDayOfCurrentMonth(); 
-            // *****************************
-            
+            const dueDate = getLastDayOfCurrentMonth();
             const formattedDueDate = formatDate(dueDate);
 
             // Update DOM with calculated values
@@ -196,17 +211,20 @@
             calculatedRepaymentEl.textContent = `R${totalRepayment.toFixed(2)}`;
             dueDateTextEl.textContent = formattedDueDate;
             
-            // Enable button once a valid amount is entered (checkbox state is checked at submission)
-            proceedBtn.disabled = false;
+            // Enable button only if both conditions are met
+            proceedBtn.disabled = !(validAmount && termsAgreed);
         }
         
         // --- Initialization and Auth ---
         async function initializeAppAndAuth() {
             try {
-                // setLogLevel('debug');
+                // setLogLevel('debug'); // Enable debug logging for Firebase
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
+
+                // Ensure persistence is set, though usually handled by environment
+                await setPersistence(auth, browserSessionPersistence);
 
                 // Sign in using the custom token or anonymously
                 if (initialAuthToken) {
@@ -216,16 +234,21 @@
                 }
 
                 // Wait for auth state to be finalized
-                onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
+                // This listener ensures we only proceed once the user object is ready.
+                return new Promise((resolve) => {
+                    const unsubscribe = onAuthStateChanged(auth, (user) => {
+                        if (user) {
+                            userId = user.uid;
+                        } else {
+                            // Fallback if auth fails
+                            userId = crypto.randomUUID(); 
+                        }
                         isAuthReady = true;
-                    } else {
-                         // If auth fails for any reason, use a fallback UUID
-                        userId = crypto.randomUUID(); 
-                        isAuthReady = true;
-                    }
+                        unsubscribe(); // Stop listening after first state change
+                        resolve();
+                    });
                 });
+
             } catch (error) {
                 console.error("Firebase Initialization or Auth Error:", error);
                 // Fallback userId if init fails entirely
@@ -239,12 +262,15 @@
             await initializeAppAndAuth();
             
             const loanAmountInput = document.getElementById('loanAmount');
+            const termsCheck = document.getElementById('termsCheck');
             
             // Initial calculation on load
-            updateAgreementText();
+            updateAgreementTextAndButton();
             
-            // Event listener for input changes to recalculate and update text
-            loanAmountInput.addEventListener('input', updateAgreementText);
+            // Event listener for input and checkbox changes to recalculate and update text/button
+            loanAmountInput.addEventListener('input', updateAgreementTextAndButton);
+            termsCheck.addEventListener('change', updateAgreementTextAndButton);
+
 
             // Form submission logic
             document.getElementById('agreementForm').addEventListener('submit', async function(event) {
@@ -256,26 +282,20 @@
                 }
 
                 const amount = parseFloat(loanAmountInput.value);
-                const termsChecked = document.getElementById('termsCheck').checked;
 
-                if (isNaN(amount) || amount < 200 || amount > 2000) {
+                if (!isValidAmount()) {
                     showMessage("Please enter a valid loan amount between R200 and R2000.", 'error');
                     loanAmountInput.focus();
                     return;
                 }
 
-                if (!termsChecked) {
+                if (!areTermsChecked()) {
                     showMessage("You must agree to the terms and conditions to proceed.", 'error');
                     return;
                 }
 
                 const repaymentAmount = calculateRepayment(amount);
-                
-                // *** MODIFIED FUNCTION CALL ***
                 const dueDate = getLastDayOfCurrentMonth();
-                // *****************************
-                
-                const formattedDueDate = formatDate(dueDate);
                 
                 const loanData = {
                     requestedAmount: amount,
@@ -299,14 +319,14 @@
                     showMessage("Loan details saved. Redirecting...", 'success');
                     
                     // Redirect to the application form
-                    // Using a slight delay to allow the message to show
                     setTimeout(() => {
                         window.location.href = 'signup.html';
                     }, 500);
 
                 } catch (e) {
+                    // CRITICAL: Log the full Firestore error to the console for debugging
                     console.error("Error saving document to Firestore: ", e);
-                    showMessage("Failed to save loan details. Please check console for errors.", 'error');
+                    showMessage(`Failed to save loan details. Error: ${e.message || 'Unknown Firestore error.'}`, 'error');
                 }
             });
         });
