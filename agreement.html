@@ -116,7 +116,6 @@
     <script type="module">
         // --- FIREBASE IMPORTS AND INITIALIZATION (MANDATORY) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        // setLogLevel is removed as it's not needed here and can cause unexpected issues.
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         // The fix is here: we explicitly import collection and getFirestore
         import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
@@ -144,6 +143,7 @@
             messageBox.classList.remove('hidden');
         }
 
+        // --- Utility Functions ---
         function isValidAmount() {
             const amount = parseFloat(document.getElementById('loanAmount').value);
             return !isNaN(amount) && amount >= 200 && amount <= 2000;
@@ -204,10 +204,11 @@
         }
         
         // --- Initialization and Auth ---
+        // We define the module-scoped variables here and ensure they are assigned.
         async function initializeAppAndAuth() {
             try {
                 const app = initializeApp(firebaseConfig);
-                // Assign db globally here
+                // Assign db and auth here, making them available in the module scope
                 db = getFirestore(app);
                 auth = getAuth(app);
 
@@ -259,12 +260,18 @@
             document.getElementById('agreementForm').addEventListener('submit', async function(event) {
                 event.preventDefault();
 
+                // CRITICAL CHECK: Ensure db is actually initialized before proceeding
+                if (!db) {
+                     console.error("Firestore database object (db) is undefined. Check initialization.");
+                     showMessage("A connection error occurred. Please refresh the page and try again.", 'error');
+                     return;
+                }
+
                 if (!isAuthReady || !userId) {
                     showMessage("Authentication is not ready. Please try again in a moment.", 'error');
                     return;
                 }
                 
-                // Double-check inputs before proceeding
                 if (!isValidAmount() || !areTermsChecked()) {
                     showMessage("Please check the loan amount and ensure you have agreed to the terms.", 'error');
                     return;
@@ -286,9 +293,10 @@
 
                 try {
                     // Path: /artifacts/{appId}/users/{userId}/loan_applications/{documentId}
-                    // FIX: Ensure db is the first argument to doc()
+                    // The doc() function requires the Firestore instance (db) as the first argument, 
+                    // followed by the collection path segments.
                     const loanDocRef = doc(
-                        db, // Must pass the initialized Firestore instance here
+                        db, // <--- This MUST be the initialized Firestore instance
                         `artifacts/${appId}/users/${userId}/loan_applications`, 
                         `loan_${Date.now()}`
                     );
@@ -305,6 +313,7 @@
                 } catch (e) {
                     // Log the full error and display a detailed message
                     console.error("Error saving document to Firestore: ", e);
+                    // This often happens if Firestore permissions are wrong (e.g., if you are running outside Canvas)
                     showMessage(`Failed to save loan details. Error: ${e.message}`, 'error');
                 }
             });
