@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Agreement</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Removed external stylesheet link as all content must be in a single file -->
     <style>
-        /* Custom styles to maintain the original look and feel */
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
@@ -33,11 +32,9 @@
             background-color: #fafafa;
             margin-bottom: 1.5rem;
         }
-        /* Style for mobile responsiveness */
-        @media (max-width: 640px) {
-            .container {
-                padding: 1.5rem;
-            }
+        /* Custom style for terms paragraphs to match the original structure */
+        .scroll-box p {
+            margin-bottom: 1rem;
         }
     </style>
 </head>
@@ -52,34 +49,29 @@
         <!-- Loan Amount Input -->
         <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
             <label for="loanAmount" class="block text-lg font-medium text-indigo-700 mb-2">Enter Requested Loan Amount (R200 - R2000):</label>
-            <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500" value="500">
         </div>
 
+        <!-- TERMS AND CONDITIONS (RESTORED TO ORIGINAL 8 POINTS) -->
         <div class="scroll-box text-sm text-gray-700 leading-relaxed">
             <h2 class="text-lg font-semibold mb-3 text-gray-800">Terms and Conditions</h2>
-            <p class="mb-4">1. Loan Contract: This agreement constitutes a legally binding contract between the Borrower (you) and the Lender (Sylvester). By agreeing to these terms, you confirm your intent and ability to repay the borrowed funds.</p>
+            <p>1. Loan Contract: This agreement constitutes a legally binding contract between the Borrower (you) and the Lender (Sylvester). By agreeing to these terms, you confirm your intent and ability to repay the borrowed funds.</p>
 
-            <p class="mb-4">2. Interest Rate: All loans issued through this platform carry a fixed interest rate of 50% (fifty percent) simple interest over the repayment period. This rate is non-negotiable.</p>
+            <p>2. Interest Rate: All loans issued through this platform carry a fixed interest rate of 50% (fifty percent) simple interest over the repayment period. This rate is non-negotiable.</p>
 
-            <!-- UPDATED CLAUSE 3 -->
-            <p class="mb-4">
-                <strong class="text-indigo-600">3. Repayment Due Date:</strong> 
-                The full repayment (Principal + Interest) for all approved loans is due on the last calendar day of the month in which the loan funds are disbursed to your nominated bank account.
-            </p>
+            <p>3. Repayment Period: The standard repayment period for all approved loans is thirty (30) calendar days from the date the funds are disbursed to your nominated bank account.</p>
 
-            <!-- UPDATED CLAUSE 4 -->
-            <p class="mb-4">
-                <strong class="text-indigo-600">4. Default:</strong> 
-                Failure to repay the full amount (principal + interest) by the agreed month-end due date will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.
-            </p>
+            <p>4. Default: Failure to repay the full amount (principal + interest) within the 30-day period will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.</p>
 
-            <p class="mb-4">5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely using and will only be used for the purpose of loan verification and fraud prevention.</p>
+            <p>5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely using and will only be used for the purpose of loan verification and fraud prevention.</p>
 
-            <p class="mb-4">6. Verification: By proceeding, you consent to background checks and verification of the documents and personal details you provide in the subsequent application form.</p>
+            <p>6. Verification: By proceeding, you consent to background checks and verification of the documents and personal details you provide in the subsequent application form.</p>
             
-            <p class="mb-4">7. Eligibility: You must be a South African citizen or permanent resident, over the age of 18, and currently employed to be eligible for a loan.</p>
-
             <p class="mb-4">
+                <strong class="text-indigo-600">7. Eligibility:</strong> You must be a South African citizen or permanent resident, over the age of 18, and currently employed to be eligible for a loan.
+            </p>
+
+            <p>
                 <strong class="text-indigo-600">8. Special Requests, Issues, and Repayment Difficulties:</strong> 
                 The Borrower is required to adhere strictly to the agreed repayment schedule. Should the Borrower face any unforeseen issues, special requests regarding the loan terms, or difficulties making payment, they must contact the dedicated Loan Officer, Sylvester, immediately. 
                 Communication for these matters must be initiated via WhatsApp at the number provided on the dashboard: <a href="https://wa.me/27832004918" target="_blank" class="text-green-600 font-bold underline">083 200 4918</a>. 
@@ -90,13 +82,13 @@
         <form id="agreementForm" class="space-y-4">
             <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <input type="checkbox" id="termsCheck" required class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                <!-- UPDATED CHECKBOX LABEL -->
-                <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and month-end due date.</label>
+                <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and 30-day repayment period.</label>
             </div>
             
             <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
                 Agree & Proceed to Application Form
             </button>
+            <p id="errorMsg" class="text-red-500 text-center mt-3 hidden"></p>
         </form>
 
         <div class="mt-8 text-center">
@@ -104,45 +96,33 @@
         </div>
     </main>
 
-    <!-- Message Modal/Box (Replaces alert()) -->
-    <div id="messageModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 hidden items-center justify-center z-50">
-        <div class="bg-white p-6 rounded-xl shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 opacity-0" id="messageBox">
-            <h3 id="modalTitle" class="text-xl font-bold text-gray-900 mb-3"></h3>
-            <p id="modalMessage" class="text-gray-700 mb-6"></p>
-            <button id="closeModalBtn" class="w-full bg-red-500 hover:bg-red-600 text-white font-semibold py-2 rounded-lg">
-                Close
-            </button>
-        </div>
-    </div>
-
-    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE, FIREBASE USED FOR STORAGE -->
+    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE and uses Firebase -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // START OF SHARED/SUPABASE SCRIPT CONTENT (Kept for structure, but not used by this form)
-        const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
-        const SUPABASE_ANON_KEY =
-            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
-        // END OF SHARED/SUPABASE SCRIPT CONTENT
-
         // --- FIREBASE INITIALIZATION ---
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
         const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 
-        const app = initializeApp(firebaseConfig);
-        const db = getFirestore(app);
-        const auth = getAuth(app);
-        
+        let db, auth;
         let userId = null;
         let isAuthReady = false;
 
-        // --- AUTHENTICATION & SETUP ---
+        try {
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
+        } catch (e) {
+            console.error("Firebase Initialization Error:", e);
+        }
+
         async function initializeAuth() {
             try {
-                if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                    await signInWithCustomToken(auth, __initial_auth_token);
+                const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+                if (token) {
+                    await signInWithCustomToken(auth, token);
                 } else {
                     await signInAnonymously(auth);
                 }
@@ -151,6 +131,7 @@
             }
         }
 
+        // Listen for authentication state changes and set userId
         onAuthStateChanged(auth, (user) => {
             isAuthReady = true;
             if (user) {
@@ -159,110 +140,100 @@
             } else {
                 console.log("User signed out or anonymous.");
             }
-            // Ensure auth is initialized on every page load
-            if (!user) {
-                initializeAuth();
-            }
         });
 
-        // --- MESSAGE MODAL LOGIC (Replaces alert()) ---
-        const modal = document.getElementById('messageModal');
-        const modalTitle = document.getElementById('modalTitle');
-        const modalMessage = document.getElementById('modalMessage');
-        const closeModalBtn = document.getElementById('closeModalBtn');
-        const messageBox = document.getElementById('messageBox');
+        // Function to calculate the month-end due date (as in the original dashboard logic)
+        function calculateDueDate() {
+            const now = new Date();
+            let year = now.getFullYear();
+            let month = now.getMonth(); 
 
-        function showMessage(title, message) {
-            modalTitle.textContent = title;
-            modalMessage.textContent = message;
-            modal.classList.remove('hidden');
-            modal.classList.add('flex');
-            // Trigger animation
-            setTimeout(() => {
-                messageBox.classList.remove('scale-95', 'opacity-0');
-                messageBox.classList.add('scale-100', 'opacity-100');
-            }, 10);
-        }
-
-        function hideMessage() {
-            messageBox.classList.remove('scale-100', 'opacity-100');
-            messageBox.classList.add('scale-95', 'opacity-0');
-            setTimeout(() => {
-                modal.classList.remove('flex');
-                modal.classList.add('hidden');
-            }, 300); // Wait for transition
-        }
-
-        closeModalBtn.addEventListener('click', hideMessage);
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) {
-                hideMessage();
+            // If it's late in the month (e.g., past the 25th), push the due date to the next month's end.
+            if (now.getDate() > 25) {
+                month += 1; 
+                if (month > 11) { 
+                    month = 0; 
+                    year += 1;
+                }
             }
-        });
 
-        // --- HELPER FUNCTION FOR MONTH-END DATE ---
-        function getMonthEndDueDate() {
-            const today = new Date();
-            // Setting the day to 0 of the next month automatically rolls back to the last day of the current month.
-            const nextMonth = today.getMonth() + 1;
-            const year = today.getFullYear();
-            return new Date(year, nextMonth, 0); 
+            // Date 0 of the next month is the last day of the current month
+            const dueDate = new Date(year, month + 1, 0); 
+            
+            return dueDate.toISOString().split('T')[0];
         }
 
-        // --- FORM SUBMISSION LOGIC ---
-        document.getElementById('agreementForm').addEventListener('submit', handleFormSubmit);
 
-        async function handleFormSubmit(event) {
-            event.preventDefault();
+        // --- CORE FIX: Form Submission and Data Persistence ---
+        const agreementForm = document.getElementById('agreementForm');
+        const loanAmountInput = document.getElementById('loanAmount');
+        const termsChecked = document.getElementById('termsCheck');
+        const proceedBtn = document.getElementById('proceedBtn');
+        const errorMsg = document.getElementById('errorMsg');
 
-            const loanAmountInput = document.getElementById('loanAmount');
+        agreementForm.addEventListener('submit', async function(e) {
+            // CRITICAL FIX: Prevent the default form submission/page reload, which caused the loop/hang
+            e.preventDefault(); 
+            errorMsg.classList.add('hidden');
+
             const amount = parseFloat(loanAmountInput.value);
-            const termsChecked = document.getElementById('termsCheck').checked;
 
             if (isNaN(amount) || amount < 200 || amount > 2000) {
-                showMessage("Validation Error", "Please enter a valid loan amount between R200 and R2000.");
-                loanAmountInput.focus();
+                errorMsg.textContent = "Please enter a valid loan amount between R200 and R2000.";
+                errorMsg.classList.remove('hidden');
                 return;
             }
 
-            if (!termsChecked) {
-                showMessage("Validation Error", "You must agree to the terms and conditions to proceed.");
+            if (!termsChecked.checked) {
+                errorMsg.textContent = "You must agree to the terms and conditions to proceed.";
+                errorMsg.classList.remove('hidden');
                 return;
             }
 
             if (!isAuthReady || !userId) {
-                showMessage('Loading', 'Authentication is still loading. Please wait a moment and try again.');
-                await initializeAuth(); // Attempt to force authentication if not ready
+                errorMsg.textContent = "Application is still authenticating. Please wait a moment and try again.";
+                errorMsg.classList.remove('hidden');
+                if (!isAuthReady) initializeAuth();
                 return;
             }
 
+            // Disable button and show loading state
+            proceedBtn.disabled = true;
+            proceedBtn.textContent = 'Processing...';
+
+            const dueDate = calculateDueDate();
+            const loanData = {
+                requestedAmount: amount.toFixed(2),
+                dueDate: dueDate, 
+                agreedAt: new Date().toISOString(),
+                userId: userId,
+                // Initialize default status for the dashboard
+                status: 'pending' 
+            };
+
             try {
-                // Calculate the month-end due date
-                const dueDate = getMonthEndDueDate();
-                const dueDateISO = dueDate.toISOString().split('T')[0]; // Save as YYYY-MM-DD
+                // Save loan agreement details to Firestore
+                const docRef = doc(db, `artifacts/${appId}/users/${userId}/loan_data/agreement_details`);
+                await setDoc(docRef, loanData);
 
-                // MANDATORY: Save the requested amount and due date to Firestore (private user data)
-                const docPath = `artifacts/${appId}/users/${userId}/loan_data/agreement_details`;
-                const docRef = doc(db, docPath);
-
-                await setDoc(docRef, {
-                    requestedAmount: amount.toFixed(2),
-                    agreedToTerms: true,
-                    agreementDate: new Date().toISOString(),
-                    dueDate: dueDateISO, // Saving the calculated month-end due date
-                });
-
-                console.log("Loan agreement details saved to Firestore successfully:", docPath);
-
-                // Redirect to the application form
+                // SUCCESS: Redirect to the application form
                 window.location.href = 'signup.html';
 
-            } catch (e) {
-                showMessage('Error', 'Failed to save agreement. Please check your connection and ensure you are authorized.');
-                console.error("Error saving document to Firestore: ", e);
+            } catch (error) {
+                console.error("Error saving loan agreement:", error);
+                errorMsg.textContent = `Error: Could not save data. ${error.message}. Please refresh and try again.`;
+                errorMsg.classList.remove('hidden');
+                
+                // Re-enable button on error
+                proceedBtn.disabled = false;
+                proceedBtn.textContent = 'Agree & Proceed to Application Form';
             }
+        });
+
+        // Kick off the initial authentication process
+        if (typeof auth !== 'undefined') {
+             initializeAuth();
         }
-        
     </script>
 </body>
 </html>
