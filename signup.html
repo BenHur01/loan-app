@@ -1,3 +1,4 @@
+app form
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -7,21 +8,19 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         body {
-            /* **CRITICAL CHANGE 1: Use a flex column layout for the body** */
             font-family: 'Inter', sans-serif;
             display: flex;
-            flex-direction: column; /* Stacks the container and potentially the modal/loading overlay vertically */
-            justify-content: flex-start; /* Start content from the top */
+            flex-direction: column;
+            justify-content: flex-start;
             align-items: center;
             min-height: 100vh;
             background-color: #f7f9fb;
         }
         .container {
-            /* **CRITICAL CHANGE 2: Ensure margins are calculated correctly and center with auto margins** */
             max-width: 600px;
             width: 95%;
             padding: 2.5rem;
-            margin: 2rem auto; /* Top/Bottom margin of 2rem, centered horizontally */
+            margin: 2rem auto;
             background-color: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -39,6 +38,7 @@
         input[type="number"],
         input[type="tel"],
         input[type="file"],
+        input[type="date"],
         select,
         textarea {
             width: 100%;
@@ -201,7 +201,22 @@
             </fieldset>
 
             <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
-                <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
+                <legend class="text-lg font-semibold text-indigo-700 px-2">6. Repayment Commitment</legend>
+                
+                <div class="p-3 bg-indigo-100 rounded-lg mb-4 border border-indigo-300">
+                    <p class="text-sm font-semibold text-indigo-800 flex items-center mb-1">
+                        <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"></path></svg>
+                        Desired Repayment Date (Must be this month)
+                    </p>
+                    <p class="text-xs text-indigo-700 mt-1 mb-3">
+                        Please select the date you intend to repay. Note: The legal deadline is always the last day of this month.
+                    </p>
+                    <div class="form-group">
+                        <label for="desiredRepaymentDate">Select Date</label>
+                        <input type="date" id="desiredRepaymentDate" required>
+                    </div>
+                </div>
+
                 <div class="form-group">
                     <label class="flex items-start cursor-pointer p-3 border border-indigo-200 bg-white rounded-lg shadow-inner">
                         <input type="checkbox" id="confirmationTick" required class="mt-1 mr-3 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
@@ -261,7 +276,6 @@ if (Object.keys(firebaseConfig).length > 0) {
 }
 
 // --- Supabase Config ---
-// NOTE: Using the user-provided keys
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
@@ -276,8 +290,6 @@ function goToPage(page) {
 
 /**
  * Custom modal replacement for alert()
- * @param {string} title
- * @param {string} message
  */
 function customAlert(title, message) {
     const modal = document.getElementById('custom-alert-modal');
@@ -298,7 +310,6 @@ function customAlert(title, message) {
 
 /**
  * Shows the loading overlay with a specific message.
- * @param {string} message 
  */
 function showLoading(message) {
     document.getElementById('loading-message').textContent = message;
@@ -314,25 +325,32 @@ function hideLoading() {
     document.body.style.overflow = 'auto';
 }
 
+/**
+ * Calculates the last day of the current month (for internal validation/deadline).
+ * @returns {string} Date string in YYYY-MM-DD format.
+ */
+function getLastDayOfCurrentMonth() {
+    const today = new Date();
+    const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+    const lastDay = new Date(nextMonth - 86400000); 
+
+    const y = lastDay.getFullYear();
+    const m = String(lastDay.getMonth() + 1).padStart(2, '0');
+    const d = String(lastDay.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+}
 
 /**
  * Uploads a file to Supabase Storage and returns the public URL.
- * @param {File} file The file object to upload.
- * @param {string} bucket The Supabase Storage bucket name.
- * @param {string} path The path within the bucket (e.g., 'documents/user-id/id-doc.pdf').
- * @param {boolean} isRequired Whether the file is mandatory.
- * @returns {Promise<string | null>} The public URL of the uploaded file, or null if file is optional and not provided.
  */
 async function uploadFile(file, bucket, path, isRequired = true) {
     if (!file) {
         if (isRequired) {
             throw new Error("A compulsory file was not provided for upload.");
         }
-        // If optional and not provided, return null
         return null;
     }
     
-    // Upload the file
     const { data, error } = await supabase.storage
         .from(bucket)
         .upload(path, file, {
@@ -345,7 +363,6 @@ async function uploadFile(file, bucket, path, isRequired = true) {
         throw new Error('File upload failed: ' + error.message);
     }
 
-    // Get the public URL for the uploaded file
     const { data: publicUrlData } = supabase.storage
         .from(bucket)
         .getPublicUrl(data.path);
@@ -357,6 +374,26 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
+// --- Validation Function for Date Input ---
+function isDateInCurrentMonth(dateString) {
+    if (!dateString) return false;
+    
+    const selectedDate = new Date(dateString);
+    const today = new Date();
+
+    // 1. Check if the year and month match the current month
+    if (selectedDate.getFullYear() !== today.getFullYear() || selectedDate.getMonth() !== today.getMonth()) {
+        return false;
+    }
+    
+    // 2. Ensure date is not in the past
+    // Compare only YYYY-MM-DD parts to allow selecting the current day
+    const selectedDay = selectedDate.toISOString().split('T')[0];
+    const currentDay = today.toISOString().split('T')[0];
+
+    return selectedDay >= currentDay;
+}
+
 // Main submission handler
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
     event.preventDefault();
@@ -364,6 +401,16 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     // --- 0. Final Confirmation Validation ---
     const confirmationTick = document.getElementById('confirmationTick');
     const digitalSignature = document.getElementById('digitalSignature').value.trim();
+    const desiredRepaymentDate = document.getElementById('desiredRepaymentDate').value;
+    const today = new Date();
+    const currentMonthName = today.toLocaleDateString('en-ZA', { month: 'long', year: 'numeric' });
+
+
+    // --- Date Validation ---
+    if (!isDateInCurrentMonth(desiredRepaymentDate)) {
+        await customAlert('Date Error', `Your desired repayment date must be today or a future date within the current month (${currentMonthName}). Repayments cannot be scheduled for the next month.`);
+        return;
+    }
 
     if (!confirmationTick.checked) {
         await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
@@ -381,18 +428,21 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 
     const requestedAmountString = localStorage.getItem('requestedLoanAmount');
     if (!requestedAmountString) {
-        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
+        await customAlert('Error', 'Requested loan amount not found. Please start the process again from the Loan Agreement page.');
         hideLoading();
-        goToPage('agreement.html');
+        goToPage('agreement.html'); // Redirect back to agreement to enter amount
         return;
     }
+    
+    // --- Determine Legal Deadline (Always Month End) ---
+    const legalRepaymentDeadline = getLastDayOfCurrentMonth();
 
     try {
         // 1. Get all form values
         const data = {
             id: borrowerId, // IMPORTANT: Use ID Number as primary key
             full_name: document.getElementById('fullName').value,
-            id_number: borrowerId, // Store ID number in its own column too
+            id_number: borrowerId, 
             contact_number: document.getElementById('contactNumber').value,
             residential_address: document.getElementById('residentialAddress').value,
             monthly_income: parseFloat(document.getElementById('monthlyIncome').value),
@@ -402,10 +452,13 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             bank_account: document.getElementById('bankAccountNumber').value,
             // REQUEST DATA
             requested_amount: parseFloat(requestedAmountString),
+            // REPAYMENT DATES: Storing both the user's preference and the legal deadline
+            user_desired_repayment_date: desiredRepaymentDate, 
+            repayment_date: legalRepaymentDeadline, // This is the official date saved in DB
             // Confirmation Data
             digital_signature: digitalSignature,
             confirmed_accurate: confirmationTick.checked,
-            // Default values - MATCHING CONFIRMED COLUMN NAMES
+            // Default values 
             status: 'Pending Review',
             repayment_period: 30, // Default 30 days
             interest_rate: 0.50, // Default 50%
@@ -421,29 +474,15 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         };
 
         // 3. Upload all files and collect URLs
-        // Note: isRequired flag is passed to the uploadFile utility function
-        
-        showLoading("Uploading compulsory document 1 of 3: ID Document...");
-        const idPromise = uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}`, true); // Required
-        
-        showLoading("Uploading optional document: Bank Statement...");
-        const statementPromise = uploadFile(files.bankStatement, 'loan_documents', `${borrowerId}/bank-statement-${Date.now()}`, false); // Optional
-        
-        showLoading("Uploading compulsory document 2 of 3: Proof of Address...");
-        const addressPromise = uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}`, true); // Required
-        
-        showLoading("Uploading compulsory document 3 of 3: Live Selfie...");
-        const selfiePromise = uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}`, true); // Required
-
-        // Wait for all uploads to complete
+        showLoading("Uploading documents...");
         const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
-            idPromise,
-            statementPromise,
-            addressPromise,
-            selfiePromise
+            uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}`, true),
+            uploadFile(files.bankStatement, 'loan_documents', `${borrowerId}/bank-statement-${Date.now()}`, false),
+            uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}`, true),
+            uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}`, true)
         ]);
 
-        // 4. Update data object with document URLs (statement_url might be null now)
+        // 4. Update data object with document URLs
         data.document_id_url = id_url;
         data.document_bank_url = statement_url;
         data.document_address_url = address_url;
@@ -465,7 +504,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 
         // 6. Success: Save the new ID and redirect
         localStorage.setItem('currentUserId', borrowerId);
-        localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount
+        localStorage.removeItem('requestedLoanAmount'); 
         
         hideLoading();
         await customAlert('Success', `Application Submitted! Your ID is ${borrowerId}. You will now be redirected to your dashboard.`);
