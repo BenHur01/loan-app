@@ -4,10 +4,9 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Agreement</title>
-    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="./assets/style.css"> 
     <style>
-        /* Custom styles using the 'Inter' font family */
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
@@ -33,14 +32,6 @@
             background-color: #fafafa;
             margin-bottom: 1.5rem;
         }
-        /* Custom utility for emphasizing dynamic data */
-        .dynamic-data {
-            font-weight: 700;
-            color: #1e40af; /* Tailwind indigo-700 equivalent */
-            background-color: #e0e7ff; /* Tailwind indigo-100 equivalent */
-            padding: 0.1rem 0.3rem;
-            border-radius: 0.25rem;
-        }
     </style>
 </head>
 <body>
@@ -55,11 +46,6 @@
         <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
             <label for="loanAmount" class="block text-lg font-medium text-indigo-700 mb-2">Enter Requested Loan Amount (R200 - R2000):</label>
             <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-            <!-- Display calculated repayment amount for quick reference -->
-            <p class="mt-3 text-sm text-indigo-700">
-                Total Repayment Due (Principal + 50% Interest): 
-                <span id="calculatedRepayment" class="font-bold text-indigo-800">R0.00</span>
-            </p>
         </div>
 
         <div class="scroll-box text-sm text-gray-700 leading-relaxed">
@@ -68,41 +54,31 @@
 
             <p class="mb-4">2. Interest Rate: All loans issued through this platform carry a fixed interest rate of 50% (fifty percent) simple interest over the repayment period. This rate is non-negotiable.</p>
 
-            <!-- DYNAMIC REPAYMENT CLAUSE -->
-            <p class="mb-4">3. Repayment Due Date: The full repayment amount of 
-                <span id="totalRepaymentAmount" class="dynamic-data">R0.00</span> 
-                for all approved loans is due on 
-                <span id="dueDateText" class="dynamic-data">Calculating Date...</span>
-                (End of current month).
-            </p>
-            <!-- END DYNAMIC REPAYMENT CLAUSE -->
+            <p class="mb-4">3. Repayment Due Date: The full repayment (Principal + Interest) for all approved loans is <mark>due on the 31st of December 2025.</mark> </p>
 
-            <p class="mb-4">4. Default: Failure to repay the full amount (principal + interest) within the current month period will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.</p>
+            <p class="mb-4">4. Default: Failure to repay the full amount (principal + interest) within the 30-day period will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.</p>
 
-            <p class="mb-4">5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely and will only be used for the purpose of loan verification and fraud prevention.</p>
+            <p class="mb-4">5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely using and will only be used for the purpose of loan verification and fraud prevention.</p>
 
             <p class="mb-4">6. Verification: By proceeding, you consent to background checks and verification of the documents and personal details you provide in the subsequent application form.</p>
             
             <p class="mb-4">7. Eligibility: You must be a South African citizen or permanent resident, over the age of 18, and currently employed to be eligible for a loan.</p>
 
-            <p class="mb-4">
-                <strong class="text-indigo-600">8. Special Requests, Issues, and Repayment Difficulties:</strong> 
-                The Borrower is required to adhere strictly to the agreed repayment schedule. Should the Borrower face any unforeseen issues, special requests regarding the loan terms, or difficulties making payment, they must contact the dedicated Loan Officer, Sylvester, immediately. 
-                Communication for these matters must be initiated via WhatsApp at the number provided on the dashboard: <a href="https://wa.me/27832004918" target="_blank" class="text-green-600 font-bold underline">083 200 4918</a>. 
-                It is understood that all such requests, including extensions or adjustments, are subject to review and final approval by the Lender. Failure to communicate payment issues *before* the due date may lead to default penalties and fees outlined elsewhere in this agreement.
-            </p>
+        <p class="mb-4">
+            <strong class="text-indigo-600">8. Special Requests, Issues, and Repayment Difficulties:</strong> 
+            The Borrower is required to adhere strictly to the agreed repayment schedule. Should the Borrower face any unforeseen issues, special requests regarding the loan terms, or difficulties making payment, they must contact the dedicated Loan Officer, Sylvester, immediately. 
+            Communication for these matters must be initiated via WhatsApp at the number provided on the dashboard: <a href="https://wa.me/27832004918" target="_blank" class="text-green-600 font-bold underline">083 200 4918</a>. 
+            It is understood that all such requests, including extensions or adjustments, are subject to review and final approval by the Lender. Failure to communicate payment issues *before* the due date may lead to default penalties and fees outlined elsewhere in this agreement.
+        </p>
         </div>
         
         <form id="agreementForm" class="space-y-4">
-            <!-- Message box for errors and success messages -->
-            <div id="messageBox" class="p-3 text-sm rounded-lg hidden" role="alert"></div>
-
             <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <input type="checkbox" id="termsCheck" required class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                 <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and 30-day repayment period.</label>
             </div>
             
-            <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg" disabled>
+            <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
                 Agree & Proceed to Application Form
             </button>
         </form>
@@ -112,227 +88,50 @@
         </div>
     </main>
 
-    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE, USING FIREBASE/FIRESTORE -->
+    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
     <script type="module">
-        // --- FIREBASE IMPORTS AND INITIALIZATION (MANDATORY) ---
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+// START OF SHARED/SUPABASE SCRIPT CONTENT
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-        // IMPORTANT: Use the global variables provided by the Canvas environment
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
-        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+const SUPABASE_ANON_KEY =
+    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
-        let db, auth, userId = null;
-        let isAuthReady = false;
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        // Function for exponential backoff retry for network operations
-        async function retryOperation(operation, maxRetries = 3, delay = 1000) {
-            let lastError = null;
-            for (let i = 0; i < maxRetries; i++) {
-                try {
-                    return await operation();
-                } catch (error) {
-                    lastError = error;
-                    console.warn(`Connection Attempt ${i + 1} failed: ${error.message}. Retrying in ${delay / 1000}s...`);
-                    if (i === maxRetries - 1) break; // Don't wait on the last failure
-                    await new Promise(resolve => setTimeout(resolve, delay));
-                    delay *= 2; // Exponential backoff: 1s, 2s, 4s...
-                }
-            }
-            throw new Error(`Initialization failed after ${maxRetries} attempts. Last error: ${lastError.message}`);
-        }
+export function goToPage(page) {
+    window.location.href = page;
+}
 
-        // Function to display messages instead of alert()
-        function showMessage(message, type = 'error') {
-            const messageBox = document.getElementById('messageBox');
-            messageBox.textContent = message;
-            messageBox.className = 'p-3 text-sm rounded-lg';
-            messageBox.classList.remove('bg-red-100', 'text-red-800', 'border-red-400', 'bg-green-100', 'text-green-800', 'border-green-400', 'hidden');
+// END OF SHARED/SUPABASE SCRIPT CONTENT
 
-            if (type === 'error') {
-                messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-400');
-            } else if (type === 'success') {
-                messageBox.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-400');
-            }
-            messageBox.classList.remove('hidden');
-        }
+document.getElementById('agreementForm').addEventListener('submit', function(event) {
+    event.preventDefault();
 
-        // --- Utility Functions (unchanged) ---
-        function isValidAmount() {
-            const amount = parseFloat(document.getElementById('loanAmount').value);
-            return !isNaN(amount) && amount >= 200 && amount <= 2000;
-        }
+    const loanAmountInput = document.getElementById('loanAmount');
+    const amount = parseFloat(loanAmountInput.value);
 
-        function areTermsChecked() {
-            return document.getElementById('termsCheck').checked;
-        }
+    if (isNaN(amount) || amount < 200 || amount > 2000) {
+        alert("Please enter a valid loan amount between R200 and R2000.");
+        loanAmountInput.focus();
+        return;
+    }
 
-        function getLastDayOfCurrentMonth() {
-            const today = new Date();
-            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
-            const lastDay = new Date(nextMonth.getFullYear(), nextMonth.getMonth(), 0);
-            return lastDay;
-        }
+    const termsChecked = document.getElementById('termsCheck').checked;
+    if (!termsChecked) {
+        alert("You must agree to the terms and conditions to proceed.");
+        return;
+    }
 
-        function formatDate(date) {
-            const options = { day: 'numeric', month: 'long', year: 'numeric' };
-            return date.toLocaleDateString('en-US', options);
-        }
+    // Save the requested amount to local storage
+    localStorage.setItem('requestedLoanAmount', amount.toFixed(2));
 
-        function calculateRepayment(principal) {
-            const interestRate = 0.50;
-            const totalRepayment = principal * (1 + interestRate);
-            return totalRepayment;
-        }
+    // Redirect to the application form
+    window.location.href = 'signup.html';
+});
 
-        function updateAgreementTextAndButton() {
-            const loanAmountInput = document.getElementById('loanAmount');
-            const amount = parseFloat(loanAmountInput.value);
-
-            const totalRepaymentAmountEl = document.getElementById('totalRepaymentAmount');
-            const calculatedRepaymentEl = document.getElementById('calculatedRepayment');
-            const dueDateTextEl = document.getElementById('dueDateText');
-            const proceedBtn = document.getElementById('proceedBtn');
-
-            totalRepaymentAmountEl.textContent = 'R0.00';
-            calculatedRepaymentEl.textContent = 'R0.00';
-            proceedBtn.disabled = true;
-
-            const validAmount = isValidAmount();
-            const termsAgreed = areTermsChecked();
-
-            if (!validAmount) {
-                dueDateTextEl.textContent = 'Enter amount to calculate.';
-                return;
-            }
-
-            const totalRepayment = calculateRepayment(amount);
-            const dueDate = getLastDayOfCurrentMonth();
-            const formattedDueDate = formatDate(dueDate);
-
-            totalRepaymentAmountEl.textContent = `R${totalRepayment.toFixed(2)}`;
-            calculatedRepaymentEl.textContent = `R${totalRepayment.toFixed(2)}`;
-            dueDateTextEl.textContent = formattedDueDate;
-            
-            proceedBtn.disabled = !(validAmount && termsAgreed);
-        }
-        
-        // --- Initialization and Auth (Now wrapped in retry) ---
-        async function initializeAppAndAuth() {
-            // This function is run inside the retryOperation.
-            const app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-
-            await setPersistence(auth, browserSessionPersistence);
-
-            if (initialAuthToken) {
-                await signInWithCustomToken(auth, initialAuthToken);
-            } else {
-                await signInAnonymously(auth);
-            }
-
-            // Wait for auth state to be finalized
-            return new Promise((resolve) => {
-                const unsubscribe = onAuthStateChanged(auth, (user) => {
-                    if (user) {
-                        userId = user.uid;
-                    } else {
-                        userId = crypto.randomUUID(); 
-                    }
-                    isAuthReady = true;
-                    unsubscribe();
-                    resolve();
-                });
-            });
-        }
-
-        // --- Main Logic on Load ---
-        window.addEventListener('load', async () => {
-            // Display a loading message while we attempt to connect
-            showMessage("Attempting to connect to the server and authenticate...", 'info');
-
-            try {
-                // Wait for initialization and auth to complete, with retry
-                await retryOperation(initializeAppAndAuth, 3, 2000); // 3 tries, starting at 2s delay
-                // If successful, clear the message
-                document.getElementById('messageBox').classList.add('hidden');
-                
-            } catch (e) {
-                // If retries fail, show the critical error
-                console.error("FATAL Firebase Initialization Error: ", e);
-                showMessage(`FATAL Connection Error: Failed to connect to the server after multiple retries. Please check your network.`, 'error');
-                return; // Stop execution if connection failed permanently
-            }
-            
-            const loanAmountInput = document.getElementById('loanAmount');
-            const termsCheck = document.getElementById('termsCheck');
-            
-            updateAgreementTextAndButton();
-            
-            // Event listeners
-            loanAmountInput.addEventListener('input', updateAgreementTextAndButton);
-            termsCheck.addEventListener('change', updateAgreementTextAndButton);
-
-
-            // Form submission logic
-            document.getElementById('agreementForm').addEventListener('submit', async function(event) {
-                event.preventDefault();
-
-                if (!db) {
-                     console.error("Firestore database object (db) is undefined.");
-                     showMessage("Database is unavailable. Please refresh.", 'error');
-                     return;
-                }
-
-                if (!isAuthReady || !userId) {
-                    showMessage("Authentication is not ready. Please wait a moment.", 'error');
-                    return;
-                }
-                
-                if (!isValidAmount() || !areTermsChecked()) {
-                    showMessage("Please check the loan amount and ensure you have agreed to the terms.", 'error');
-                    return;
-                }
-
-                const amount = parseFloat(loanAmountInput.value);
-                const repaymentAmount = calculateRepayment(amount);
-                const dueDate = getLastDayOfCurrentMonth();
-                
-                const loanData = {
-                    requestedAmount: amount,
-                    totalRepaymentDue: repaymentAmount,
-                    interestRate: 0.50,
-                    repaymentDueDate: dueDate.toISOString().split('T')[0], // YYYY-MM-DD
-                    dateRequested: new Date().toISOString(),
-                    status: 'Pending',
-                    userId: userId
-                };
-
-                try {
-                    // Path: /artifacts/{appId}/users/{userId}/loan_applications/{documentId}
-                    const loanDocRef = doc(
-                        db,
-                        `artifacts/${appId}/users/${userId}/loan_applications`, 
-                        `loan_${Date.now()}`
-                    );
-                    
-                    await setDoc(loanDocRef, loanData);
-                    showMessage("Loan details saved. Redirecting...", 'success');
-                    
-                    setTimeout(() => {
-                        window.location.href = 'signup.html';
-                    }, 500);
-
-                } catch (e) {
-                    console.error("Error saving document to Firestore: ", e);
-                    // This error is highly likely to be "Permission Denied" if connection is good.
-                    showMessage(`Failed to save loan details. Error: ${e.message}`, 'error');
-                }
-            });
-        });
+// REMOVED: The page load check that redirected users to the dashboard if an ID was found in localStorage.
+// This ensures that clicking the button is the only way to leave this page, which is what we want.
     </script>
 </body>
 </html>
