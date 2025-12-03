@@ -117,7 +117,6 @@
         // --- FIREBASE IMPORTS AND INITIALIZATION (MANDATORY) ---
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged, setPersistence, browserSessionPersistence } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        // The fix is here: we explicitly import collection and getFirestore
         import { getFirestore, doc, setDoc, collection } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         // IMPORTANT: Use the global variables provided by the Canvas environment
@@ -127,6 +126,23 @@
 
         let db, auth, userId = null;
         let isAuthReady = false;
+
+        // Function for exponential backoff retry for network operations
+        async function retryOperation(operation, maxRetries = 3, delay = 1000) {
+            let lastError = null;
+            for (let i = 0; i < maxRetries; i++) {
+                try {
+                    return await operation();
+                } catch (error) {
+                    lastError = error;
+                    console.warn(`Connection Attempt ${i + 1} failed: ${error.message}. Retrying in ${delay / 1000}s...`);
+                    if (i === maxRetries - 1) break; // Don't wait on the last failure
+                    await new Promise(resolve => setTimeout(resolve, delay));
+                    delay *= 2; // Exponential backoff: 1s, 2s, 4s...
+                }
+            }
+            throw new Error(`Initialization failed after ${maxRetries} attempts. Last error: ${lastError.message}`);
+        }
 
         // Function to display messages instead of alert()
         function showMessage(message, type = 'error') {
@@ -143,7 +159,7 @@
             messageBox.classList.remove('hidden');
         }
 
-        // --- Utility Functions ---
+        // --- Utility Functions (unchanged) ---
         function isValidAmount() {
             const amount = parseFloat(document.getElementById('loanAmount').value);
             return !isNaN(amount) && amount >= 200 && amount <= 2000;
@@ -203,48 +219,53 @@
             proceedBtn.disabled = !(validAmount && termsAgreed);
         }
         
-        // --- Initialization and Auth ---
-        // We define the module-scoped variables here and ensure they are assigned.
+        // --- Initialization and Auth (Now wrapped in retry) ---
         async function initializeAppAndAuth() {
-            try {
-                const app = initializeApp(firebaseConfig);
-                // Assign db and auth here, making them available in the module scope
-                db = getFirestore(app);
-                auth = getAuth(app);
+            // This function is run inside the retryOperation.
+            const app = initializeApp(firebaseConfig);
+            db = getFirestore(app);
+            auth = getAuth(app);
 
-                await setPersistence(auth, browserSessionPersistence);
+            await setPersistence(auth, browserSessionPersistence);
 
-                if (initialAuthToken) {
-                    await signInWithCustomToken(auth, initialAuthToken);
-                } else {
-                    await signInAnonymously(auth);
-                }
-
-                // Wait for auth state to be finalized
-                return new Promise((resolve) => {
-                    const unsubscribe = onAuthStateChanged(auth, (user) => {
-                        if (user) {
-                            userId = user.uid;
-                        } else {
-                            userId = crypto.randomUUID(); 
-                        }
-                        isAuthReady = true;
-                        unsubscribe();
-                        resolve();
-                    });
-                });
-
-            } catch (error) {
-                console.error("Firebase Initialization or Auth Error:", error);
-                userId = crypto.randomUUID();
-                isAuthReady = true;
+            if (initialAuthToken) {
+                await signInWithCustomToken(auth, initialAuthToken);
+            } else {
+                await signInAnonymously(auth);
             }
+
+            // Wait for auth state to be finalized
+            return new Promise((resolve) => {
+                const unsubscribe = onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                    } else {
+                        userId = crypto.randomUUID(); 
+                    }
+                    isAuthReady = true;
+                    unsubscribe();
+                    resolve();
+                });
+            });
         }
 
         // --- Main Logic on Load ---
         window.addEventListener('load', async () => {
-            // Wait for initialization and auth to complete
-            await initializeAppAndAuth();
+            // Display a loading message while we attempt to connect
+            showMessage("Attempting to connect to the server and authenticate...", 'info');
+
+            try {
+                // Wait for initialization and auth to complete, with retry
+                await retryOperation(initializeAppAndAuth, 3, 2000); // 3 tries, starting at 2s delay
+                // If successful, clear the message
+                document.getElementById('messageBox').classList.add('hidden');
+                
+            } catch (e) {
+                // If retries fail, show the critical error
+                console.error("FATAL Firebase Initialization Error: ", e);
+                showMessage(`FATAL Connection Error: Failed to connect to the server after multiple retries. Please check your network.`, 'error');
+                return; // Stop execution if connection failed permanently
+            }
             
             const loanAmountInput = document.getElementById('loanAmount');
             const termsCheck = document.getElementById('termsCheck');
@@ -260,15 +281,14 @@
             document.getElementById('agreementForm').addEventListener('submit', async function(event) {
                 event.preventDefault();
 
-                // CRITICAL CHECK: Ensure db is actually initialized before proceeding
                 if (!db) {
-                     console.error("Firestore database object (db) is undefined. Check initialization.");
-                     showMessage("A connection error occurred. Please refresh the page and try again.", 'error');
+                     console.error("Firestore database object (db) is undefined.");
+                     showMessage("Database is unavailable. Please refresh.", 'error');
                      return;
                 }
 
                 if (!isAuthReady || !userId) {
-                    showMessage("Authentication is not ready. Please try again in a moment.", 'error');
+                    showMessage("Authentication is not ready. Please wait a moment.", 'error');
                     return;
                 }
                 
@@ -293,27 +313,22 @@
 
                 try {
                     // Path: /artifacts/{appId}/users/{userId}/loan_applications/{documentId}
-                    // The doc() function requires the Firestore instance (db) as the first argument, 
-                    // followed by the collection path segments.
                     const loanDocRef = doc(
-                        db, // <--- This MUST be the initialized Firestore instance
+                        db,
                         `artifacts/${appId}/users/${userId}/loan_applications`, 
                         `loan_${Date.now()}`
                     );
                     
-                    // Save loan details to Firestore
                     await setDoc(loanDocRef, loanData);
                     showMessage("Loan details saved. Redirecting...", 'success');
                     
-                    // Redirect to the application form
                     setTimeout(() => {
                         window.location.href = 'signup.html';
                     }, 500);
 
                 } catch (e) {
-                    // Log the full error and display a detailed message
                     console.error("Error saving document to Firestore: ", e);
-                    // This often happens if Firestore permissions are wrong (e.g., if you are running outside Canvas)
+                    // This error is highly likely to be "Permission Denied" if connection is good.
                     showMessage(`Failed to save loan details. Error: ${e.message}`, 'error');
                 }
             });
