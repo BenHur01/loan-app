@@ -4,9 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Loan Agreement</title>
+    <!-- Load Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="./assets/style.css"> 
     <style>
+        /* Custom styles using the 'Inter' font family */
         body {
             font-family: 'Inter', sans-serif;
             display: flex;
@@ -32,6 +33,14 @@
             background-color: #fafafa;
             margin-bottom: 1.5rem;
         }
+        /* Custom utility for emphasizing dynamic data */
+        .dynamic-data {
+            font-weight: 700;
+            color: #1e40af; /* Tailwind indigo-700 equivalent */
+            background-color: #e0e7ff; /* Tailwind indigo-100 equivalent */
+            padding: 0.1rem 0.3rem;
+            border-radius: 0.25rem;
+        }
     </style>
 </head>
 <body>
@@ -46,6 +55,11 @@
         <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
             <label for="loanAmount" class="block text-lg font-medium text-indigo-700 mb-2">Enter Requested Loan Amount (R200 - R2000):</label>
             <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+            <!-- Display calculated repayment amount for quick reference -->
+            <p class="mt-3 text-sm text-indigo-700">
+                Total Repayment Due (Principal + 50% Interest): 
+                <span id="calculatedRepayment" class="font-bold text-indigo-800">R0.00</span>
+            </p>
         </div>
 
         <div class="scroll-box text-sm text-gray-700 leading-relaxed">
@@ -54,31 +68,39 @@
 
             <p class="mb-4">2. Interest Rate: All loans issued through this platform carry a fixed interest rate of 50% (fifty percent) simple interest over the repayment period. This rate is non-negotiable.</p>
 
-            <p class="mb-4">3. Repayment Due Date: The full repayment (Principal + Interest) for all approved loans is <mark>due on the 31st of December 2025.</mark> </p>
+            <!-- DYNAMIC REPAYMENT CLAUSE -->
+            <p class="mb-4">3. Repayment Due Date: The full repayment amount of 
+                <span id="totalRepaymentAmount" class="dynamic-data">R0.00</span> 
+                for all approved loans is due on 
+                <span id="dueDateText" class="dynamic-data">Calculating Date...</span>
+                (30-day fixed term).
+            </p>
+            <!-- END DYNAMIC REPAYMENT CLAUSE -->
 
             <p class="mb-4">4. Default: Failure to repay the full amount (principal + interest) within the 30-day period will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a collections agency. You are responsible for any legal fees incurred during the collection process.</p>
 
-            <p class="mb-4">5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely using and will only be used for the purpose of loan verification and fraud prevention.</p>
+            <p class="mb-4">5. Data Privacy: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely and will only be used for the purpose of loan verification and fraud prevention.</p>
 
             <p class="mb-4">6. Verification: By proceeding, you consent to background checks and verification of the documents and personal details you provide in the subsequent application form.</p>
             
             <p class="mb-4">7. Eligibility: You must be a South African citizen or permanent resident, over the age of 18, and currently employed to be eligible for a loan.</p>
 
-        <p class="mb-4">
-            <strong class="text-indigo-600">8. Special Requests, Issues, and Repayment Difficulties:</strong> 
-            The Borrower is required to adhere strictly to the agreed repayment schedule. Should the Borrower face any unforeseen issues, special requests regarding the loan terms, or difficulties making payment, they must contact the dedicated Loan Officer, Sylvester, immediately. 
-            Communication for these matters must be initiated via WhatsApp at the number provided on the dashboard: <a href="https://wa.me/27832004918" target="_blank" class="text-green-600 font-bold underline">083 200 4918</a>. 
-            It is understood that all such requests, including extensions or adjustments, are subject to review and final approval by the Lender. Failure to communicate payment issues *before* the due date may lead to default penalties and fees outlined elsewhere in this agreement.
-        </p>
+            <p class="mb-4">
+                <strong class="text-indigo-600">8. Special Requests, Issues, and Repayment Difficulties:</strong> 
+                The Borrower is required to adhere strictly to the agreed repayment schedule. Should the Borrower face any unforeseen issues, special requests regarding the loan terms, or difficulties making payment, they must contact the dedicated Loan Officer, Sylvester, immediately. 
+                Communication for these matters must be initiated via WhatsApp at the number provided on the dashboard: <a href="https://wa.me/27832004918" target="_blank" class="text-green-600 font-bold underline">083 200 4918</a>. 
+                It is understood that all such requests, including extensions or adjustments, are subject to review and final approval by the Lender. Failure to communicate payment issues *before* the due date may lead to default penalties and fees outlined elsewhere in this agreement.
+            </p>
         </div>
         
         <form id="agreementForm" class="space-y-4">
+            <div id="messageBox" class="p-3 text-sm rounded-lg hidden" role="alert"></div>
             <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
                 <input type="checkbox" id="termsCheck" required class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
                 <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and 30-day repayment period.</label>
             </div>
             
-            <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
+            <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg" disabled>
                 Agree & Proceed to Application Form
             </button>
         </form>
@@ -88,63 +110,196 @@
         </div>
     </main>
 
-    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
+    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE, USING FIREBASE/FIRESTORE -->
     <script type="module">
-// START OF SHARED/SUPABASE SCRIPT CONTENT
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+        // --- FIREBASE IMPORTS AND INITIALIZATION (MANDATORY) ---
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, setDoc, setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
-const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+        // IMPORTANT: Use the global variables provided by the Canvas environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        let db, auth, userId = null;
+        let isAuthReady = false;
 
-export function goToPage(page) {
-    window.location.href = page;
-}
+        // Function to display messages instead of alert()
+        function showMessage(message, type = 'error') {
+            const messageBox = document.getElementById('messageBox');
+            messageBox.textContent = message;
+            messageBox.className = 'p-3 text-sm rounded-lg';
+            if (type === 'error') {
+                messageBox.classList.add('bg-red-100', 'text-red-800', 'border', 'border-red-400');
+            } else if (type === 'success') {
+                messageBox.classList.add('bg-green-100', 'text-green-800', 'border', 'border-green-400');
+            }
+            messageBox.classList.remove('hidden');
+        }
 
-// END OF SHARED/SUPABASE SCRIPT CONTENT
+        // 1. Calculate the last day of the *next* month
+        function getLastDayOfNextMonth() {
+            const today = new Date();
+            // Go to the first day of the *next* month
+            const nextMonth = new Date(today.getFullYear(), today.getMonth() + 1, 1);
+            // Go back one day to get the last day of the *current* month (which is the next month's due date)
+            const lastDay = new Date(nextMonth.getFullYear(), nextMonth.getMonth() + 1, 0);
+            return lastDay;
+        }
 
-document.getElementById('agreementForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+        function formatDate(date) {
+            const options = { day: 'numeric', month: 'long', year: 'numeric' };
+            return date.toLocaleDateString('en-US', options);
+        }
 
-    const loanAmountInput = document.getElementById('loanAmount');
-    const amount = parseFloat(loanAmountInput.value);
+        // 2. Calculate the total repayment amount (Principal + 50% Interest)
+        function calculateRepayment(principal) {
+            // 50% interest
+            const interestRate = 0.50;
+            const totalRepayment = principal * (1 + interestRate);
+            return totalRepayment;
+        }
 
-    if (isNaN(amount) || amount < 200 || amount > 2000) {
-        alert("Please enter a valid loan amount between R200 and R2000.");
-        loanAmountInput.focus();
-        return;
-    }
+        // 3. Update all dynamic text elements
+        function updateAgreementText() {
+            const loanAmountInput = document.getElementById('loanAmount');
+            const amount = parseFloat(loanAmountInput.value);
 
-    const termsChecked = document.getElementById('termsCheck').checked;
-    if (!termsChecked) {
-        alert("You must agree to the terms and conditions to proceed.");
-        return;
-    }
+            const totalRepaymentAmountEl = document.getElementById('totalRepaymentAmount');
+            const calculatedRepaymentEl = document.getElementById('calculatedRepayment');
+            const dueDateTextEl = document.getElementById('dueDateText');
+            const proceedBtn = document.getElementById('proceedBtn');
 
-    // Save the requested amount to local storage
-    localStorage.setItem('requestedLoanAmount', amount.toFixed(2));
+            // Set initial state for button and elements
+            proceedBtn.disabled = true;
+            totalRepaymentAmountEl.textContent = 'R0.00';
+            calculatedRepaymentEl.textContent = 'R0.00';
 
-    // Redirect to the application form
-    window.location.href = 'signup.html';
-});
+            if (isNaN(amount) || amount < 200 || amount > 2000) {
+                dueDateTextEl.textContent = 'Enter amount to calculate.';
+                return;
+            }
 
-// REMOVED: The page load check that redirected users to the dashboard if an ID was found in localStorage.
-// This ensures that clicking the button is the only way to leave this page, which is what we want.
+            const totalRepayment = calculateRepayment(amount);
+            const dueDate = getLastDayOfNextMonth();
+            const formattedDueDate = formatDate(dueDate);
+
+            // Update DOM with calculated values
+            totalRepaymentAmountEl.textContent = `R${totalRepayment.toFixed(2)}`;
+            calculatedRepaymentEl.textContent = `R${totalRepayment.toFixed(2)}`;
+            dueDateTextEl.textContent = formattedDueDate;
+            
+            // Enable button once a valid amount is entered
+            proceedBtn.disabled = false;
+        }
+        
+        // --- Initialization and Auth ---
+        async function initializeAppAndAuth() {
+            try {
+                // setLogLevel('debug');
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                // Sign in using the custom token or anonymously
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                } else {
+                    await signInAnonymously(auth);
+                }
+
+                // Wait for auth state to be finalized
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                    } else {
+                         // If auth fails for any reason, use a fallback UUID
+                        userId = crypto.randomUUID(); 
+                        isAuthReady = true;
+                    }
+                });
+            } catch (error) {
+                console.error("Firebase Initialization or Auth Error:", error);
+                // Fallback userId if init fails entirely
+                userId = crypto.randomUUID();
+                isAuthReady = true;
+            }
+        }
+
+        // --- Main Logic on Load ---
+        window.addEventListener('load', async () => {
+            await initializeAppAndAuth();
+            
+            const loanAmountInput = document.getElementById('loanAmount');
+            
+            // Initial calculation on load
+            updateAgreementText();
+            
+            // Event listener for input changes to recalculate and update text
+            loanAmountInput.addEventListener('input', updateAgreementText);
+
+            // Form submission logic
+            document.getElementById('agreementForm').addEventListener('submit', async function(event) {
+                event.preventDefault();
+
+                if (!isAuthReady || !userId) {
+                    showMessage("Authentication is not ready. Please try again in a moment.", 'error');
+                    return;
+                }
+
+                const amount = parseFloat(loanAmountInput.value);
+                const termsChecked = document.getElementById('termsCheck').checked;
+
+                if (isNaN(amount) || amount < 200 || amount > 2000) {
+                    showMessage("Please enter a valid loan amount between R200 and R2000.", 'error');
+                    loanAmountInput.focus();
+                    return;
+                }
+
+                if (!termsChecked) {
+                    showMessage("You must agree to the terms and conditions to proceed.", 'error');
+                    return;
+                }
+
+                const repaymentAmount = calculateRepayment(amount);
+                const dueDate = getLastDayOfNextMonth();
+                const formattedDueDate = formatDate(dueDate);
+                
+                const loanData = {
+                    requestedAmount: amount,
+                    totalRepaymentDue: repaymentAmount,
+                    interestRate: 0.50,
+                    repaymentDueDate: dueDate.toISOString().split('T')[0], // YYYY-MM-DD
+                    dateRequested: new Date().toISOString(),
+                    status: 'Pending',
+                    userId: userId
+                };
+
+                try {
+                    // Path: /artifacts/{appId}/users/{userId}/loan_applications/{documentId}
+                    const loanDocRef = doc(db, 
+                        `artifacts/${appId}/users/${userId}/loan_applications`, 
+                        `loan_${Date.now()}` // Use timestamp for unique ID
+                    );
+                    
+                    // Save loan details to Firestore
+                    await setDoc(loanDocRef, loanData);
+                    showMessage("Loan details saved. Redirecting...", 'success');
+                    
+                    // Redirect to the application form
+                    // Using a slight delay to allow the message to show
+                    setTimeout(() => {
+                        window.location.href = 'signup.html';
+                    }, 500);
+
+                } catch (e) {
+                    console.error("Error saving document to Firestore: ", e);
+                    showMessage("Failed to save loan details. Please check console for errors.", 'error');
+                }
+            });
+        });
     </script>
 </body>
 </html>
-
-
-
-
-
-
-
-
-
-
-
-
-
