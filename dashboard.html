@@ -75,8 +75,8 @@
                 Please take a screenshot of the below dashboard page and send it immediately to Sylvester on WhatsApp:
             </p>
             <a href="https://wa.me/27832004918?text=Hi%20Sylvester%2C%20attached%20is%20my%20loan%20dashboard%20screenshot%20for%20verification." 
-                target="_blank" 
-                class="inline-flex items-center justify-center w-full md:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 transition duration-150">
+               target="_blank" 
+               class="inline-flex items-center justify-center w-full md:w-auto px-6 py-3 border border-transparent text-base font-medium rounded-md shadow-sm text-white bg-green-600 hover:bg-green-700 transition duration-150">
                 <svg class="w-5 h-5 mr-2" fill="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M12.04 2C6.58 2 2.1 6.47 2.1 11.93c0 1.74.45 3.39 1.34 4.88l-1.4 5.12 5.25-1.37c1.45.8 3.1 1.24 4.75 1.24 5.46 0 9.94-4.47 9.94-9.94s-4.48-9.94-9.94-9.94zm4.4 13.92c-.22.68-.86 1.48-1.57 1.88-.72.39-1.5.6-2.9.22-.58-.16-1.57-.6-2.07-.8-.48-.2-.84-.26-1.18-.08-.34.18-.7.88-.93 1.13-.23.25-.46.3-.9.1-.4-.18-1.72-.64-3.26-2.07-1.21-1.1-2.02-2.73-2.25-3.13-.22-.4-.03-.64.13-.8.15-.15.34-.2.49-.37.15-.15.22-.22.37-.4.18-.18.15-.34 0-.47-.15-.18-.4-.48-.6-.7-.2-.23-.3-.4-.46-.6-.18-.2-.37-.15-.54-.15-.18-.04-.4-.04-.6-.04s-.47.07-.7.3c-.23.2-.86.85-.86 2.08 0 1.23.88 2.4 1 2.58.18.15 1.74 2.66 4.18 3.66 2.3.9 2.76.78 3.25.72.48-.06 1.57-.64 1.77-1.17.2-.53.2-1.02.13-1.16-.06-.15-.22-.22-.4-.3z"/></svg>
                 Chat with Sylvester on WhatsApp
             </a>
@@ -125,16 +125,9 @@
                         <div id="detailAmount" class="text-green-600 font-extrabold"></div>
                     </div>
 
-                    <!-- NEW: Total Repayment Amount (Amount to be paid) -->
                     <div class="col-span-1">
-                        <div class="font-medium text-gray-600">Total Repayment Amount:</div>
-                        <div id="detailTotalRepayment" class="text-red-700 font-extrabold"></div>
-                    </div>
-                    <!-- END NEW -->
-
-                    <div class="col-span-1">
-                        <div class="font-medium text-gray-600">Repayment Due Date:</div>
-                        <div id="detailDueDate" class="text-red-600 font-extrabold"></div>
+                        <div class="font-medium text-gray-600">Repayment Period:</div>
+                        <div id="detailRepayment" class="text-gray-800 font-semibold"></div>
                     </div>
                     
                     <div class="col-span-1">
@@ -167,132 +160,52 @@
     </main>
 
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, getDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        // Import Supabase Client
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-        // --- FIREBASE INITIALIZATION ---
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
-        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        // Supabase configuration (as defined in previous steps)
+        const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+        const SUPABASE_ANON_KEY =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
-        let app;
-        let db;
-        let auth;
-        
-        let userId = null;
-        let isAuthReady = false;
-
-        try {
-            app = initializeApp(firebaseConfig);
-            db = getFirestore(app);
-            auth = getAuth(app);
-        } catch (e) {
-            console.error("Firebase Initialization Error:", e);
-            document.getElementById('errorMessage').textContent = 'Error loading application components. Please refresh.';
-            document.getElementById('errorMessage').classList.remove('hidden');
-            document.getElementById('loadingMessage').classList.add('hidden');
-        }
-
-        async function initializeAuth() {
-            try {
-                const token = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-                if (token) {
-                    await signInWithCustomToken(auth, token);
-                } else {
-                    await signInAnonymously(auth);
-                }
-            } catch (error) {
-                console.error("Firebase Auth Error:", error);
-            }
-        }
-
-        // Listen for authentication state changes
-        onAuthStateChanged(auth, (user) => {
-            isAuthReady = true;
-            if (user) {
-                userId = user.uid;
-                console.log("Authenticated with UID:", userId);
-                loadDashboard(userId);
-            } else {
-                console.log("User signed out or anonymous.");
-                // If not signed in, try to sign in
-                if (!userId) initializeAuth();
-            }
-        });
-
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         /**
-         * Fetches combined loan agreement and application details from Firestore.
-         * @param {string} currentUserId 
+         * Fetches borrower status from Supabase based on ID number.
+         * @param {string} idNumber 
          * @returns {Promise<Object | null>}
          */
-        async function fetchApplicationData(currentUserId) {
-            if (!currentUserId || !db) return null;
-
-            // Path to the agreement details (set in the previous step)
-            const agreementDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/loan_data/agreement_details`);
-            // Mock path for application status details (where other details might be)
-            const applicationDocRef = doc(db, `artifacts/${appId}/users/${currentUserId}/application_details/data`);
-
+        async function lookupBorrowerStatus(idNumber){
+            if (!idNumber) return null;
             try {
-                const [agreementSnap, applicationSnap] = await Promise.all([
-                    getDoc(agreementDocRef),
-                    getDoc(applicationDocRef)
-                ]);
+                const { data, error } = await supabase.from('borrowers')
+                    .select('id_number, full_name, status, requested_amount, interest_rate, repayment_period, date_submitted, document_id_url, document_address_url, document_bank_url, document_selfie_url')
+                    .eq('id_number', idNumber).single();
                 
-                const agreementData = agreementSnap.exists() ? agreementSnap.data() : null;
-                
-                // Mock application data for display completeness if not yet fully submitted/reviewed
-                // In a real app, signup.html would save data to applicationDocRef
-                const applicationData = applicationSnap.exists() ? applicationSnap.data() : {
-                    status: 'pending', // Default status
-                    full_name: 'Applicant Name (Verification Pending)',
-                    // Mocking document URLs for visual completeness
-                    document_id_url: 'https://placehold.co/1x1?text=ID',
-                    document_address_url: 'https://placehold.co/1x1?text=POA',
-                    document_bank_url: null, // Optional, can be null
-                    document_selfie_url: 'https://placehold.co/1x1?text=Selfie',
-                };
-
-                if (!agreementData) {
-                    return null; // No initial agreement exists
+                // PGRST116 means no rows found (ID not in database)
+                if (error && error.code!=='PGRST116') { 
+                    console.error("Supabase Error:", error); 
+                    return null; 
                 }
-                
-                // Combine and return the critical loan data
-                return {
-                    id_number: currentUserId,
-                    full_name: applicationData.full_name,
-                    status: applicationData.status,
-                    // Use actual data from agreement.html
-                    requested_amount: parseFloat(agreementData.requestedAmount || '0'),
-                    dueDate: agreementData.dueDate, // The specific month-end date saved
-                    interest_rate: 0.50, // Hardcoded interest rate
-                    // Document links from mock/future application data
-                    document_id_url: applicationData.document_id_url,
-                    document_address_url: applicationData.document_address_url,
-                    document_bank_url: applicationData.document_bank_url,
-                    document_selfie_url: applicationData.document_selfie_url,
-                };
-
-            } catch (e) {
-                console.error("Error fetching application data:", e);
-                return null;
+                return data || null;
+            } catch(e){ 
+                console.error("Lookup Exception:", e); 
+                return null; 
             }
         }
 
-
         /**
-         * Calculates and updates the countdown timer based on the due date.
-         * @param {string} dueDateStr ISO string of the specific month-end due date (YYYY-MM-DD).
+         * Calculates and updates the countdown timer.
+         * @param {string} submissionDateStr ISO string of submission date.
+         * @param {number} periodDays The repayment period in days (e.g., 30).
          */
-        function startCountdown(dueDateStr) {
+        function startCountdown(submissionDateStr, periodDays) {
             const countdownDiv = document.getElementById('repaymentCountdown');
             const display = document.getElementById('countdownDisplay');
 
-            // Parse the ISO date string to a Date object. Use midnight of the due date.
-            const dueDate = new Date(dueDateStr);
-            // Set time to end of day for accurate countdown
-            dueDate.setHours(23, 59, 59, 999);
+            // Calculate the due date (submission date + repayment period)
+            const submissionDate = new Date(submissionDateStr);
+            const dueDate = new Date(submissionDate.getTime() + (periodDays * 24 * 60 * 60 * 1000));
             
             // Immediately show the countdown element
             countdownDiv.classList.remove('hidden');
@@ -332,22 +245,21 @@
 
 
         // Logic for the Dashboard Page
-        async function loadDashboard(currentUserId) {
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = localStorage.getItem('currentUserId');
             const loadingMessage = document.getElementById('loadingMessage');
             const noApplicationMessage = document.getElementById('noApplicationMessage');
             const loanDetails = document.getElementById('loanDetails');
             const statusMessageDiv = document.getElementById('statusMessage');
-            const totalRepaymentDiv = document.getElementById('detailTotalRepayment'); // NEW
 
-            // Hide loading message immediately after receiving user ID
-            loadingMessage.classList.add('hidden');
-
-            if (!currentUserId) {
+            if (!userId) {
+                loadingMessage.classList.add('hidden');
                 noApplicationMessage.classList.remove('hidden');
                 return;
             }
 
-            const statusData = await fetchApplicationData(currentUserId);
+            const statusData = await lookupBorrowerStatus(userId);
+            loadingMessage.classList.add('hidden');
 
             if (!statusData) {
                 noApplicationMessage.classList.remove('hidden');
@@ -359,40 +271,34 @@
                 status, 
                 full_name, 
                 requested_amount, 
-                dueDate, 
-                interest_rate, // Parsed as float below
+                repayment_period, 
+                interest_rate, 
+                date_submitted, // NEW: Retrieved submission date
                 document_id_url, 
                 document_address_url, 
                 document_bank_url,
                 document_selfie_url
             } = statusData;
 
-            // --- Calculation ---
-            const parsedInterestRate = parseFloat(interest_rate); // e.g., 0.50
-            const totalRepayment = requested_amount * (1 + parsedInterestRate);
-
-
             // --- 1. Display Core Details ---
             document.getElementById('detailName').textContent = full_name;
-            document.getElementById('detailID').textContent = currentUserId;
+            document.getElementById('detailID').textContent = userId;
             document.getElementById('detailAmount').textContent = `R${requested_amount.toFixed(2)}`;
-            totalRepaymentDiv.textContent = `R${totalRepayment.toFixed(2)}`; // NEW: Display Total Repayment
-            document.getElementById('detailDueDate').textContent = dueDate; 
-            document.getElementById('detailInterest').textContent = `${(parsedInterestRate * 100).toFixed(2)}%`;
+            document.getElementById('detailRepayment').textContent = `${repayment_period} days`;
+            document.getElementById('detailInterest').textContent = `${(parseFloat(interest_rate) * 100).toFixed(2)}%`;
             
             // --- 2. Display Status Badge ---
             let statusClass = 'status-pending';
             let messageContent = '';
             let messageBg = '';
-            const repaymentInfo = `The total repayment amount of <strong>R${totalRepayment.toFixed(2)}</strong> (Principal + 50% interest) is due on the month-end date: <strong>${dueDate}</strong>.`;
 
             if (status === 'approved') {
                 statusClass = 'status-approved';
                 messageBg = 'bg-green-100 border-green-500 text-green-800';
-                messageContent = `Congratulations! Your loan of R${requested_amount.toFixed(2)} has been APPROVED. The funds will be transferred to your bank account within 24 hours. ${repaymentInfo}`;
+                messageContent = `Congratulations! Your loan of R${requested_amount.toFixed(2)} has been APPROVED. The funds will be transferred to your bank account within 24 hours.`;
                 // Start countdown only for approved loans
-                if (dueDate) {
-                    startCountdown(dueDate);
+                if (date_submitted && repayment_period) {
+                    startCountdown(date_submitted, repayment_period);
                 }
             } else if (status === 'rejected') {
                 statusClass = 'status-rejected';
@@ -422,9 +328,9 @@
 
             // Standard compulsory document check
             const getCompulsoryDocStatus = (url, name) => {
-                const icon = url && url.length > 5 ? checkIcon : crossIcon;
-                const color = url && url.length > 5 ? 'text-green-600' : 'text-red-500';
-                const text = url && url.length > 5 ? 'Upload Confirmed' : 'Missing (Compulsory)';
+                const icon = url ? checkIcon : crossIcon;
+                const color = url ? 'text-green-600' : 'text-red-500';
+                const text = url ? 'Upload Confirmed' : 'Missing (Compulsory)';
                 return `<p class="flex justify-between">
                             <span class="font-bold">${name}:</span> 
                             <span class="${color}">${icon} ${text}</span>
@@ -433,9 +339,9 @@
 
             // Specific optional document check
             const getOptionalDocStatus = (url, name) => {
-                const icon = url && url.length > 5 ? checkIcon : infoIcon;
-                const color = url && url.length > 5 ? 'text-green-600' : 'text-yellow-600';
-                const text = url && url.length > 5 ? 'Upload Confirmed' : 'Not Provided (Optional)';
+                const icon = url ? checkIcon : infoIcon;
+                const color = url ? 'text-green-600' : 'text-yellow-600';
+                const text = url ? 'Upload Confirmed' : 'Not Provided (Optional)';
                 return `<p class="flex justify-between">
                             <span class="font-bold">${name}:</span> 
                             <span class="${color}">${icon} ${text}</span>
@@ -449,13 +355,9 @@
                 getCompulsoryDocStatus(document_selfie_url, 'Live Selfie');
 
             loanDetails.classList.remove('hidden');
-        }
-        
-        // Initial call to start the authentication process
-        if (typeof auth !== 'undefined') {
-             initializeAuth();
-        }
+        });
 
     </script>
 </body>
 </html>
+
