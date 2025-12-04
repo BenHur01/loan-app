@@ -185,7 +185,7 @@
                     <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
                 </div>
                 <div class="form-group">
-                    <label for="bankAccountNumber">Bank Account Number</label>
+                    <label for="bankAccountNumber">Bank Account Number <span class="text-gray-500 font-medium">(This is where your loan will be sent)</span></label>
                     <input type="text" id="bankAccountNumber" required pattern="\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
                 </div>
             </fieldset>
@@ -520,3 +520,4 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     </script>
 </body>
 </html>
+
