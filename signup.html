@@ -178,17 +178,35 @@
                 </div>
             </fieldset>
             
-            <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">4. Bank Details</legend>
-                <div class="form-group">
-                    <label for="bankName">Bank Name</label>
-                    <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
+           <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
+            
+            <div class="form-group">
+                <label for="paymentMethod">How would you like to be paid?</label>
+                <select id="paymentMethod" required class="cursor-pointer">
+                    <option value="" disabled selected>Select a payment method...</option>
+                    <option value="Bank Account">Bank Account (EFT)</option>
+                    <option value="eWallet">eWallet (Instant Transfer)</option>
+                    <option value="CashSend">CashSend (PIN Redemption)</option>
+                </select>
+            </div>
+        
+            <div id="paymentDetailsContainer" class="mt-4 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50 hidden">
+                <p class="font-semibold text-gray-700 mb-3">Payment Details:</p>
+        
                 </div>
-                <div class="form-group">
-                    <label for="bankAccountNumber">Bank Account Number <span class="text-gray-500 font-medium">(This is where your loan will be sent)</span></label>
-                    <input type="text" id="bankAccountNumber" required pattern="\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
-                </div>
-            </fieldset>
+            
+            <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
+                <p class="font-bold mb-2 text-blue-800">For Bank Transfer (EFT) Reference:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Account Name: Savings Account</li>
+                    <li>Bank: Capitec</li>
+                    <li>Account Number: 1213614048</li>
+                    <li>Branch Code: 470010</li>
+                    <li>REFERENCE: Your Name</li>
+                </ul>
+            </div>
+        </fieldset>
 
             <fieldset class="border p-4 rounded-lg shadow-sm">
                 <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
@@ -301,7 +319,56 @@ function goToPage(page) {
     window.location.href = page;
 }
 // END OF REQUIRED FIREBASE & SUPABASE SETUP
+// --- DYNAMIC PAYMENT FIELD LOGIC ---
+document.addEventListener('DOMContentLoaded', () => {
+    const paymentMethod = document.getElementById('paymentMethod');
+    const container = document.getElementById('paymentDetailsContainer');
 
+    const fields = {
+        'Bank Account': `
+            <div class="form-group">
+                <label for="bankName">Bank Name (Where funds will be deposited)</label>
+                <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
+            </div>
+            <div class="form-group">
+                <label for="bankAccountNumber">Bank Account Number</label>
+                <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
+            </div>
+        `,
+        'eWallet': `
+            <div class="form-group">
+                <label for="eWalletProvider">eWallet Provider (e.g., FNB, Capitec)</label>
+                <input type="text" id="eWalletProvider" required placeholder="e.g., FNB, Capitec">
+            </div>
+            <div class="form-group">
+                <label for="eWalletPhoneNumber">eWallet Registered Phone Number</label>
+                <input type="tel" id="eWalletPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+            </div>
+        `,
+        'CashSend': `
+            <div class="form-group">
+                <label for="cashSendBank">CashSend Bank (e.g., FNB, Standard Bank)</label>
+                <input type="text" id="cashSendBank" required placeholder="e.g., FNB, Standard Bank">
+            </div>
+            <div class="form-group">
+                <label for="cashSendPhoneNumber">Recipient Phone Number (For SMS notification)</label>
+                <input type="tel" id="cashSendPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+            </div>
+        `
+    };
+
+    paymentMethod.addEventListener('change', (e) => {
+        const selected = e.target.value;
+        if (selected && fields[selected]) {
+            container.innerHTML = fields[selected];
+            container.classList.remove('hidden');
+        } else {
+            container.innerHTML = '';
+            container.classList.add('hidden');
+        }
+    });
+});
+// --- END DYNAMIC PAYMENT FIELD LOGIC ---
 // --- UTILITY FUNCTIONS ---
 
 /**
@@ -440,8 +507,30 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             // IMPORTANT: No other employment or income columns are referenced here.
             
             // BANK DETAILS
-            bank_name: document.getElementById('bankName').value,
-            bank_account: document.getElementById('bankAccountNumber').value,
+            // --- NEW PAYMENT DETAILS ---
+const selectedMethod = document.getElementById('paymentMethod').value;
+let paymentDetails = {};
+
+if (selectedMethod === 'Bank Account') {
+    paymentDetails = {
+        name: document.getElementById('bankName').value,
+        account: document.getElementById('bankAccountNumber').value,
+    };
+} else if (selectedMethod === 'eWallet') {
+    paymentDetails = {
+        provider: document.getElementById('eWalletProvider').value,
+        phone: document.getElementById('eWalletPhoneNumber').value,
+    };
+} else if (selectedMethod === 'CashSend') {
+    paymentDetails = {
+        bank: document.getElementById('cashSendBank').value,
+        phone: document.getElementById('cashSendPhoneNumber').value,
+    };
+}
+
+// Map the collected data to the new Supabase columns
+preferred_payment_type: selectedMethod,
+payment_details_json: JSON.stringify(paymentDetails), // Store the object as JSON text
             // REQUEST DATA
             requested_amount: parseFloat(requestedAmountString),
             // Confirmation Data
@@ -521,6 +610,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 </script>
 </body>
 </html>
+
 
 
 
