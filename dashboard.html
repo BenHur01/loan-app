@@ -182,6 +182,32 @@
     </main>
 
     <script type="module">
+        <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 hidden">
+    <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg mx-4 transform transition-all duration-300 scale-95">
+        <h3 class="text-2xl font-bold text-indigo-700 mb-4 flex items-center">
+            <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+            Review Your Application Details
+        </h3>
+        <p class="text-gray-700 mb-6">
+            Please confirm that the payment and loan information below is correct before we proceed with the verification process.
+        </p>
+
+        <div id="modalDetailsSummary" class="bg-gray-50 p-4 rounded-md text-sm mb-6 max-h-60 overflow-y-auto border">
+            <p>Loading...</p>
+        </div>
+
+        <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+            <button id="correctDetailsButton" class="px-5 py-2.5 text-sm font-semibold rounded-lg text-red-700 bg-red-100 hover:bg-red-200 transition duration-150">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                Details are Incorrect (Edit)
+            </button>
+            <button id="confirmDetailsButton" class="px-5 py-2.5 text-sm font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 transition duration-150 shadow-md">
+                <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                All Details are Correct
+            </button>
+        </div>
+    </div>
+</div>
         // Import Supabase Client
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
@@ -458,3 +484,4 @@
     </script>
 </body>
 </html>
+
