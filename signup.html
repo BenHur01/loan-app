@@ -658,12 +658,12 @@
             let reviewMessage = `
                 <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
                 <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
-                    <li>**Full Name:** ${fullName}</li>
-                    <li>**Contact:** ${contactNumber}</li>
-                    <li>**Address (Snippet):** ${residentialAddress.substring(0, 40)}...</li>
-                    <li>**Loan Amount:** R ${parseFloat(requestedAmountString).toFixed(2)}</li>
-                    <li>**Payment Type:** ${selectedMethod}</li>
-                    <li class="break-all">**Payment Details:** ${paymentDetailStr}</li>
+                    <li><strong>Full Name:</strong> ${fullName}</li>
+                    <li><strong>Contact:</strong> ${contactNumber}</li>
+                    <li><strong>Address (Snippet):</strong> ${residentialAddress.substring(0, 40)}...</li>
+                    <li><strong>Loan Amount:</strong> R ${parseFloat(requestedAmountString).toFixed(2)}</li>
+                    <li><strong>Payment Type</strong>: ${selectedMethod}</li>
+                    <li class="break-all"><strong>Payment Details:</strong> ${paymentDetailStr}</li>
                 </ul>
                 <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
             `;
@@ -697,3 +697,4 @@
 </script>
 </body>
 </html>
+
