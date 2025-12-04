@@ -128,10 +128,17 @@
     <div id="custom-alert-modal" class="custom-modal hidden">
         <div class="custom-modal-content">
             <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
-            <p id="modal-message" class="text-gray-600 mb-6"></p>
-            <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
-                OK
-            </button>
+            <div id="modal-message-container" class="text-gray-600 mb-6">
+                <p id="modal-message"></p>
+            </div>
+            <div class="flex space-x-3 mt-4">
+                <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">
+                    Cancel
+                </button>
+                <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                    OK
+                </button>
+            </div>
         </div>
     </div>
 
@@ -226,9 +233,9 @@
                 
                 <div class="form-group">
                     <label for="bankStatement">
-                         <span class="file-label-text">
-                            Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
-                        </span>
+                            <span class="file-label-text">
+                                Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
+                            </span>
                     </label>
                     <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
                 </div>
@@ -323,28 +330,73 @@ function goToPage(page) {
 }
 // END OF REQUIRED FIREBASE & SUPABASE SETUP
 
-// --- UTILITY FUNCTIONS (Moved up for better structure) ---
+// --- UTILITY FUNCTIONS (UPDATED MODAL LOGIC) ---
 
 /**
- * Custom modal replacement for alert()
+ * Custom modal replacement for alert() and confirmation.
  * @param {string} title
- * @param {string} message
+ * @param {string} messageHtml (Can be raw HTML for list/summary)
+ * @param {string} okText
+ * @param {string | null} cancelText
+ * @returns {Promise<string>} 'ok' or 'cancel'
  */
-function customAlert(title, message) {
+function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText = null) {
     const modal = document.getElementById('custom-alert-modal');
     document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-message').textContent = message;
+    
+    // Use innerHTML to handle the formatted review message
+    const messageContainer = document.getElementById('modal-message-container');
+    messageContainer.innerHTML = messageHtml; 
+
+    const okButton = document.getElementById('modal-ok-button');
+    const cancelButton = document.getElementById('modal-cancel-button');
+    
+    okButton.textContent = okText;
+    okButton.classList.remove('w-full', 'w-1/2'); // Reset width classes
+
+    if (cancelText) {
+        cancelButton.textContent = cancelText;
+        cancelButton.classList.remove('hidden');
+        okButton.classList.add('w-1/2');
+        cancelButton.classList.add('w-1/2');
+    } else {
+        // If only one button (standard alert)
+        cancelButton.classList.add('hidden');
+        okButton.classList.add('w-full');
+    }
+    
     modal.classList.remove('hidden');
 
     return new Promise(resolve => {
-        const okButton = document.getElementById('modal-ok-button');
-        const handler = () => {
+        // Handler for OK/Confirm button
+        const okHandler = () => {
             modal.classList.add('hidden');
-            okButton.removeEventListener('click', handler);
-            resolve();
+            okButton.removeEventListener('click', okHandler);
+            if (cancelText) {
+                cancelButton.removeEventListener('click', cancelHandler);
+            }
+            resolve('ok');
         };
-        okButton.addEventListener('click', handler);
+        
+        // Handler for Cancel/Go Back button (only added if cancelText is present)
+        const cancelHandler = () => {
+            modal.classList.add('hidden');
+            okButton.removeEventListener('click', okHandler);
+            cancelButton.removeEventListener('click', cancelHandler);
+            resolve('cancel');
+        };
+
+        okButton.addEventListener('click', okHandler);
+        if (cancelText) {
+            cancelButton.addEventListener('click', cancelHandler);
+        }
     });
+}
+
+// Standard Alert (uses the new function with no cancel button)
+function customAlert(title, message) {
+    // Wrap message in a paragraph tag for the message container
+    return customConfirmationAlert(title, `<p id="modal-message">${message}</p>`, 'OK', null);
 }
 
 /**
@@ -408,15 +460,10 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- DYNAMIC PAYMENT FIELD LOGIC (CRUCIAL FIX APPLIED HERE) ---
+// --- DYNAMIC PAYMENT FIELD LOGIC (UNCHANGED) ---
 document.addEventListener('DOMContentLoaded', () => {
     const paymentMethod = document.getElementById('paymentMethod');
     const container = document.getElementById('paymentDetailsContainer');
-
-    // 🎯 FIX: Added a new class 'dynamic-form-group' with margin-bottom: 0.75rem (instead of 1.25rem) 
-    // to reduce spacing between dynamically added fields, or simply used the base form-group.
-    // I will use 'form-group' but adjust the custom CSS to target inputs inside the container
-    // or, better yet, just use a simpler div structure inside the dynamic HTML.
 
     const fields = {
         'Bank Account': `
@@ -456,7 +503,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
         if (selected && fields[selected]) {
-            // Prepend the P tag to the dynamically generated fields
             container.innerHTML = pTag + fields[selected];
             container.classList.remove('hidden');
         } else {
@@ -468,7 +514,7 @@ document.addEventListener('DOMContentLoaded', () => {
 // --- END DYNAMIC PAYMENT FIELD LOGIC ---
 
 
-// Main submission handler
+// Main submission handler (🌟 LOGIC MODIFIED HERE)
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
     event.preventDefault();
     
@@ -476,7 +522,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     const confirmationTick = document.getElementById('confirmationTick');
     const digitalSignature = document.getElementById('digitalSignature').value.trim();
     const selectedMethod = document.getElementById('paymentMethod').value;
-
+    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
 
     if (!confirmationTick.checked) {
         await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
@@ -490,13 +536,20 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         await customAlert('Validation Error', 'Please select a preferred payment method.');
         return;
     }
+    if (!requestedAmountString) {
+        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
+        goToPage('agreement.html');
+        return;
+    }
     
-    // --- Payment Details Validation & Data Extraction (CRUCIAL FIX) ---
+    // --- Payment Details Validation & Data Extraction ---
     let paymentDetails = {};
+    const fullName = document.getElementById('fullName').value;
+    const contactNumber = document.getElementById('contactNumber').value;
+    const residentialAddress = document.getElementById('residentialAddress').value;
     
     try {
         if (selectedMethod === 'Bank Account') {
-            // Ensure element exists and value is trimmed
             const bankName = document.getElementById('bankName')?.value.trim();
             const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
             if (!bankName || !bankAccountNumber) throw new Error('Bank Account details are incomplete or missing.');
@@ -522,43 +575,31 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     showLoading("Submitting application and starting file uploads...");
 
     const idNumberInput = document.getElementById('idNumber');
-    const borrowerId = idNumberInput.value.trim(); // Use ID number as the unique identifier
-
-    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
-    if (!requestedAmountString) {
-        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
-        hideLoading();
-        goToPage('agreement.html');
-        return;
-    }
+    const borrowerId = idNumberInput.value.trim(); 
 
     try {
-        // --- Get Optional Employment Values (Use || null to handle empty strings for Supabase) ---
+        // --- Get Optional Employment Values ---
         const employerName = document.getElementById('employerName').value.trim();
         const employeeAddress = document.getElementById('employeeAddress').value.trim();
         
-        // 1. Get all form values
+        // 1. Get all form values for insertion
         const data = {
-            id: borrowerId, // IMPORTANT: Use ID Number as primary key
-            full_name: document.getElementById('fullName').value,
-            id_number: borrowerId, // Store ID number in its own column too
-            contact_number: document.getElementById('contactNumber').value,
-            residential_address: document.getElementById('residentialAddress').value,
+            id: borrowerId, 
+            full_name: fullName,
+            id_number: borrowerId, 
+            contact_number: contactNumber,
+            residential_address: residentialAddress,
             
-            // --- CORRECTED EMPLOYMENT FIELDS (Ensures null if not provided) ---
-            employer_name: employerName || null, 
-            employee_address: employeeAddress || null, 
+            employer_name: employerName || null,  
+            employee_address: employeeAddress || null,  
             
-            // --- CORRECTED NEW PAYMENT FIELDS ---
             preferred_payment_type: selectedMethod,
-            payment_details_json: JSON.stringify(paymentDetails), // Store the object as JSON text
+            payment_details_json: JSON.stringify(paymentDetails), 
             
-            // REQUEST DATA
             requested_amount: parseFloat(requestedAmountString),
-            // Confirmation Data
             digital_signature: digitalSignature,
             confirmed_accurate: confirmationTick.checked,
-            // Default values - MATCHING CONFIRMED COLUMN NAMES
+            
             status: 'Pending Review',
             repayment_period: 30, // Default 30 days
             interest_rate: 0.50, // Default 50%
@@ -574,28 +615,16 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         };
 
         // 3. Upload all files and collect URLs
+        showLoading("Uploading documents (This may take up to 30 seconds)...");
         
-        showLoading("Uploading compulsory document 1 of 3: ID Document...");
-        const idPromise = uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}`, true); // Required
-        
-        showLoading("Uploading optional document: Bank Statement...");
-        const statementPromise = uploadFile(files.bankStatement, 'loan_documents', `${borrowerId}/bank-statement-${Date.now()}`, false); // Optional
-        
-        showLoading("Uploading compulsory document 2 of 3: Proof of Address...");
-        const addressPromise = uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}`, true); // Required
-        
-        showLoading("Uploading compulsory document 3 of 3: Live Selfie...");
-        const selfiePromise = uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}`, true); // Required
-
-        // Wait for all uploads to complete
         const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
-            idPromise,
-            statementPromise,
-            addressPromise,
-            selfiePromise
+            uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}`, true), 
+            uploadFile(files.bankStatement, 'loan_documents', `${borrowerId}/bank-statement-${Date.now()}`, false), 
+            uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}`, true), 
+            uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}`, true)
         ]);
 
-        // 4. Update data object with document URLs (statement_url might be null now)
+        // 4. Update data object with document URLs
         data.document_id_url = id_url;
         data.document_bank_url = statement_url;
         data.document_address_url = address_url;
@@ -615,13 +644,49 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             throw new Error('Database submission failed: ' + insertError.message);
         }
 
-        // 6. Success: Save the new ID and redirect
+        // 6. Success: Save the new ID and display the Review Modal
         localStorage.setItem('currentUserId', borrowerId);
-        localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount
+        // Do NOT clear requestedLoanAmount yet, as we might go back.
+
+        hideLoading(); // Hide loading before showing the final review modal
+
+        // A. Construct the Review Message (Formatted HTML)
+        const paymentDetailStr = JSON.stringify(paymentDetails)
+            .replace(/[{}"\\]/g, '')
+            .replace(/,/g, ', ');
+
+        let reviewMessage = `
+            <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
+            <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
+                <li>**Full Name:** ${fullName}</li>
+                <li>**Contact:** ${contactNumber}</li>
+                <li>**Address (Snippet):** ${residentialAddress.substring(0, 40)}...</li>
+                <li>**Loan Amount:** R ${parseFloat(requestedAmountString).toFixed(2)}</li>
+                <li>**Payment Type:** ${selectedMethod}</li>
+                <li class="break-all">**Payment Details:** ${paymentDetailStr}</li>
+            </ul>
+            <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
+        `;
+
+        // B. Show the custom confirmation modal
+        const result = await customConfirmationAlert(
+            'Final Review Required', 
+            reviewMessage, 
+            'Confirm & Go to Dashboard', 
+            'Go Back to Agreement' // This is the new "Go Back" button
+        );
         
-        hideLoading();
-        await customAlert('Success', `Application Submitted! Your ID is ${borrowerId}. You will now be redirected to your dashboard.`);
-        goToPage('dashboard.html');
+        // C. Act based on the user's choice
+        if (result === 'ok') {
+            // User Confirmed -> Redirect to Dashboard
+            localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount only upon final confirmation
+            goToPage('dashboard.html');
+        } else {
+            // User Canceled/Went Back -> Redirect to Agreement page
+            // The data is already saved, but the user wants to review the agreement first.
+            goToPage('agreement.html');
+        }
+
 
     } catch (error) {
         hideLoading();
