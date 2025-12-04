@@ -223,3 +223,405 @@
                         </span>
                     </label>
                     <input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="bankStatement">
+                         <span class="file-label-text">
+                            Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
+                        </span>
+                    </label>
+                    <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
+                </div>
+
+                <div class="form-group">
+                    <label for="proofOfAddress">
+                        <span class="file-label-text">
+                            Proof of Residence (e.g., Utility Bill) <span class="text-red-500 font-bold">(Compulsory)</span>
+                        </span>
+                    </label>
+                    <input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="selfieDocument">
+                        <span class="file-label-text">
+                            Live Selfie <span class="text-red-500 font-bold">(Compulsory - Camera Only)</span>
+                        </span>
+                    </label>
+                    <input type="file" id="selfieDocument" accept="image/*" required capture="user">
+                </div>
+            </fieldset>
+
+            <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
+                <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
+                <div class="form-group">
+                    <label class="flex items-start cursor-pointer p-3 border border-indigo-200 bg-white rounded-lg shadow-inner">
+                        <input type="checkbox" id="confirmationTick" required class="mt-1 mr-3 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                        <span class="text-sm text-gray-800 font-medium">
+                            I confirm that all details provided in this loan application are true, accurate, and complete to the best of my knowledge and belief. I understand that any false statement or omission may lead to the rejection of my application, withdrawal of any agreement, and potential legal action.
+                        </span>
+                    </label>
+                </div>
+
+                <div class="form-group mt-6">
+                    <label for="digitalSignature" class="block text-base font-bold text-gray-900 mb-2">Type "YES" to digitally sign the application</label>
+                    <input type="text" id="digitalSignature" required placeholder="Type YES in capital letters">
+                </div>
+            </fieldset>
+            
+            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
+                Submit Application
+            </button>
+        </form>
+
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a>
+        </div>
+    </main>
+
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loader"></div>
+        <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
+        <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
+    </div>
+    
+<script type="module">
+// START OF REQUIRED FIREBASE & SUPABASE SETUP
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+
+// --- Global Variables (Provided by Canvas) ---
+const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+// --- Firebase Init (Used for Authentication/User Context) ---
+let auth;
+if (Object.keys(firebaseConfig).length > 0) {
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    if (initialAuthToken) {
+        signInWithCustomToken(auth, initialAuthToken).catch(e => {
+            console.error("Firebase custom sign-in failed:", e);
+            signInAnonymously(auth);
+        });
+    } else {
+        signInAnonymously(auth);
+    }
+} else {
+    console.warn("Firebase configuration not found. Skipping Firebase initialization.");
+}
+
+// --- Supabase Config ---
+const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+
+export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+function goToPage(page) {
+    window.location.href = page;
+}
+// END OF REQUIRED FIREBASE & SUPABASE SETUP
+
+// --- UTILITY FUNCTIONS (Moved up for better structure) ---
+
+/**
+ * Custom modal replacement for alert()
+ * @param {string} title
+ * @param {string} message
+ */
+function customAlert(title, message) {
+    const modal = document.getElementById('custom-alert-modal');
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-message').textContent = message;
+    modal.classList.remove('hidden');
+
+    return new Promise(resolve => {
+        const okButton = document.getElementById('modal-ok-button');
+        const handler = () => {
+            modal.classList.add('hidden');
+            okButton.removeEventListener('click', handler);
+            resolve();
+        };
+        okButton.addEventListener('click', handler);
+    });
+}
+
+/**
+ * Shows the loading overlay with a specific message.
+ * @param {string} message 
+ */
+function showLoading(message) {
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+/**
+ * Hides the loading overlay.
+ */
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+
+/**
+ * Uploads a file to Supabase Storage and returns the public URL.
+ * @param {File} file The file object to upload.
+ * @param {string} bucket The Supabase Storage bucket name.
+ * @param {string} path The path within the bucket (e.g., 'documents/user-id/id-doc.pdf').
+ * @param {boolean} isRequired Whether the file is mandatory.
+ * @returns {Promise<string | null>} The public URL of the uploaded file, or null if file is optional and not provided.
+ */
+async function uploadFile(file, bucket, path, isRequired = true) {
+    if (!file) {
+        if (isRequired) {
+            throw new Error("A compulsory file was not provided for upload.");
+        }
+        // If optional and not provided, return null
+        return null;
+    }
+    
+    // Upload the file
+    const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, {
+            cacheControl: '3600',
+            upsert: false 
+        });
+
+    if (error) {
+        console.error('Supabase upload error:', error);
+        throw new Error('File upload failed: ' + error.message);
+    }
+
+    // Get the public URL for the uploaded file
+    const { data: publicUrlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(data.path);
+        
+    if (!publicUrlData || !publicUrlData.publicUrl) {
+        throw new Error('Could not retrieve public URL after successful upload.');
+    }
+
+    return publicUrlData.publicUrl;
+}
+
+// --- DYNAMIC PAYMENT FIELD LOGIC (This logic is correct and was likely just skipped due to other errors) ---
+document.addEventListener('DOMContentLoaded', () => {
+    const paymentMethod = document.getElementById('paymentMethod');
+    const container = document.getElementById('paymentDetailsContainer');
+
+    const fields = {
+        'Bank Account': `
+            <div class="form-group">
+                <label for="bankName">Bank Name (Where funds will be deposited)</label>
+                <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
+            </div>
+            <div class="form-group">
+                <label for="bankAccountNumber">Bank Account Number</label>
+                <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
+            </div>
+        `,
+        'eWallet': `
+            <div class="form-group">
+                <label for="eWalletProvider">eWallet Provider (e.g., FNB, Capitec)</label>
+                <input type="text" id="eWalletProvider" required placeholder="e.g., FNB, Capitec">
+            </div>
+            <div class="form-group">
+                <label for="eWalletPhoneNumber">eWallet Registered Phone Number</label>
+                <input type="tel" id="eWalletPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+            </div>
+        `,
+        'CashSend': `
+            <div class="form-group">
+                <label for="cashSendBank">CashSend Bank (e.g., FNB, Standard Bank)</label>
+                <input type="text" id="cashSendBank" required placeholder="e.g., FNB, Standard Bank">
+            </div>
+            <div class="form-group">
+                <label for="cashSendPhoneNumber">Recipient Phone Number (For SMS notification)</label>
+                <input type="tel" id="cashSendPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+            </div>
+        `
+    };
+
+    paymentMethod.addEventListener('change', (e) => {
+        const selected = e.target.value;
+        if (selected && fields[selected]) {
+            container.innerHTML = fields[selected];
+            container.classList.remove('hidden');
+        } else {
+            container.innerHTML = '';
+            container.classList.add('hidden');
+        }
+    });
+});
+// --- END DYNAMIC PAYMENT FIELD LOGIC ---
+
+
+// Main submission handler
+document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
+    
+    // --- 0. Pre-Submission and Final Confirmation Validation ---
+    const confirmationTick = document.getElementById('confirmationTick');
+    const digitalSignature = document.getElementById('digitalSignature').value.trim();
+    const selectedMethod = document.getElementById('paymentMethod').value;
+
+
+    if (!confirmationTick.checked) {
+        await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
+        return;
+    }
+    if (digitalSignature !== 'YES') {
+        await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
+        return;
+    }
+    if (!selectedMethod) {
+        await customAlert('Validation Error', 'Please select a preferred payment method.');
+        return;
+    }
+    
+    // --- Payment Details Validation & Data Extraction (CRUCIAL FIX) ---
+    let paymentDetails = {};
+    
+    try {
+        if (selectedMethod === 'Bank Account') {
+            // Ensure element exists and value is trimmed
+            const bankName = document.getElementById('bankName')?.value.trim();
+            const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
+            if (!bankName || !bankAccountNumber) throw new Error('Bank Account details are incomplete or missing.');
+            paymentDetails = { name: bankName, account: bankAccountNumber };
+        } else if (selectedMethod === 'eWallet') {
+            const provider = document.getElementById('eWalletProvider')?.value.trim();
+            const phone = document.getElementById('eWalletPhoneNumber')?.value.trim();
+            if (!provider || !phone) throw new Error('eWallet details are incomplete or missing.');
+            paymentDetails = { provider: provider, phone: phone };
+        } else if (selectedMethod === 'CashSend') {
+            const bank = document.getElementById('cashSendBank')?.value.trim();
+            const phone = document.getElementById('cashSendPhoneNumber')?.value.trim();
+            if (!bank || !phone) throw new Error('CashSend details are incomplete or missing.');
+            paymentDetails = { bank: bank, phone: phone };
+        }
+    } catch (e) {
+        await customAlert('Validation Error', e.message);
+        return;
+    }
+    // --- END Payment Details Validation ---
+
+    // Now that validation is complete, show loading
+    showLoading("Submitting application and starting file uploads...");
+
+    const idNumberInput = document.getElementById('idNumber');
+    const borrowerId = idNumberInput.value.trim(); // Use ID number as the unique identifier
+
+    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
+    if (!requestedAmountString) {
+        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
+        hideLoading();
+        goToPage('agreement.html');
+        return;
+    }
+
+    try {
+        // --- Get Optional Employment Values (Use || null to handle empty strings for Supabase) ---
+        const employerName = document.getElementById('employerName').value.trim();
+        const employeeAddress = document.getElementById('employeeAddress').value.trim();
+        
+        // 1. Get all form values
+        const data = {
+            id: borrowerId, // IMPORTANT: Use ID Number as primary key
+            full_name: document.getElementById('fullName').value,
+            id_number: borrowerId, // Store ID number in its own column too
+            contact_number: document.getElementById('contactNumber').value,
+            residential_address: document.getElementById('residentialAddress').value,
+            
+            // --- CORRECTED EMPLOYMENT FIELDS (Ensures null if not provided) ---
+            employer_name: employerName || null, 
+            employee_address: employeeAddress || null, 
+            
+            // --- CORRECTED NEW PAYMENT FIELDS ---
+            preferred_payment_type: selectedMethod,
+            payment_details_json: JSON.stringify(paymentDetails), // Store the object as JSON text
+            
+            // REQUEST DATA
+            requested_amount: parseFloat(requestedAmountString),
+            // Confirmation Data
+            digital_signature: digitalSignature,
+            confirmed_accurate: confirmationTick.checked,
+            // Default values - MATCHING CONFIRMED COLUMN NAMES
+            status: 'Pending Review',
+            repayment_period: 30, // Default 30 days
+            interest_rate: 0.50, // Default 50%
+            date_submitted: new Date().toISOString()
+        };
+        
+        // 2. Prepare files for upload
+        const files = {
+            idDocument: document.getElementById('idDocument').files[0],
+            bankStatement: document.getElementById('bankStatement').files[0],
+            proofOfAddress: document.getElementById('proofOfAddress').files[0],
+            selfieDocument: document.getElementById('selfieDocument').files[0]
+        };
+
+        // 3. Upload all files and collect URLs
+        
+        showLoading("Uploading compulsory document 1 of 3: ID Document...");
+        const idPromise = uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}`, true); // Required
+        
+        showLoading("Uploading optional document: Bank Statement...");
+        const statementPromise = uploadFile(files.bankStatement, 'loan_documents', `${borrowerId}/bank-statement-${Date.now()}`, false); // Optional
+        
+        showLoading("Uploading compulsory document 2 of 3: Proof of Address...");
+        const addressPromise = uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}`, true); // Required
+        
+        showLoading("Uploading compulsory document 3 of 3: Live Selfie...");
+        const selfiePromise = uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}`, true); // Required
+
+        // Wait for all uploads to complete
+        const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
+            idPromise,
+            statementPromise,
+            addressPromise,
+            selfiePromise
+        ]);
+
+        // 4. Update data object with document URLs (statement_url might be null now)
+        data.document_id_url = id_url;
+        data.document_bank_url = statement_url;
+        data.document_address_url = address_url;
+        data.document_selfie_url = selfie_url;
+
+        showLoading("Inserting application data into the database...");
+        
+        // 5. Insert data into the 'borrowers' table
+        const { error: insertError } = await supabase
+            .from('borrowers')
+            .insert([
+                { ...data }
+            ]);
+
+        if (insertError) {
+            console.error('Supabase Insert Error:', insertError);
+            throw new Error('Database submission failed: ' + insertError.message);
+        }
+
+        // 6. Success: Save the new ID and redirect
+        localStorage.setItem('currentUserId', borrowerId);
+        localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount
+        
+        hideLoading();
+        await customAlert('Success', `Application Submitted! Your ID is ${borrowerId}. You will now be redirected to your dashboard.`);
+        goToPage('dashboard.html');
+
+    } catch (error) {
+        hideLoading();
+        console.error('Application Submission Error:', error);
+        await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
+    }
+});
+</script>
+</body>
+</html>
