@@ -106,28 +106,21 @@ export function goToPage(page) {
 // END OF SHARED/SUPABASE SCRIPT CONTENT
 
 document.getElementById('agreementForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+    event.preventDefault(); // This stops the page reload
 
-    const loanAmountInput = document.getElementById('loanAmount');
-    const amount = parseFloat(loanAmountInput.value);
+    const amountInput = document.getElementById('loanAmount');
+    const amount = amountInput.value.trim();
 
-    if (isNaN(amount) || amount < 200 || amount > 2000) {
-        alert("Please enter a valid loan amount between R200 and R2000.");
-        loanAmountInput.focus();
-        return;
+    if (amount && parseFloat(amount) > 0) {
+        // 1. SAVE THE AMOUNT: THIS IS THE CRITICAL STEP
+        localStorage.setItem('requestedLoanAmount', amount);
+
+        // 2. REDIRECT: Ensure this URL is correct (your Sign-up/Application page)
+        window.location.href = 'signup.html'; // Or whatever your next page is named
+    } else {
+        // Validation failed
+        alert('Please enter a valid loan amount.');
     }
-
-    const termsChecked = document.getElementById('termsCheck').checked;
-    if (!termsChecked) {
-        alert("You must agree to the terms and conditions to proceed.");
-        return;
-    }
-
-    // Save the requested amount to local storage
-    localStorage.setItem('requestedLoanAmount', amount.toFixed(2));
-
-    // Redirect to the application form
-    window.location.href = 'signup.html';
 });
 
 // REMOVED: The page load check that redirected users to the dashboard if an ID was found in localStorage.
@@ -135,4 +128,5 @@ document.getElementById('agreementForm').addEventListener('submit', function(eve
     </script>
 </body>
 </html>
+
 
