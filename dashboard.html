@@ -97,4 +97,467 @@
                 <p class="text-lg text-gray-700 font-bold mb-3">No Active Application Found</p>
                 <p class="text-gray-500">
                     Your application status is not yet available. Please ensure you have completed the 
-                    <a href="agreement.html" class="text-indigo-600 hover:text-indigo-800 font-medium underline
+                    <a href="agreement.html" class="text-indigo-600 hover:text-indigo-800 font-medium underline transition duration-150">Loan Agreement</a> and 
+                    <a href="signup.html" class="text-indigo-600 hover:text-indigo-800 font-medium underline transition duration-150">Application Form</a> first.
+                </p>
+            </div>
+
+            <div id="loanDetails" class="hidden">
+                <div class="mb-6 p-4 border-l-4 border-indigo-500 bg-indigo-50 rounded-r-lg shadow-sm">
+                    <h4 class="text-lg font-semibold text-indigo-700">Current Status:</h4>
+                    <div id="detailStatus" class="mt-1 text-2xl font-extrabold">
+                        </div>
+                </div>
+
+                <h3 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Application Details</h3>
+
+                <div class="detail-grid grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 p-4 rounded-lg">
+                    <div class="col-span-1">
+                        <div class="font-medium text-gray-600">ID Number:</div>
+                        <div id="detailID" class="text-gray-800 font-semibold"></div>
+                    </div>
+                    <div class="col-span-1">
+                        <div class="font-medium text-gray-600">Name:</div>
+                        <div id="detailName" class="text-gray-800 font-semibold truncate"></div>
+                    </div>
+
+                    <div class="col-span-1">
+                        <div class="font-medium text-gray-600">Requested Amount:</div>
+                        <div id="detailAmount" class="text-green-600 font-extrabold"></div>
+                    </div>
+
+                    <div class="col-span-1">
+                        <div class="font-medium text-gray-600">Final Amount to be Repaid:</div>
+                        <div id="detailFinalAmount" class="text-red-600 font-extrabold text-lg"></div>
+                    </div>
+
+                    <div class="col-span-1">
+                        <div class="font-medium text-gray-600">Repayment Due Date (30 Days Fixed):</div>
+                        <div id="detailRepaymentDate" class="text-gray-800 font-semibold"></div>
+                    </div>
+                    
+                    <div class="col-span-1">
+                        <div class="font-medium text-gray-600">Interest Rate:</div>
+                        <div id="detailInterest" class="text-red-500 font-semibold"></div>
+                    </div>
+                </div>
+
+                <div class="mb-6 p-4 border border-indigo-200 bg-indigo-50 rounded-lg mt-6">
+                    <h3 class="text-xl font-bold text-indigo-800 mb-3 flex items-center">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"></path></svg>
+                        Payout Method
+                    </h3>
+                    <div class="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                            <p class="font-medium text-gray-600">Preferred Type:</p>
+                            <p id="preferredPaymentType" class="text-gray-900 font-semibold italic">Loading...</p>
+                        </div>
+                        <div id="dynamicPaymentDetailsDisplay">
+                            <p class="font-medium text-gray-600">Specific Details:</p>
+                            <p class="text-gray-900">Details loading...</p>
+                        </div>
+                    </div>
+                </div>
+                <div id="repaymentCountdown" class="mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-lg shadow-md hidden">
+                    <h4 class="text-xl font-semibold text-red-700 flex items-center mb-2">
+                        <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        Repayment Due In:
+                    </h4>
+                    <p id="countdownDisplay" class="text-3xl font-extrabold text-red-900"></p>
+                </div>
+
+
+                <h4 class="text-xl font-semibold mt-8 mb-3 text-gray-800 border-b pb-2">Submitted Documents</h4>
+                <div id="documentLinks" class="space-y-2 text-sm text-gray-700 p-4 bg-gray-50 rounded-lg">
+                    </div>
+                    
+                <div id="statusMessage" class="mt-6 p-4 rounded-lg font-medium hidden">
+                    </div>
+            </div>
+        </div>
+        
+        <div class="mt-8 text-center">
+            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium transition duration-150">Go back to Home</a>
+        </div>
+    </main>
+
+    <div id="confirmationModal" class="fixed inset-0 bg-gray-600 bg-opacity-75 flex items-center justify-center z-50 hidden">
+        <div class="bg-white rounded-lg shadow-xl p-8 w-full max-w-lg mx-4 transform transition-all duration-300 scale-95">
+            <h3 class="text-2xl font-bold text-indigo-700 mb-4 flex items-center">
+                <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                Review Your Application Details
+            </h3>
+            <p class="text-gray-700 mb-6">
+                Please confirm that the payment and loan information below is correct before we proceed with the verification process.
+            </p>
+
+            <div id="modalDetailsSummary" class="bg-gray-50 p-4 rounded-md text-sm mb-6 max-h-60 overflow-y-auto border">
+                <p>Loading...</p>
+            </div>
+
+            <div class="flex flex-col sm:flex-row justify-end space-y-3 sm:space-y-0 sm:space-x-3">
+                <button id="correctDetailsButton" class="px-5 py-2.5 text-sm font-semibold rounded-lg text-red-700 bg-red-100 hover:bg-red-200 transition duration-150">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                    Details are Incorrect (Edit)
+                </button>
+                <button id="confirmDetailsButton" class="px-5 py-2.5 text-sm font-semibold rounded-lg text-white bg-green-600 hover:bg-green-700 transition duration-150 shadow-md">
+                    <svg class="w-4 h-4 inline mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                    All Details are Correct
+                </button>
+            </div>
+        </div>
+    </div>
+    <script type="module">
+        // Import Supabase Client
+        import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+        // Supabase configuration (as defined in previous steps)
+        const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+        const SUPABASE_ANON_KEY =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+
+        const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        /**
+         * Helper function to calculate the last day of the current month.
+         * The repayment is fixed to the end of the current month (e.g., 31 Dec 2025).
+         * @returns {{timestamp: number, displayDate: string}}
+         */
+        function getFixedRepaymentDueDate() {
+            const date = new Date();
+            const year = date.getFullYear();
+            const month = date.getMonth(); // 0-indexed
+
+            // Go to the first day of the *next* month
+            const dueDate = new Date(year, month + 1, 1);
+            // Subtract one millisecond to get the last day of the current month, right before midnight
+            dueDate.setDate(dueDate.getDate() - 1);
+            dueDate.setHours(23, 59, 59, 999); 
+
+            // Format for display: "31 December 2025"
+            const displayOptions = { day: 'numeric', month: 'long', year: 'numeric' };
+            const displayDate = dueDate.toLocaleDateString('en-GB', displayOptions);
+
+            return { timestamp: dueDate.getTime(), displayDate };
+        }
+
+
+        /**
+         * Fetches borrower status from Supabase based on ID number.
+         * @param {string} idNumber 
+         * @returns {Promise<Object | null>}
+         */
+        async function lookupBorrowerStatus(idNumber){
+            if (!idNumber) return null;
+            try {
+                // *** UPDATED: SELECTS ALL COLUMNS FOR PRE-FILL FEATURE ***
+                const { data, error } = await supabase.from('borrowers')
+                    .select('*') 
+                    .eq('id_number', idNumber).single();
+                
+                // PGRST116 means no rows found (ID not in database)
+                if (error && error.code!=='PGRST116') { 
+                    console.error("Supabase Error:", error); 
+                    return null; 
+                }
+                return data || null;
+            } catch(e){ 
+                console.error("Lookup Exception:", e); 
+                return null; 
+            }
+        }
+
+        /**
+         * Calculates and updates the countdown timer based on a fixed due timestamp.
+         * @param {number} dueDateTimestamp - The calculated due date timestamp.
+         */
+        function startCountdown(dueDateTimestamp) {
+            const countdownDiv = document.getElementById('repaymentCountdown');
+            const display = document.getElementById('countdownDisplay');
+
+            // Immediately show the countdown element
+            countdownDiv.classList.remove('hidden');
+
+            const updateTimer = () => {
+                const now = new Date().getTime();
+                const distance = dueDateTimestamp - now;
+
+                if (distance < 0) {
+                    clearInterval(timerInterval);
+                    display.innerHTML = "<strong>OVERDUE</strong> - Please contact support immediately.";
+                    countdownDiv.classList.replace('bg-red-50', 'bg-red-200'); // Make it stand out more
+                    return;
+                }
+
+                // Time calculations for days, hours, minutes and seconds
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+
+                display.innerHTML = `
+                    <span class="text-4xl">${days}</span> Days :
+                    <span class="text-4xl">${String(hours).padStart(2, '0')}</span> Hrs :
+                    <span class="text-4xl">${String(minutes).padStart(2, '0')}</span> Mins
+                `;
+                
+                // Optional: Change color when approaching deadline
+                if (days < 5 && distance > 0) {
+                    countdownDiv.classList.replace('bg-red-50', 'bg-orange-100');
+                }
+            };
+
+            // Run update timer immediately, then every minute (60,000ms) for efficiency
+            updateTimer();
+            const timerInterval = setInterval(updateTimer, 60000);
+        }
+
+
+        // Logic for the Dashboard Page
+        document.addEventListener('DOMContentLoaded', async () => {
+            const userId = localStorage.getItem('currentUserId');
+            const loadingMessage = document.getElementById('loadingMessage');
+            const noApplicationMessage = document.getElementById('noApplicationMessage');
+            const loanDetails = document.getElementById('loanDetails');
+            const statusMessageDiv = document.getElementById('statusMessage');
+
+            if (!userId) {
+                loadingMessage.classList.add('hidden');
+                noApplicationMessage.classList.remove('hidden');
+                return;
+            }
+
+            const statusData = await lookupBorrowerStatus(userId);
+            loadingMessage.classList.add('hidden');
+
+            if (!statusData) {
+                noApplicationMessage.classList.remove('hidden');
+                return;
+            }
+
+            const borrower = statusData; // Rename for clarity in this block
+            
+            // Destructure data
+            const { 
+                status, 
+                full_name, 
+                requested_amount, 
+                interest_rate, // Required for calculation
+                document_id_url, 
+                document_address_url, 
+                document_bank_url,
+                document_selfie_url,
+                preferred_payment_type, 
+                payment_details_json 
+            } = borrower;
+
+            // --- CALCULATIONS ---
+            const interest = parseFloat(interest_rate || 0.50); // Fallback to 50% if rate is missing
+            const finalRepaymentAmount = requested_amount * (1 + interest);
+            const fixedDueDate = getFixedRepaymentDueDate();
+
+
+            // --- 1. Display Core Details (Updated) ---
+            document.getElementById('detailName').textContent = full_name;
+            document.getElementById('detailID').textContent = userId;
+            document.getElementById('detailAmount').textContent = `R${requested_amount.toFixed(2)}`;
+            
+            // NEW: Final Amount to be Repaid
+            document.getElementById('detailFinalAmount').textContent = `R${finalRepaymentAmount.toFixed(2)}`;
+            
+            // MODIFIED: Repayment Due Date
+            document.getElementById('detailRepaymentDate').textContent = fixedDueDate.displayDate;
+            
+            // Interest Rate
+            document.getElementById('detailInterest').textContent = `${(interest * 100).toFixed(2)}%`;
+            
+            
+            // --- 2. Display Payment Details (NEW) ---
+            document.getElementById('preferredPaymentType').textContent = preferred_payment_type || 'N/A';
+            const dynamicDetailsContainer = document.getElementById('dynamicPaymentDetailsDisplay');
+
+            if (payment_details_json) {
+                try {
+                    const details = JSON.parse(payment_details_json);
+                    let detailHtml = '<p class="font-medium text-gray-600">Specific Details:</p>';
+
+                    if (preferred_payment_type === 'Bank Account') {
+                        detailHtml += `<ul class="list-disc list-inside ml-4 text-gray-900 font-medium">
+                            <li>Bank: **${details.name || 'N/A'}**</li>
+                            <li>Account: **${details.account || 'N/A'}**</li>
+                        </ul>`;
+                    } else if (preferred_payment_type === 'eWallet') {
+                        detailHtml += `<ul class="list-disc list-inside ml-4 text-gray-900 font-medium">
+                            <li>Provider: **${details.provider || 'N/A'}**</li>
+                            <li>Phone: **${details.phone || 'N/A'}**</li>
+                        </ul>`;
+                    } else if (preferred_payment_type === 'CashSend') {
+                        detailHtml += `<ul class="list-disc list-inside ml-4 text-gray-900 font-medium">
+                            <li>Bank: **${details.bank || 'N/A'}**</li>
+                            <li>Phone: **${details.phone || 'N/A'}**</li>
+                        </ul>`;
+                    } else {
+                        detailHtml += `<p class="text-gray-500">No structured details available.</p>`;
+                    }
+                    
+                    dynamicDetailsContainer.innerHTML = detailHtml;
+
+                } catch (e) {
+                    console.error("Error parsing payment_details_json:", e);
+                    dynamicDetailsContainer.innerHTML = '<p class="text-red-500">Error loading payment details.</p>';
+                }
+            } else {
+                // Fallback if the JSON column is empty
+                dynamicDetailsContainer.innerHTML = '<p class="text-gray-500">No payment details submitted.</p>';
+            }
+
+
+            // --- 3. Display Status Badge ---
+            let statusClass = 'status-pending';
+            let messageContent = '';
+            let messageBg = '';
+
+            if (status === 'approved') {
+                statusClass = 'status-approved';
+                messageBg = 'bg-green-100 border-green-500 text-green-800';
+                messageContent = `Congratulations! Your loan of R${requested_amount.toFixed(2)} has been APPROVED. The funds will be transferred to your account (via **${preferred_payment_type}**) within 24 hours. The total amount due is R${finalRepaymentAmount.toFixed(2)}.`;
+                
+                // Start countdown using the fixed end-of-month date
+                startCountdown(fixedDueDate.timestamp);
+                
+            } else if (status === 'rejected') {
+                statusClass = 'status-rejected';
+                messageBg = 'bg-red-100 border-red-500 text-red-800';
+                messageContent = `Your loan application has been REJECTED at this time. This decision is based on a review of the submitted documentation and eligibility criteria.`;
+            } else {
+                // Pending
+                statusClass = 'status-pending'; // Ensure status is explicitly set to pending for visual state
+                messageBg = 'bg-yellow-100 border-yellow-500 text-yellow-800';
+                messageContent = `Your application is currently PENDING review by our finance team. We will update you with a final decision within 48 hours. Thank you for your patience.`;
+            }
+            
+            document.getElementById('detailStatus').innerHTML = `
+                <span class="status-badge ${statusClass}">${status}</span>
+            `;
+
+            // Display dynamic status message
+            statusMessageDiv.className = `mt-6 p-4 rounded-lg font-medium border-l-4 ${messageBg}`;
+            statusMessageDiv.innerHTML = `<p>${messageContent}</p>`;
+            statusMessageDiv.classList.remove('hidden');
+
+
+            // --- 4. Display Document Confirmation ---
+            const checkIcon = '&#10003;'; // Check mark
+            const crossIcon = '&#10007;'; // Cross mark
+            const infoIcon = '&#x2139;'; // Information icon
+
+            // Standard compulsory document check
+            const getCompulsoryDocStatus = (url, name) => {
+                const icon = url ? checkIcon : crossIcon;
+                const color = url ? 'text-green-600' : 'text-red-500';
+                const text = url ? 'Upload Confirmed' : 'Missing (Compulsory)';
+                return `<p class="flex justify-between">
+                            <span class="font-bold">${name}:</span> 
+                            <span class="${color}">${icon} ${text}</span>
+                        </p>`;
+            };
+
+            // Specific optional document check
+            const getOptionalDocStatus = (url, name) => {
+                const icon = url ? checkIcon : infoIcon;
+                const color = url ? 'text-green-600' : 'text-yellow-600';
+                const text = url ? 'Upload Confirmed' : 'Not Provided (Optional)';
+                return `<p class="flex justify-between">
+                            <span class="font-bold">${name}:</span> 
+                            <span class="${color}">${icon} ${text}</span>
+                        </p>`;
+            };
+
+            document.getElementById('documentLinks').innerHTML = 
+                getCompulsoryDocStatus(document_id_url, 'ID Document') +
+                getOptionalDocStatus(document_bank_url, 'Bank Statement') +
+                getCompulsoryDocStatus(document_address_url, 'Proof of Address') +
+                getCompulsoryDocStatus(document_selfie_url, 'Live Selfie');
+
+            loanDetails.classList.remove('hidden');
+
+            // --- 5. NEW: REVIEW/CORRECTION MODAL LOGIC ---
+            const confirmationModal = document.getElementById('confirmationModal');
+            const confirmButton = document.getElementById('confirmDetailsButton');
+            const correctButton = document.getElementById('correctDetailsButton');
+            const modalSummary = document.getElementById('modalDetailsSummary');
+
+            // Check if the user has already confirmed (using a localStorage flag) and if the status is PENDING
+            const isConfirmed = localStorage.getItem('detailsConfirmed') === 'true';
+
+            if (status === 'pending' && !isConfirmed) {
+                
+                // 1. Build the summary content
+                let paymentDetailsSummary = '';
+                if (payment_details_json) {
+                    try {
+                        const details = JSON.parse(payment_details_json);
+                        if (preferred_payment_type === 'Bank Account') {
+                            paymentDetailsSummary = `
+                                <li>Bank Name: **${details.name || 'N/A'}**</li>
+                                <li>Account No.: **${details.account || 'N/A'}**</li>
+                            `;
+                        } else if (preferred_payment_type === 'eWallet' || preferred_payment_type === 'CashSend') {
+                            paymentDetailsSummary = `
+                                <li>Provider/Bank: **${details.provider || details.bank || 'N/A'}**</li>
+                                <li>Phone No.: **${details.phone || 'N/A'}**</li>
+                            `;
+                        }
+                    } catch (e) {
+                        paymentDetailsSummary = `<li><span class="text-red-500">Error: Could not parse payment details.</span></li>`;
+                    }
+                } else {
+                    paymentDetailsSummary = `<li><span class="text-red-500">Missing Payment Details.</span></li>`;
+                }
+
+                modalSummary.innerHTML = `
+                    <p class="font-bold mb-2 text-base text-gray-800">Loan & Repayment:</p>
+                    <ul class="list-disc list-inside ml-4 mb-4">
+                        <li>Amount Requested: **R${requested_amount.toFixed(2)}**</li>
+                        <li>Final Repayment: **R${finalRepaymentAmount.toFixed(2)}**</li>
+                        <li>Repayment Due: **${fixedDueDate.displayDate}**</li>
+                    </ul>
+
+                    <p class="font-bold mb-2 text-base text-gray-800">Personal Details:</p>
+                    <ul class="list-disc list-inside ml-4 mb-4">
+                        <li>Name: **${full_name}**</li>
+                        <li>ID Number: **${borrower.id_number}**</li>
+                        <li>Contact: **${borrower.contact_number || 'N/A'}**</li>
+                        <li>Address: **${borrower.residential_address || 'N/A'}**</li>
+                    </ul>
+
+                    <p class="font-bold mb-2 text-base text-gray-800">Payout Method (${preferred_payment_type || 'N/A'}):</p>
+                    <ul class="list-disc list-inside ml-4">
+                        ${paymentDetailsSummary}
+                    </ul>
+                `;
+                
+                // 2. Show the modal
+                confirmationModal.classList.remove('hidden');
+
+                // 3. Handle 'Confirm' button click
+                confirmButton.onclick = () => {
+                    localStorage.setItem('detailsConfirmed', 'true');
+                    confirmationModal.classList.add('hidden');
+                };
+
+                // 4. Handle 'Correct' button click
+                correctButton.onclick = () => {
+                    // Store ALL borrower data in session storage for pre-filling the form
+                    sessionStorage.setItem('prefillData', JSON.stringify(borrower));
+                    
+                    // Redirect to the application form page (signup.html)
+                    // The '?edit=true' flag can be used by the signup page for custom messaging/flow
+                    window.location.href = 'signup.html?edit=true'; 
+                };
+            }
+            // --- END MODAL LOGIC ---
+        });
+
+    </script>
+</body>
+</html>
