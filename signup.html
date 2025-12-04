@@ -265,6 +265,7 @@
     </div>
 
     <script type="module">
+<script type="module">
 // START OF REQUIRED FIREBASE & SUPABASE SETUP
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
@@ -292,7 +293,6 @@ if (Object.keys(firebaseConfig).length > 0) {
 }
 
 // --- Supabase Config ---
-// NOTE: Using the user-provided keys
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
@@ -431,11 +431,14 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             contact_number: document.getElementById('contactNumber').value,
             residential_address: document.getElementById('residentialAddress').value,
             
-            // --- UPDATED EMPLOYMENT FIELDS ---
+            // --- CORRECTED EMPLOYMENT FIELDS ---
             // Set to null if the fields are empty strings (since they are now optional)
             employer_name: employerName || null, 
-            employment_detail: employeeAddress || null, // employeeAddress maps to the existing employment_detail column
-            monthly_income: null, // Set to NULL since the Gross Monthly Income field was removed
+            
+            // NOTE: This sends the input to the existing and now-optional 'employee_address' column
+            employee_address: employeeAddress || null, 
+            
+            // IMPORTANT: Removed all references to non-existent columns (monthly_income, employment_detail)
             
             // BANK DETAILS
             bank_name: document.getElementById('bankName').value,
@@ -516,8 +519,9 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         console.error('Application Submission Error:', error);
         await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
     }
-});
+    });
     </script>
 </body>
 </html>
+
 
