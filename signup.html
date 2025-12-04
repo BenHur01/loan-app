@@ -28,19 +28,16 @@
         }
         .form-group {
             margin-bottom: 1.25rem;
-            /* === CRITICAL FIX: Ensure inputs/labels are aligned in a column if needed === */
         }
         label {
             display: block;
             font-weight: 500;
             margin-bottom: 0.5rem;
             color: #1f2937;
-            /* === FIX: Align label text to the left === */
             text-align: left;
         }
         /* New Style to ensure file labels align consistently */
         .file-label-text {
-            /* Ensure the text inside the label (e.g., the title + the required/optional tag) is on a single line for alignment if possible, or manages wrapping cleanly */
             display: flex;
             justify-content: space-between; /* Pushes the optional/compulsory tag to the right */
             align-items: center;
@@ -168,14 +165,16 @@
             </fieldset>
 
             <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details</legend>
+                <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details <span class="text-gray-500 text-sm">(All fields below are optional)</span></legend>
+                
                 <div class="form-group">
-                    <label for="employerName">Employer Name</label>
-                    <input type="text" id="employerName" required placeholder="e.g., ABC Pty Ltd">
+                    <label for="employerName">Employer Name <span class="text-gray-500 font-medium">(Optional)</span></label>
+                    <input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd">
                 </div>
+                
                 <div class="form-group">
-                    <label for="monthlyIncome">Gross Monthly Income (R)</label>
-                    <input type="number" id="monthlyIncome" required min="1000" step="100" placeholder="e.g., 15000">
+                    <label for="employeeAddress">Employee's Address <span class="text-gray-500 font-medium">(Optional)</span></label>
+                    <textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea>
                 </div>
             </fieldset>
             
@@ -420,6 +419,10 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     }
 
     try {
+        // --- Get Optional Employment Values ---
+        const employerName = document.getElementById('employerName').value.trim();
+        const employeeAddress = document.getElementById('employeeAddress').value.trim();
+        
         // 1. Get all form values
         const data = {
             id: borrowerId, // IMPORTANT: Use ID Number as primary key
@@ -427,8 +430,13 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             id_number: borrowerId, // Store ID number in its own column too
             contact_number: document.getElementById('contactNumber').value,
             residential_address: document.getElementById('residentialAddress').value,
-            monthly_income: parseFloat(document.getElementById('monthlyIncome').value),
-            employer_name: document.getElementById('employerName').value, 
+            
+            // --- UPDATED EMPLOYMENT FIELDS ---
+            // Set to null if the fields are empty strings (since they are now optional)
+            employer_name: employerName || null, 
+            employment_detail: employeeAddress || null, // employeeAddress maps to the existing employment_detail column
+            monthly_income: null, // Set to NULL since the Gross Monthly Income field was removed
+            
             // BANK DETAILS
             bank_name: document.getElementById('bankName').value,
             bank_account: document.getElementById('bankAccountNumber').value,
