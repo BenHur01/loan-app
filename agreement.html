@@ -116,16 +116,18 @@ document.addEventListener("DOMContentLoaded", () => {
         // Save amount
         localStorage.setItem("requestedLoanAmount", amount.toFixed(2));
 
-        // Redirect
-        window.location.href = "signup.html";
-        } else {
-        // Validation failed
-        alert('Please enter a valid loan amount.');
-    }
+       // ...
+        // Redirect
+        window.location.href = "signup.html";
+        } else { // <--- THIS 'ELSE' IS MISPLACED AND CAUSING A SYNTAX ERROR
+        // Validation failed
+        alert('Please enter a valid loan amount.');
+    }
 });
 </script>
 </body>
 </html>
+
 
 
 
