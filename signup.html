@@ -232,9 +232,9 @@
                 
                 <div class="form-group">
                     <label for="bankStatement">
-                                 <span class="file-label-text">
-                                     Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
-                                 </span>
+                                     <span class="file-label-text">
+                                         Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
+                                     </span>
                     </label>
                     <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
                 </div>
@@ -483,6 +483,97 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
+// --- NEW SA ID VALIDATION FUNCTION ---
+/**
+ * Validates a South African ID number using the Luhn algorithm and checks for date validity.
+ * @param {string} idNumber 
+ * @returns {boolean} true if valid, false otherwise.
+ */
+function validateSouthAfricanId(idNumber) {
+    // 1. Check length and ensure it's digits only (13 digits)
+    if (!/^\d{13}$/.test(idNumber)) {
+        return false;
+    }
+
+    // 2. Extract date components (YYMMDD)
+    const year = idNumber.substring(0, 2);
+    const month = idNumber.substring(2, 4);
+    const day = idNumber.substring(4, 6);
+    
+    // Infer the correct century (19xx or 20xx)
+    // A simplified approach assumes anyone applying for a loan is >= 18.
+    // Let's assume a sliding window for simplicity. If YY is <= current year's YY, assume 20xx.
+    const currentYear = new Date().getFullYear(); // e.g., 2025
+    const currentYY = currentYear % 100; // e.g., 25
+    
+    let fullYear;
+    if (parseInt(year, 10) <= currentYY) {
+        fullYear = '20' + year;
+    } else {
+        fullYear = '19' + year;
+    }
+
+    // Check date validity
+    const dateOfBirth = new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10));
+    if (
+        dateOfBirth.getFullYear() !== parseInt(fullYear, 10) ||
+        dateOfBirth.getMonth() !== parseInt(month, 10) - 1 ||
+        dateOfBirth.getDate() !== parseInt(day, 10)
+    ) {
+        // Date is invalid (e.g., 901301 - 13th month, or 900230 - 30th Feb)
+        return false;
+    }
+
+    // 3. Check citizenship (digit 11) - 0 for SA Citizen, 1 for Permanent Resident
+    const citizenship = idNumber.substring(10, 11);
+    if (citizenship !== '0' && citizenship !== '1') {
+        return false;
+    }
+
+    // 4. Luhn Checksum Algorithm (Digit 13 is the checksum)
+    let total = 0;
+    for (let i = 0; i < 13; i++) {
+        let digit = parseInt(idNumber[i], 10);
+        
+        // Double every second digit (starting from right to left, which is index 12, 10, 8, etc.)
+        // Since we are iterating from left to right (index 0), we double digits at index 1, 3, 5, 7, 9, 11
+        if (i % 2 !== 0) {
+            digit *= 2;
+        }
+
+        // If doubling resulted in a number > 9, subtract 9
+        if (digit > 9) {
+            digit -= 9;
+        }
+
+        total += digit;
+    }
+
+    // The total sum must be a multiple of 10.
+    // NOTE: The standard Luhn for ID numbers is slightly different.
+    // The standard *SA ID validation* Luhn algorithm is typically done *without* the last digit,
+    // and then the checksum is calculated and compared to the last digit.
+    // Let's use the correct SA ID specific check:
+
+    let checkSum = 0;
+    for (let i = 0; i < 12; i++) {
+        let digit = parseInt(idNumber[i], 10);
+        if (i % 2 === 0) { // Double every *second* number from the start (index 0, 2, 4...)
+            digit *= 2;
+            if (digit > 9) {
+                digit -= 9;
+            }
+        }
+        checkSum += digit;
+    }
+
+    const finalChecksum = (10 - (checkSum % 10)) % 10;
+    const lastDigit = parseInt(idNumber[12], 10);
+
+    return finalChecksum === lastDigit;
+}
+// --- END NEW SA ID VALIDATION FUNCTION ---
+
 // --- DYNAMIC PAYMENT FIELD LOGIC (ULTIMATE CLEANUP) ---
 
 const paymentMethod = document.getElementById('paymentMethod');
@@ -568,6 +659,16 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         return;
     }
     
+    // --- SA ID Validation (NEW) ---
+    const idNumberInput = document.getElementById('idNumber');
+    const borrowerId = idNumberInput.value.trim(); 
+    
+    if (!validateSouthAfricanId(borrowerId)) {
+        await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
+        return;
+    }
+    // --- END SA ID Validation ---
+
     // --- Payment Details Validation & Data Extraction ---
     let paymentDetails = {};
     const fullName = document.getElementById('fullName').value;
@@ -595,9 +696,6 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 
     // Now that validation is complete, show loading
     showLoading("Submitting application and starting file uploads...");
-
-    const idNumberInput = document.getElementById('idNumber');
-    const borrowerId = idNumberInput.value.trim(); 
 
     try {
         // --- Date Calculation ---
@@ -726,8 +824,5 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     }
 });
 </script>
+</body>
 </html>
-
-
-
-
