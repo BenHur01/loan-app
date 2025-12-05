@@ -103,30 +103,35 @@ document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("agreementForm");
 
     form.addEventListener("submit", (event) => {
-        event.preventDefault();
+        event.preventDefault(); // Stop the default form submission (page reload)
 
-        const amount = parseFloat(document.getElementById("loanAmount").value.trim());
+        const amountInput = document.getElementById("loanAmount");
+        const termsChecked = document.getElementById("termsCheck").checked;
+        const amount = parseFloat(amountInput.value.trim());
 
-        // Validation
+        // 1. Validation for Amount
         if (isNaN(amount) || amount < 200 || amount > 2000) {
             alert("Please enter a valid loan amount between R200 and R2000.");
-            return;
+            return; // Stop execution if invalid
+        }
+        
+        // 2. Validation for Checkbox (redundant since HTML required is used, but good for safety)
+        if (!termsChecked) {
+            alert("You must agree to the Terms and Conditions to proceed.");
+            return; // Stop execution if not checked
         }
 
-        // Save amount
+        // 3. Save amount to Local Storage
         localStorage.setItem("requestedLoanAmount", amount.toFixed(2));
 
-       // ...
-        // Redirect
-        window.location.href = "signup.html";
-        } else { // <--- THIS 'ELSE' IS MISPLACED AND CAUSING A SYNTAX ERROR
-        // Validation failed
-        alert('Please enter a valid loan amount.');
-    }
+        // 4. Redirect to the application page
+        window.location.href = "signup.html";
+    });
 });
 </script>
 </body>
 </html>
+
 
 
 
