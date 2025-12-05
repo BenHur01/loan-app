@@ -89,46 +89,39 @@
     </main>
 
     <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
-    <script type="module">
-// START OF SHARED/SUPABASE SCRIPT CONTENT
+<script type="module">
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+const SUPABASE_URL = "https://kujvvupdqvtkncolhcul.supabase.co";
 const SUPABASE_ANON_KEY =
-    'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImeXAiOiJleHAiOjIwNzkzNzk0Mzh9.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE";
 
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-export function goToPage(page) {
-    window.location.href = page;
-}
+document.addEventListener("DOMContentLoaded", () => {
 
-// END OF SHARED/SUPABASE SCRIPT CONTENT
+    const form = document.getElementById("agreementForm");
 
-// Update this section in your agreement.html <script> tag
+    form.addEventListener("submit", (event) => {
+        event.preventDefault();
 
-document.getElementById('agreementForm').addEventListener('submit', function(event) {
-    event.preventDefault();
+        const amount = parseFloat(document.getElementById("loanAmount").value.trim());
 
-    const amountInput = document.getElementById('loanAmount');
-    const amount = amountInput.value.trim();
-    const parsedAmount = parseFloat(amount);
-    
-    // 1. Input Validation
-    if (!amount || isNaN(parsedAmount) || parsedAmount < 200 || parsedAmount > 2000) {
-        alert('Please enter a valid loan amount between R200 and R2000.');
-        return; // Stop execution if validation fails
-    }
+        // Validation
+        if (isNaN(amount) || amount < 200 || amount > 2000) {
+            alert("Please enter a valid loan amount between R200 and R2000.");
+            return;
+        }
 
-    // 2. SAVE THE AMOUNT (Critical Step)
-    localStorage.setItem('requestedLoanAmount', parsedAmount.toFixed(2)); // Save as a clean string
+        // Save amount
+        localStorage.setItem("requestedLoanAmount", amount.toFixed(2));
 
-    // 3. REDIRECT TO THE CORRECT APPLICATION FORM FILE
-    // *** ENSURE THIS FILENAME MATCHES YOUR APPLICATION PAGE EXACTLY ***
-    window.location.href = 'signup.html'; 
+        // Redirect
+        window.location.href = "signup.html";
+    });
+
 });
-// REMOVED: The page load check that redirected users to the dashboard if an ID was found in localStorage.
-// This ensures that clicking the button is the only way to leave this page, which is what we want.
-    </script>
+</script>
 </body>
 </html>
+
