@@ -196,8 +196,7 @@
                 <select id="paymentMethod" required class="cursor-pointer">
                     <option value="" disabled selected>Select a payment method...</option>
                     <option value="Bank Account">Bank Account (EFT)</option>
-                    <option value="eWallet">eWallet (Instant Transfer)</option>
-                    <option value="CashSend">CashSend (PIN Redemption)</option>
+                    <option value="Cardless Service">Cardless Service (Instant PIN)</option>
                 </select>
             </div>
         
@@ -484,7 +483,7 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- DYNAMIC PAYMENT FIELD LOGIC (UNCHANGED) ---
+// --- DYNAMIC PAYMENT FIELD LOGIC (UPDATED) ---
 document.addEventListener('DOMContentLoaded', () => {
     const paymentMethod = document.getElementById('paymentMethod');
     const container = document.getElementById('paymentDetailsContainer');
@@ -500,24 +499,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
             </div>
         `,
-        'eWallet': `
+        // NEW CARDLESS SERVICE OPTION REPLACES EWALLET/CASHSEND
+        'Cardless Service': `
             <div class="form-group">
-                <label for="eWalletProvider">eWallet Provider (e.g., FNB, Capitec)</label>
-                <input type="text" id="eWalletProvider" required placeholder="e.g., FNB, Capitec">
+                <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
+                <input type="text" id="cardlessBank" required placeholder="e.g., FNB, Capitec, Standard Bank">
             </div>
             <div class="form-group">
-                <label for="eWalletPhoneNumber">eWallet Registered Phone Number</label>
-                <input type="tel" id="eWalletPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-            </div>
-        `,
-        'CashSend': `
-            <div class="form-group">
-                <label for="cashSendBank">CashSend Bank (e.g., FNB, Standard Bank)</label>
-                <input type="text" id="cashSendBank" required placeholder="e.g., FNB, Standard Bank">
-            </div>
-            <div class="form-group">
-                <label for="cashSendPhoneNumber">Recipient Phone Number (For SMS notification)</label>
-                <input type="tel" id="cashSendPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+                <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
+                <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
             </div>
         `
     };
@@ -535,7 +525,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 });
-// --- END DYNAMIC PAYMENT FIELD LOGIC ---
+// --- END DYNAMIC PAYMENT FIELD LOGIC (UPDATED) ---
 
 
 // Main submission handler (🌟 LOGIC MODIFIED HERE)
@@ -729,6 +719,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
+
 
 
 
