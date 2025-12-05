@@ -553,6 +553,7 @@ function validateSouthAfricanId(idNumber) {
 const paymentMethod = document.getElementById('paymentMethod');
 const container = document.getElementById('paymentDetailsContainer');
 
+// CORRECTED: Ensure each HTML snippet is wrapped in backticks (template literals)
 const fields = {
     'Bank Account': `
         <div class="form-group">
@@ -563,8 +564,7 @@ const fields = {
             <label for="bankAccountNumber">Bank Account Number</label>
             <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
         </div>
-    `.trim(), 
-    
+    `.trim(),     
     'Cardless Service': `
         <div class="form-group">
             <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
@@ -574,22 +574,24 @@ const fields = {
             <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
             <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
         </div>
-    `.trim() 
+    `.trim()
 };
 
 // Function to handle updating the fields
 function updatePaymentFields() {
-    const selectedIndex = paymentMethod.selectedIndex;
-    const selected = paymentMethod.options[selectedIndex].value; 
+    const selectedMethod = paymentMethod.value; // Get the currently selected value
     
-    // This defines the heading for the container
+    // This defines the heading for the container (wrapped in a template literal)
     const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
-    if (selected && fields[selected]) {
+    if (selectedMethod && fields[selectedMethod]) {
         // Concatenate the P tag with the trimmed fields HTML
-        container.innerHTML = pTag + fields[selected];
+        container.innerHTML = pTag + fields[selectedMethod];
         container.classList.remove('hidden');
+        
+        // Ensure inputs are correctly focused if needed, and visible.
     } else {
+        // If nothing is selected or the default option is chosen
         container.innerHTML = '';
         container.classList.add('hidden');
     }
@@ -602,6 +604,7 @@ paymentMethod.addEventListener('change', updatePaymentFields);
 updatePaymentFields(); 
 
 // --- END DYNAMIC PAYMENT FIELD LOGIC ---
+
 
 
 // Main submission handler (*** CORRECTED AND COMPLETED LOGIC BELOW ***)
@@ -842,4 +845,5 @@ document.getElementById("paymentMethod").addEventListener("change", function () 
 </script>
 </body>
 </html>
+
 
