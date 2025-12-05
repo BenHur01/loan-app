@@ -483,59 +483,55 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- DYNAMIC PAYMENT FIELD LOGIC (UPDATED) ---
-document.addEventListener('DOMContentLoaded', () => {
-    const paymentMethod = document.getElementById('paymentMethod');
-    const container = document.getElementById('paymentDetailsContainer');
+// --- DYNAMIC PAYMENT FIELD LOGIC (CORRECTED) ---
 
-    const fields = {
-        'Bank Account': `
-            <div class="form-group">
-                <label for="bankName">Bank Name (Where funds will be deposited)</label>
-                <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
-            </div>
-            <div class="form-group">
-                <label for="bankAccountNumber">Bank Account Number</label>
-                <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
-            </div>
-        `,
-        // NEW CARDLESS SERVICE OPTION REPLACES EWALLET/CASHSEND
-        'Cardless Service': `
-            <div class="form-group">
-                <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
-                <input type="text" id="cardlessBank" required placeholder="e.g., FNB, Capitec, Standard Bank">
-            </div>
-            <div class="form-group">
-                <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
-                <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-            </div>
-        `
-    };
+const paymentMethod = document.getElementById('paymentMethod');
+const container = document.getElementById('paymentDetailsContainer');
 
-    // --- NEW FUNCTION TO HANDLE UPDATING THE FIELDS ---
-    function updatePaymentFields() {
-        // Use the current value of the select element
-        const selected = paymentMethod.value; 
-        const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
+const fields = {
+    'Bank Account': `
+        <div class="form-group">
+            <label for="bankName">Bank Name (Where funds will be deposited)</label>
+            <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
+        </div>
+        <div class="form-group">
+            <label for="bankAccountNumber">Bank Account Number</label>
+            <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
+        </div>
+    `,
+    'Cardless Service': `
+        <div class="form-group">
+            <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
+            <input type="text" id="cardlessBank" required placeholder="e.g., FNB, Capitec, Standard Bank">
+        </div>
+        <div class="form-group">
+            <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
+            <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+        </div>
+    `
+};
 
-        if (selected && fields[selected]) {
-            container.innerHTML = pTag + fields[selected];
-            container.classList.remove('hidden');
-        } else {
-            container.innerHTML = '';
-            container.classList.add('hidden');
-        }
+// Function to handle updating the fields
+function updatePaymentFields() {
+    const selected = paymentMethod.value; 
+    const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
+
+    if (selected && fields[selected]) {
+        container.innerHTML = pTag + fields[selected];
+        container.classList.remove('hidden');
+    } else {
+        container.innerHTML = '';
+        container.classList.add('hidden');
     }
-    // --- END NEW FUNCTION ---
+}
 
-    // 1. Attach listener for when the user changes the selection
-    paymentMethod.addEventListener('change', updatePaymentFields);
+// 1. Attach listener for when the user changes the selection
+paymentMethod.addEventListener('change', updatePaymentFields);
 
-    // 2. *** CRITICAL FIX: Trigger the function once on load ***
-    // This runs the logic immediately in case a value is already selected.
-    updatePaymentFields(); 
-});
-// --- END DYNAMIC PAYMENT FIELD LOGIC (UPDATED) ---
+// 2. Run the logic once on page load to set the initial state (hidden by default)
+updatePaymentFields(); 
+
+// --- END DYNAMIC PAYMENT FIELD LOGIC (CORRECTED) ---
 
 
 // Main submission handler (🌟 LOGIC MODIFIED HERE)
@@ -725,4 +721,5 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
+
 
