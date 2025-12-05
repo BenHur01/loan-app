@@ -89,48 +89,41 @@
     </main>
 
     <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-const SUPABASE_URL = "https://kujvvupdqvtkncolhcul.supabase.co";
-const SUPABASE_ANON_KEY =
-    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE";
-
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+<script>
 document.addEventListener("DOMContentLoaded", () => {
+    const form = document.getElementById("agreementForm");
 
-    const form = document.getElementById("agreementForm");
+    form.addEventListener("submit", (event) => {
+        event.preventDefault(); // Stop the default form submission (page reload)
 
-    form.addEventListener("submit", (event) => {
-        event.preventDefault(); // Stop the default form submission (page reload)
+        const amountInput = document.getElementById("loanAmount");
+        const termsChecked = document.getElementById("termsCheck").checked;
+        const amount = parseFloat(amountInput.value.trim());
 
-        const amountInput = document.getElementById("loanAmount");
-        const termsChecked = document.getElementById("termsCheck").checked;
-        const amount = parseFloat(amountInput.value.trim());
+        // 1. Validation for Amount
+        if (isNaN(amount) || amount < 200 || amount > 2000) {
+            alert("Please enter a valid loan amount between R200 and R2000.");
+            return; // Stop execution if invalid
+        }
+        
+        // 2. Validation for Checkbox (redundant since HTML required is used, but good for safety)
+        if (!termsChecked) {
+            alert("You must agree to the Terms and Conditions to proceed.");
+            return; // Stop execution if not checked
+        }
 
-        // 1. Validation for Amount
-        if (isNaN(amount) || amount < 200 || amount > 2000) {
-            alert("Please enter a valid loan amount between R200 and R2000.");
-            return; // Stop execution if invalid
-        }
-        
-        // 2. Validation for Checkbox (redundant since HTML required is used, but good for safety)
-        if (!termsChecked) {
-            alert("You must agree to the Terms and Conditions to proceed.");
-            return; // Stop execution if not checked
-        }
+        // 3. Save amount to Local Storage
+        localStorage.setItem("requestedLoanAmount", amount.toFixed(2));
 
-        // 3. Save amount to Local Storage
-        localStorage.setItem("requestedLoanAmount", amount.toFixed(2));
-
-        // 4. Redirect to the application page
-        window.location.href = "signup.html";
-    });
+        // 4. Redirect to the application page
+        console.log("Redirecting to signup.html...");
+        window.location.href = "signup.html";
+    });
 });
 </script>
 </body>
 </html>
+
 
 
 
