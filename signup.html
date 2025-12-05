@@ -794,8 +794,52 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         hideLoading();
         console.error('Application Submission Error:', error);
         await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
+// --- PAYMENT METHOD DROPDOWN LOGIC ---
+document.getElementById("paymentMethod").addEventListener("change", function () {
+    const container = document.getElementById("paymentDetailsContainer");
+    container.innerHTML = ""; // Clear previous contents
+    container.classList.remove("hidden");
+
+    if (this.value === "Bank Account") {
+        container.innerHTML = `
+            <div class="form-group mt-2">
+                <label for="bankName">Bank Name</label>
+                <input type="text" id="bankName" required placeholder="e.g., Capitec">
+            </div>
+
+            <div class="form-group">
+                <label for="accountNumber">Account Number</label>
+                <input type="number" id="accountNumber" required placeholder="Your bank account number">
+            </div>
+
+            <div class="form-group">
+                <label for="branchCode">Branch Code</label>
+                <input type="text" id="branchCode" required placeholder="Your branch code">
+            </div>
+        `;
+    }
+
+    if (this.value === "Cardless Service") {
+        container.innerHTML = `
+            <div class="form-group mt-2">
+                <label for="cardlessOption">Choose Service</label>
+                <select id="cardlessOption" required class="cursor-pointer">
+                    <option value="" disabled selected>Select a cardless service...</option>
+                    <option value="FNB eWallet">FNB eWallet</option>
+                    <option value="Standard Instant Money">Standard Bank Instant Money</option>
+                    <option value="ABSA CashSend">ABSA CashSend</option>
+                    <option value="Nedbank Send-iMali">Nedbank Send-iMali</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="cardlessPhone">Phone Number to Receive PIN</label>
+                <input type="tel" id="cardlessPhone" required pattern="\\d{10}" placeholder="e.g., 0712345678">
+            </div>
+        `;
     }
 });
 </script>
 </body>
 </html>
+
