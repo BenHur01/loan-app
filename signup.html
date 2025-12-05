@@ -512,8 +512,10 @@ document.addEventListener('DOMContentLoaded', () => {
         `
     };
 
-    paymentMethod.addEventListener('change', (e) => {
-        const selected = e.target.value;
+    // --- NEW FUNCTION TO HANDLE UPDATING THE FIELDS ---
+    function updatePaymentFields() {
+        // Use the current value of the select element
+        const selected = paymentMethod.value; 
         const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
         if (selected && fields[selected]) {
@@ -523,7 +525,15 @@ document.addEventListener('DOMContentLoaded', () => {
             container.innerHTML = '';
             container.classList.add('hidden');
         }
-    });
+    }
+    // --- END NEW FUNCTION ---
+
+    // 1. Attach listener for when the user changes the selection
+    paymentMethod.addEventListener('change', updatePaymentFields);
+
+    // 2. *** CRITICAL FIX: Trigger the function once on load ***
+    // This runs the logic immediately in case a value is already selected.
+    updatePaymentFields(); 
 });
 // --- END DYNAMIC PAYMENT FIELD LOGIC (UPDATED) ---
 
@@ -715,3 +725,4 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
+
