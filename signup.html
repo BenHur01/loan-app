@@ -483,12 +483,13 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- DYNAMIC PAYMENT FIELD LOGIC (CORRECTED) ---
+// --- DYNAMIC PAYMENT FIELD LOGIC (DEFINITIVE FIX) ---
 
 const paymentMethod = document.getElementById('paymentMethod');
 const container = document.getElementById('paymentDetailsContainer');
 
 const fields = {
+    // NOTE: The keys are the actual values from the HTML options
     'Bank Account': `
         <div class="form-group">
             <label for="bankName">Bank Name (Where funds will be deposited)</label>
@@ -513,7 +514,12 @@ const fields = {
 
 // Function to handle updating the fields
 function updatePaymentFields() {
-    const selected = paymentMethod.value; 
+    // --- CHANGE IS HERE ---
+    // Get the value from the selected option element directly, ensuring accuracy.
+    const selectedIndex = paymentMethod.selectedIndex;
+    const selected = paymentMethod.options[selectedIndex].value; 
+    // --- END CHANGE ---
+
     const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
     if (selected && fields[selected]) {
@@ -531,7 +537,7 @@ paymentMethod.addEventListener('change', updatePaymentFields);
 // 2. Run the logic once on page load to set the initial state (hidden by default)
 updatePaymentFields(); 
 
-// --- END DYNAMIC PAYMENT FIELD LOGIC (CORRECTED) ---
+// --- END DYNAMIC PAYMENT FIELD LOGIC (DEFINITIVE FIX) ---
 
 
 // Main submission handler (🌟 LOGIC MODIFIED HERE)
@@ -721,5 +727,6 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
+
 
 
