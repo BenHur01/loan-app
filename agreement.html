@@ -116,8 +116,9 @@ document.getElementById('agreementForm').addEventListener('submit', function(eve
         localStorage.setItem('requestedLoanAmount', amount);
 
         // 2. REDIRECT: Ensure this URL is correct (your Sign-up/Application page)
-        window.location.href = 'loanApplicationForm.html'; // Or whatever your next page is named
-    } else {
+        // New (CORRECT) Redirect Target
+        window.location.href = 'loanApplicationForm.html';
+        } else {
         // Validation failed
         alert('Please enter a valid loan amount.');
     }
@@ -128,6 +129,7 @@ document.getElementById('agreementForm').addEventListener('submit', function(eve
     </script>
 </body>
 </html>
+
 
 
 
