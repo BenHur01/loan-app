@@ -292,9 +292,25 @@
     </div>
     
 <script type="module">
+// ----------------------------------------------------
+//  <--- INSERT THE NEW GUARD CODE HERE --->
+// ----------------------------------------------------
+const requestedAmount = localStorage.getItem('requestedLoanAmount');
+
+if (!requestedAmount) {
+    console.warn("Requested loan amount missing. Redirecting to agreement page.");
+    window.location.replace('agreement.html'); 
+    return; // Stops all following code from running
+}
+// ----------------------------------------------------
+// <--- END OF NEW GUARD CODE --->
+// ----------------------------------------------------
+
 // START OF REQUIRED FIREBASE & SUPABASE SETUP
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+// ... all your existing setup, functions, and listeners follow below ...
+// ...
 import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
 // --- Global Variables (Provided by Canvas) ---
@@ -715,3 +731,4 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
+
