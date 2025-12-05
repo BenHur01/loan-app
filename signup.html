@@ -232,9 +232,9 @@
                 
                 <div class="form-group">
                     <label for="bankStatement">
-                                <span class="file-label-text">
-                                    Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
-                                </span>
+                                 <span class="file-label-text">
+                                     Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
+                                 </span>
                     </label>
                     <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
                 </div>
@@ -568,17 +568,13 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
             if (!bankName || !bankAccountNumber) throw new Error('Bank Account details are incomplete or missing.');
             paymentDetails = { name: bankName, account: bankAccountNumber };
-        } else if (selectedMethod === 'eWallet') {
-            const provider = document.getElementById('eWalletProvider')?.value.trim();
-            const phone = document.getElementById('eWalletPhoneNumber')?.value.trim();
-            if (!provider || !phone) throw new Error('eWallet details are incomplete or missing.');
-            paymentDetails = { provider: provider, phone: phone };
-        } else if (selectedMethod === 'CashSend') {
-            const bank = document.getElementById('cashSendBank')?.value.trim();
-            const phone = document.getElementById('cashSendPhoneNumber')?.value.trim();
-            if (!bank || !phone) throw new Error('CashSend details are incomplete or missing.');
+        } else if (selectedMethod === 'Cardless Service') { // CORRECTED LOGIC HERE
+            const bank = document.getElementById('cardlessBank')?.value.trim(); // Changed from eWalletProvider/cashSendBank
+            const phone = document.getElementById('cardlessPhoneNumber')?.value.trim(); // Changed from eWalletPhoneNumber/cashSendPhoneNumber
+            if (!bank || !phone) throw new Error('Cardless Service details are incomplete or missing.');
             paymentDetails = { bank: bank, phone: phone };
-        }
+        } 
+        // Removed obsolete 'eWallet' and 'CashSend' branches
     } catch (e) {
         await customAlert('Validation Error', e.message);
         return;
@@ -719,7 +715,3 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
-
-
-
-
