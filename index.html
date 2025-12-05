@@ -64,13 +64,38 @@
         *** CRITICAL FIX: The external link to script.js caused the error. ***
         We now paste the content of script.js directly here.
     -->
-    <script>
-        // PASTE YOUR SCRIPT.JS CODE HERE
-        // (You must copy the entire content of your original assets/script.js 
-        // and put it in this block.)
-    </script>
+<script type="module">
+import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+
+const SUPABASE_URL = "https://kujvvupdqvtkncolhcul.supabase.co";
+const SUPABASE_ANON_KEY =
+    "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE";
+
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+document.addEventListener("DOMContentLoaded", async () => {
+    try {
+        const { data: { session } } = await supabase.auth.getSession();
+
+        if (session) {
+            // User is logged in, redirect them to the dashboard
+            window.location.href = "dashboard.html";
+            return;
+        }
+        
+        // If the user is NOT logged in, they stay on the index page,
+        // where they can click the link to 'agreement.html'.
+        // There is no automatic redirect here unless the user is signed in.
+
+    } catch (error) {
+        console.error("Supabase initialization or session check failed:", error);
+        // If the check fails, the user remains on the index page, which is safe.
+    }
+});
+</script>
 </body>
 </html>
+
 
 
 
