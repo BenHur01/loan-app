@@ -483,13 +483,13 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- DYNAMIC PAYMENT FIELD LOGIC (DEFINITIVE FIX) ---
+// --- DYNAMIC PAYMENT FIELD LOGIC (ULTIMATE CLEANUP) ---
 
 const paymentMethod = document.getElementById('paymentMethod');
 const container = document.getElementById('paymentDetailsContainer');
 
 const fields = {
-    // NOTE: The keys are the actual values from the HTML options
+    // NOTE: Switched to single-line strings or trimmed for reliability
     'Bank Account': `
         <div class="form-group">
             <label for="bankName">Bank Name (Where funds will be deposited)</label>
@@ -499,7 +499,8 @@ const fields = {
             <label for="bankAccountNumber">Bank Account Number</label>
             <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
         </div>
-    `,
+    `.trim(), // CRITICAL: .trim() removes leading/trailing whitespace/newlines
+    
     'Cardless Service': `
         <div class="form-group">
             <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
@@ -509,20 +510,19 @@ const fields = {
             <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
             <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
         </div>
-    `
+    `.trim() // CRITICAL: .trim() removes leading/trailing whitespace/newlines
 };
 
 // Function to handle updating the fields
 function updatePaymentFields() {
-    // --- CHANGE IS HERE ---
-    // Get the value from the selected option element directly, ensuring accuracy.
     const selectedIndex = paymentMethod.selectedIndex;
     const selected = paymentMethod.options[selectedIndex].value; 
-    // --- END CHANGE ---
-
+    
+    // The existing P tag inside the HTML container is now empty, so we must define it here:
     const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
     if (selected && fields[selected]) {
+        // Concatenate the P tag with the trimmed fields HTML
         container.innerHTML = pTag + fields[selected];
         container.classList.remove('hidden');
     } else {
@@ -537,7 +537,7 @@ paymentMethod.addEventListener('change', updatePaymentFields);
 // 2. Run the logic once on page load to set the initial state (hidden by default)
 updatePaymentFields(); 
 
-// --- END DYNAMIC PAYMENT FIELD LOGIC (DEFINITIVE FIX) ---
+// --- END DYNAMIC PAYMENT FIELD LOGIC (ULTIMATE CLEANUP) ---
 
 
 // Main submission handler (🌟 LOGIC MODIFIED HERE)
@@ -727,6 +727,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
+
 
 
 
