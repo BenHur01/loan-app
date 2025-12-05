@@ -105,30 +105,34 @@ export function goToPage(page) {
 
 // END OF SHARED/SUPABASE SCRIPT CONTENT
 
+// Update this section in your agreement.html <script> tag
+
 document.getElementById('agreementForm').addEventListener('submit', function(event) {
-    event.preventDefault(); // This stops the page reload
+    event.preventDefault();
 
     const amountInput = document.getElementById('loanAmount');
     const amount = amountInput.value.trim();
-
-    if (amount && parseFloat(amount) > 0) {
-        // 1. SAVE THE AMOUNT: THIS IS THE CRITICAL STEP
-        localStorage.setItem('requestedLoanAmount', amount);
-
-        // 2. REDIRECT: Ensure this URL is correct (your Sign-up/Application page)
-        // New (CORRECT) Redirect Target
-        window.location.href = 'loanApplicationForm.html';
-        } else {
-        // Validation failed
-        alert('Please enter a valid loan amount.');
+    const parsedAmount = parseFloat(amount);
+    
+    // 1. Input Validation
+    if (!amount || isNaN(parsedAmount) || parsedAmount < 200 || parsedAmount > 2000) {
+        alert('Please enter a valid loan amount between R200 and R2000.');
+        return; // Stop execution if validation fails
     }
-});
 
+    // 2. SAVE THE AMOUNT (Critical Step)
+    localStorage.setItem('requestedLoanAmount', parsedAmount.toFixed(2)); // Save as a clean string
+
+    // 3. REDIRECT TO THE CORRECT APPLICATION FORM FILE
+    // *** ENSURE THIS FILENAME MATCHES YOUR APPLICATION PAGE EXACTLY ***
+    window.location.href = 'loanApplicationForm.html'; 
+});
 // REMOVED: The page load check that redirected users to the dashboard if an ID was found in localStorage.
 // This ensures that clicking the button is the only way to leave this page, which is what we want.
     </script>
 </body>
 </html>
+
 
 
 
