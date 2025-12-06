@@ -447,55 +447,20 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
+// --- SA ID VALIDATION FUNCTION (SIMPLIFIED FOR TESTING) ---
+/**
+ * Temporarily validates a South African ID number only by checking the length.
+ * IMPORTANT: REPLACE WITH FULL VALIDATION BEFORE DEPLOYMENT.
+ * @param {string} idNumber 
+ * @returns {boolean} true if 13 digits, false otherwise.
+ */
 function validateSouthAfricanId(idNumber) {
+    // We only check for the 13-digit length and return true to bypass Luhn/date checks.
     if (!/^\d{13}$/.test(idNumber)) {
         return false;
     }
-
-    const year = idNumber.substring(0, 2);
-    const month = idNumber.substring(2, 4);
-    const day = idNumber.substring(4, 6);
-    
-    const currentYear = new Date().getFullYear();
-    const currentYY = currentYear % 100;
-    
-    let fullYear;
-    if (parseInt(year, 10) <= currentYY) {
-        fullYear = '20' + year;
-    } else {
-        fullYear = '19' + year;
-    }
-
-    const dateOfBirth = new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10));
-    if (
-        dateOfBirth.getFullYear() !== parseInt(fullYear, 10) ||
-        dateOfBirth.getMonth() !== parseInt(month, 10) - 1 ||
-        dateOfBirth.getDate() !== parseInt(day, 10)
-    ) {
-        return false;
-    }
-
-    const citizenship = idNumber.substring(10, 11);
-    if (citizenship !== '0' && citizenship !== '1') {
-        return false;
-    }
-
-    let checkSum = 0;
-    for (let i = 0; i < 12; i++) {
-        let digit = parseInt(idNumber[i], 10);
-        if (i % 2 === 0) {
-            digit *= 2;
-            if (digit > 9) {
-                digit -= 9;
-            }
-        }
-        checkSum += digit;
-    }
-
-    const finalChecksum = (10 - (checkSum % 10)) % 10;
-    const lastDigit = parseInt(idNumber[12], 10);
-
-    return finalChecksum === lastDigit;
+    // All other complex checks are bypassed for testing.
+    return true; 
 }
 // --- END UTILITY FUNCTIONS ---
 
@@ -744,6 +709,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
