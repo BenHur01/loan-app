@@ -196,8 +196,7 @@
                 <select id="paymentMethod" required class="cursor-pointer">
                     <option value="" disabled selected>Select a payment method...</option>
                     <option value="Bank Account">Bank Account (EFT)</option>
-                    <option value="eWallet">eWallet (Instant Transfer)</option>
-                    <option value="CashSend">CashSend (PIN Redemption)</option>
+                    <option value="Cardless Service">Cardless Service (Instant PIN)</option>
                 </select>
             </div>
         
@@ -233,9 +232,9 @@
                 
                 <div class="form-group">
                     <label for="bankStatement">
-                                <span class="file-label-text">
-                                    Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
-                                </span>
+                                            <span class="file-label-text">
+                                                 Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
+                                            </span>
                     </label>
                     <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
                 </div>
@@ -294,6 +293,7 @@
     
 <script type="module">
 // START OF REQUIRED FIREBASE & SUPABASE SETUP
+// START OF REQUIRED FIREBASE & SUPABASE SETUP (Your existing setup code here...)
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -302,7 +302,7 @@ import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.g
 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-// --- Firebase Init (Used for Authentication/User Context) ---
+// --- Firebase Init ---
 let auth;
 if (Object.keys(firebaseConfig).length > 0) {
     const app = initializeApp(firebaseConfig);
@@ -330,12 +330,13 @@ function goToPage(page) {
 }
 // END OF REQUIRED FIREBASE & SUPABASE SETUP
 
-// --- UTILITY FUNCTIONS (UPDATED MODAL LOGIC) ---
+// --- UTILITY FUNCTIONS (Your Modal, Loading, Date, Upload, and ID functions remain here) ---
+// (Note: I'm omitting the function definitions here for brevity, but assume they are present)
 
 /**
  * Custom modal replacement for alert() and confirmation.
  * @param {string} title
- * @param {string} messageHtml (Can be raw HTML for list/summary)
+ * @param {string} messageHtml
  * @param {string} okText
  * @param {string | null} cancelText
  * @returns {Promise<string>} 'ok' or 'cancel'
@@ -344,7 +345,6 @@ function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText =
     const modal = document.getElementById('custom-alert-modal');
     document.getElementById('modal-title').textContent = title;
     
-    // Use innerHTML to handle the formatted review message
     const messageContainer = document.getElementById('modal-message-container');
     messageContainer.innerHTML = messageHtml; 
 
@@ -352,7 +352,7 @@ function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText =
     const cancelButton = document.getElementById('modal-cancel-button');
     
     okButton.textContent = okText;
-    okButton.classList.remove('w-full', 'w-1/2'); // Reset width classes
+    okButton.classList.remove('w-full', 'w-1/2');
 
     if (cancelText) {
         cancelButton.textContent = cancelText;
@@ -360,7 +360,6 @@ function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText =
         okButton.classList.add('w-1/2');
         cancelButton.classList.add('w-1/2');
     } else {
-        // If only one button (standard alert)
         cancelButton.classList.add('hidden');
         okButton.classList.add('w-full');
     }
@@ -368,7 +367,6 @@ function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText =
     modal.classList.remove('hidden');
 
     return new Promise(resolve => {
-        // Handler for OK/Confirm button
         const okHandler = () => {
             modal.classList.add('hidden');
             okButton.removeEventListener('click', okHandler);
@@ -378,7 +376,6 @@ function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText =
             resolve('ok');
         };
         
-        // Handler for Cancel/Go Back button (only added if cancelText is present)
         const cancelHandler = () => {
             modal.classList.add('hidden');
             okButton.removeEventListener('click', okHandler);
@@ -393,78 +390,45 @@ function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText =
     });
 }
 
-// Standard Alert (uses the new function with no cancel button)
 function customAlert(title, message) {
-    // Wrap message in a paragraph tag for the message container
     return customConfirmationAlert(title, `<p id="modal-message">${message}</p>`, 'OK', null);
 }
 
-/**
- * Shows the loading overlay with a specific message.
- * @param {string} message 
- */
 function showLoading(message) {
     document.getElementById('loading-message').textContent = message;
     document.getElementById('loadingOverlay').classList.remove('hidden');
     document.body.style.overflow = 'hidden';
 }
 
-/**
- * Hides the loading overlay.
- */
 function hideLoading() {
     document.getElementById('loadingOverlay').classList.add('hidden');
     document.body.style.overflow = 'auto';
 }
 
-/**
- * Calculates the final due date based on the submission date.
- * Rule: Repayment is due on the last day of the current calendar month.
- * @param {Date} submitDate
- * @returns {string} The due date in YYYY-MM-DD format.
- */
 function calculateDueDate(submitDate) {
-    // 1. Get the current year and month from the submission date
     const year = submitDate.getFullYear();
-    const month = submitDate.getMonth(); // 0 (Jan) to 11 (Dec)
-
-    // 2. To get the last day of the current month:
-    // We create a date object for the first day of the *next* month (month + 1)
-    // and then subtract one day.
+    const month = submitDate.getMonth();
     const lastDayOfMonth = new Date(year, month + 1, 0);
-
-    // 3. Format the date as YYYY-MM-DD (e.g., 2025-12-31)
     const yyyy = lastDayOfMonth.getFullYear();
-    const mm = String(lastDayOfMonth.getMonth() + 1).padStart(2, '0'); // Months are 0-indexed, so add 1
+    const mm = String(lastDayOfMonth.getMonth() + 1).padStart(2, '0');
     const dd = String(lastDayOfMonth.getDate()).padStart(2, '0');
-
     return `${yyyy}-${mm}-${dd}`;
 }
 
 
-/**
- * Uploads a file to Supabase Storage and returns the public URL.
- * @param {File} file The file object to upload.
- * @param {string} bucket The Supabase Storage bucket name.
- * @param {string} path The path within the bucket (e.g., 'documents/user-id/id-doc.pdf').
- * @param {boolean} isRequired Whether the file is mandatory.
- * @returns {Promise<string | null>} The public URL of the uploaded file, or null if file is optional and not provided.
- */
 async function uploadFile(file, bucket, path, isRequired = true) {
     if (!file) {
         if (isRequired) {
             throw new Error("A compulsory file was not provided for upload.");
         }
-        // If optional and not provided, return null
         return null;
     }
     
-    // Upload the file
     const { data, error } = await supabase.storage
         .from(bucket)
         .upload(path, file, {
             cacheControl: '3600',
-            upsert: false 
+            upsert: false  
         });
 
     if (error) {
@@ -472,7 +436,6 @@ async function uploadFile(file, bucket, path, isRequired = true) {
         throw new Error('File upload failed: ' + error.message);
     }
 
-    // Get the public URL for the uploaded file
     const { data: publicUrlData } = supabase.storage
         .from(bucket)
         .getPublicUrl(data.path);
@@ -484,11 +447,28 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- DYNAMIC PAYMENT FIELD LOGIC (WORKING) ---
-const paymentMethod = document.getElementById('paymentMethod');
-const container = document.getElementById('paymentDetailsContainer');
+// --- SA ID VALIDATION FUNCTION (SIMPLIFIED FOR TESTING) ---
+/**
+ * Temporarily validates a South African ID number only by checking the length.
+ * IMPORTANT: REPLACE WITH FULL VALIDATION BEFORE DEPLOYMENT.
+ * @param {string} idNumber 
+ * @returns {boolean} true if 13 digits, false otherwise.
+ */
+function validateSouthAfricanId(idNumber) {
+    // We only check for the 13-digit length and return true to bypass Luhn/date checks.
+    if (!/^\d{13}$/.test(idNumber)) {
+        return false;
+    }
+    // All other complex checks are bypassed for testing.
+    return true; 
+}
+// --- END UTILITY FUNCTIONS ---
 
-const paymentFields = {
+
+// --- DYNAMIC PAYMENT FIELD DATA ---
+
+// This data object uses the correct IDs: bankName, bankAccountNumber, cardlessBank, cardlessPhoneNumber
+const fields = {
     'Bank Account': `
         <div class="form-group">
             <label for="bankName">Bank Name (Where funds will be deposited)</label>
@@ -498,237 +478,234 @@ const paymentFields = {
             <label for="bankAccountNumber">Bank Account Number</label>
             <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
         </div>
-    `,
-    'eWallet': `
+    `.trim(),      
+    'Cardless Service': `
         <div class="form-group">
-            <label for="eWalletProvider">eWallet Provider (e.g., FNB, Capitec)</label>
-            <input type="text" id="eWalletProvider" required placeholder="e.g., FNB, Capitec">
+            <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
+            <input type="text" id="cardlessBank" required placeholder="e.g., FNB, Capitec, Standard Bank">
         </div>
         <div class="form-group">
-            <label for="eWalletPhoneNumber">eWallet Registered Phone Number</label>
-            <input type="tel" id="eWalletPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+            <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
+            <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
         </div>
-    `,
-    'CashSend': `
-        <div class="form-group">
-            <label for="cashSendBank">CashSend Bank (e.g., FNB, Standard Bank)</label>
-            <input type="text" id="cashSendBank" required placeholder="e.g., FNB, Standard Bank">
-        </div>
-        <div class="form-group">
-            <label for="cashSendPhoneNumber">Recipient Phone Number (For SMS notification)</label>
-            <input type="tel" id="cashSendPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-        </div>
-    `
+    `.trim()
 };
 
-// Attach the change listener directly (modules are deferred, so DOM is ready)
-paymentMethod.addEventListener('change', (e) => {
-    const selected = e.target.value;
-    const heading = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
+// --- WRAP MAIN PAGE LOGIC IN DOMContentLoaded ---
+document.addEventListener('DOMContentLoaded', () => {
 
-    if (selected && paymentFields[selected]) {
-        container.innerHTML = heading + paymentFields[selected];
-        container.classList.remove('hidden');
-    } else {
-        container.innerHTML = '';
-        container.classList.add('hidden');
-    }
-});
-    
-// --- END DYNAMIC PAYMENT FIELD LOGIC ---
+    // Retrieve elements now that the DOM is ready
+    const paymentMethod = document.getElementById('paymentMethod');
+    const container = document.getElementById('paymentDetailsContainer');
 
+    // Function to handle updating the fields (Correct Logic)
+    function updatePaymentFields() {
+        const selectedMethod = paymentMethod.value;
+        const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
-// Main submission handler (🌟 LOGIC MODIFIED HERE)
-document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    
-    // --- 0. Pre-Submission and Final Confirmation Validation ---
-    const confirmationTick = document.getElementById('confirmationTick');
-    const digitalSignature = document.getElementById('digitalSignature').value.trim();
-    const selectedMethod = document.getElementById('paymentMethod').value;
-    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
-
-    if (!confirmationTick.checked) {
-        await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
-        return;
-    }
-    if (digitalSignature !== 'YES') {
-        await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
-        return;
-    }
-    if (!selectedMethod) {
-        await customAlert('Validation Error', 'Please select a preferred payment method.');
-        return;
-    }
-    if (!requestedAmountString) {
-        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
-        goToPage('agreement.html');
-        return;
-    }
-    
-    // --- Payment Details Validation & Data Extraction ---
-    let paymentDetails = {};
-    const fullName = document.getElementById('fullName').value;
-    const contactNumber = document.getElementById('contactNumber').value;
-    const residentialAddress = document.getElementById('residentialAddress').value;
-    
-    try {
-        if (selectedMethod === 'Bank Account') {
-            const bankName = document.getElementById('bankName')?.value.trim();
-            const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
-            if (!bankName || !bankAccountNumber) throw new Error('Bank Account details are incomplete or missing.');
-            paymentDetails = { name: bankName, account: bankAccountNumber };
-        } else if (selectedMethod === 'eWallet') {
-            const provider = document.getElementById('eWalletProvider')?.value.trim();
-            const phone = document.getElementById('eWalletPhoneNumber')?.value.trim();
-            if (!provider || !phone) throw new Error('eWallet details are incomplete or missing.');
-            paymentDetails = { provider: provider, phone: phone };
-        } else if (selectedMethod === 'CashSend') {
-            const bank = document.getElementById('cashSendBank')?.value.trim();
-            const phone = document.getElementById('cashSendPhoneNumber')?.value.trim();
-            if (!bank || !phone) throw new Error('CashSend details are incomplete or missing.');
-            paymentDetails = { bank: bank, phone: phone };
+        if (selectedMethod && fields[selectedMethod]) {
+            // This is the correct logic that generates the fields with the required IDs
+            container.innerHTML = pTag + fields[selectedMethod];
+            container.classList.remove('hidden');
+        } else {
+            container.innerHTML = '';
+            container.classList.add('hidden');
         }
-    } catch (e) {
-        await customAlert('Validation Error', e.message);
-        return;
     }
-    // --- END Payment Details Validation ---
 
-    // Now that validation is complete, show loading
-    showLoading("Submitting application and starting file uploads...");
+    // Attach listener for when the user changes the selection
+    paymentMethod.addEventListener('change', updatePaymentFields);
 
-    const idNumberInput = document.getElementById('idNumber');
-    const borrowerId = idNumberInput.value.trim(); 
+    // Run the logic once on page load to set the initial state
+    updatePaymentFields();  
 
-    try {
-        // --- Date Calculation ---
-        const submissionDate = new Date();
-        const dueDate = calculateDueDate(submissionDate);
-        // Calculate the number of days between submission and due date
-        const repaymentDays = Math.ceil((new Date(dueDate).getTime() - submissionDate.getTime()) / (1000 * 60 * 60 * 24));
+    // --- Main submission handler (Your existing submission logic) ---
+    document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
         
-        // --- Get Optional Employment Values ---
-        const employerName = document.getElementById('employerName').value.trim();
-        const employeeAddress = document.getElementById('employeeAddress').value.trim();
+        // --- 0. Pre-Submission and Final Confirmation Validation ---
+        const confirmationTick = document.getElementById('confirmationTick');
+        const digitalSignature = document.getElementById('digitalSignature').value.trim();
+        const selectedMethod = document.getElementById('paymentMethod').value;
+        const requestedAmountString = localStorage.getItem('requestedLoanAmount');
+
+        if (!confirmationTick.checked) {
+            await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
+            return;
+        }
+        if (digitalSignature !== 'YES') {
+            await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
+            return;
+        }
+        if (!selectedMethod) {
+            await customAlert('Validation Error', 'Please select a preferred payment method.');
+            return;
+        }
+        if (!requestedAmountString) {
+            await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
+            goToPage('agreement.html');
+            return;
+        }
         
-        // 1. Get all form values for insertion
-        const data = {
-            id: borrowerId, 
-            full_name: fullName,
-            id_number: borrowerId, 
-            contact_number: contactNumber,
-            residential_address: residentialAddress,
+        // --- SA ID Validation ---
+        const idNumberInput = document.getElementById('idNumber');
+        const borrowerId = idNumberInput.value.trim();  
+        
+        if (!validateSouthAfricanId(borrowerId)) {
+            await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
+            return;
+        }
+
+        // --- Payment Details Validation & Data Extraction (Uses correct IDs: bankName, bankAccountNumber, etc.) ---
+        let paymentDetails = {};
+        const fullName = document.getElementById('fullName').value;
+        const contactNumber = document.getElementById('contactNumber').value;
+        const residentialAddress = document.getElementById('residentialAddress').value;
+        
+        try {
+            if (selectedMethod === 'Bank Account') {
+                // IMPORTANT: This uses the IDs from the 'fields' object definition
+                const bankName = document.getElementById('bankName')?.value.trim();
+                const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
+                if (!bankName || !bankAccountNumber) throw new Error('Bank Account details are incomplete or missing.');
+                paymentDetails = { name: bankName, account: bankAccountNumber };
+            } else if (selectedMethod === 'Cardless Service') {  
+                // IMPORTANT: This uses the IDs from the 'fields' object definition
+                const bank = document.getElementById('cardlessBank')?.value.trim();  
+                const phone = document.getElementById('cardlessPhoneNumber')?.value.trim();  
+                if (!bank || !phone) throw new Error('Cardless Service details are incomplete or missing.');
+                paymentDetails = { bank: bank, phone: phone };
+            }  
+        } catch (e) {
+            await customAlert('Validation Error', e.message);
+            return;
+        }
+        // --- END Payment Details Validation ---
+
+        showLoading("Submitting application and starting file uploads...");
+
+        try {
+            // --- Date Calculation ---
+            const submissionDate = new Date();
+            const dueDate = calculateDueDate(submissionDate);
+            const repaymentDays = Math.ceil((new Date(dueDate).getTime() - submissionDate.getTime()) / (1000 * 60 * 60 * 24));
             
-            employer_name: employerName || null,  
-            employee_address: employeeAddress || null,  
+            // --- Get Optional Employment Values ---
+            const employerName = document.getElementById('employerName').value.trim();
+            const employeeAddress = document.getElementById('employeeAddress').value.trim();
             
-            preferred_payment_type: selectedMethod,
-            payment_details_json: JSON.stringify(paymentDetails), 
+            // 1. Initial data object setup
+            const data = {
+                id: borrowerId,  
+                full_name: fullName,
+                id_number: borrowerId,  
+                contact_number: contactNumber,
+                residential_address: residentialAddress,
+                
+                employer_name: employerName || null,  
+                employee_address: employeeAddress || null,  
+                
+                preferred_payment_type: selectedMethod,
+                payment_details_json: JSON.stringify(paymentDetails),  
+                
+                requested_amount: parseFloat(requestedAmountString),
+                digital_signature: digitalSignature,
+                confirmed_accurate: confirmationTick.checked,
+                
+                status: 'Pending Review',
+                repayment_due_date: dueDate,
+                repayment_period: repaymentDays,
+                interest_rate: 0.50,
+                date_submitted: submissionDate.toISOString()
+            };
             
-            requested_amount: parseFloat(requestedAmountString),
-            digital_signature: digitalSignature,
-            confirmed_accurate: confirmationTick.checked,
+            // 2. Prepare files for upload
+            const files = {
+                idDocument: document.getElementById('idDocument').files[0],
+                bankStatement: document.getElementById('bankStatement').files[0],
+                proofOfAddress: document.getElementById('proofOfAddress').files[0],
+                selfieDocument: document.getElementById('selfieDocument').files[0]
+            };
+
+            // 3. Upload all files and collect URLs
+            showLoading("Uploading documents (This may take up to 30 seconds)...");
             
-            // --- UPDATED DATE LOGIC HERE ---
-            status: 'Pending Review',
-            repayment_due_date: dueDate, // New calculated due date
-            repayment_period: repaymentDays, // Calculated days to repayment
-            interest_rate: 0.50, // Interest rate is maintained at 50%
-            date_submitted: submissionDate.toISOString()
-            // --- END UPDATED DATE LOGIC ---
-        };
-        
-        // 2. Prepare files for upload
-        const files = {
-            idDocument: document.getElementById('idDocument').files[0],
-            bankStatement: document.getElementById('bankStatement').files[0],
-            proofOfAddress: document.getElementById('proofOfAddress').files[0],
-            selfieDocument: document.getElementById('selfieDocument').files[0]
-        };
-
-        // 3. Upload all files and collect URLs
-        showLoading("Uploading documents (This may take up to 30 seconds)...");
-        
-        const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
-            uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}`, true), 
-            uploadFile(files.bankStatement, 'loan_documents', `${borrowerId}/bank-statement-${Date.now()}`, false), 
-            uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}`, true), 
-            uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}`, true)
-        ]);
-
-        // 4. Update data object with document URLs
-        data.document_id_url = id_url;
-        data.document_bank_url = statement_url;
-        data.document_address_url = address_url;
-        data.document_selfie_url = selfie_url;
-
-        showLoading("Inserting application data into the database...");
-        
-        // 5. Insert data into the 'borrowers' table
-        const { error: insertError } = await supabase
-            .from('borrowers')
-            .insert([
-                { ...data }
+            const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
+                uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}.${files.idDocument.name.split('.').pop()}`, true),
+                uploadFile(files.bankStatement, 'loan_documents', files.bankStatement ? `${borrowerId}/bank-statement-${Date.now()}.${files.bankStatement.name.split('.').pop()}` : null, false),
+                uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}.${files.proofOfAddress.name.split('.').pop()}`, true),
+                uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}.${files.selfieDocument.name.split('.').pop()}`, true)
             ]);
 
-        if (insertError) {
-            console.error('Supabase Insert Error:', insertError);
-            throw new Error('Database submission failed: ' + insertError.message);
+            // 4. Update data object with document URLs
+            data.id_document_url = id_url;
+            data.bank_statement_url = statement_url;
+            data.proof_of_address_url = address_url;
+            data.selfie_document_url = selfie_url;
+
+            showLoading("Inserting application data into the database...");
+            
+            // 5. Insert data into the 'borrowers' table
+            const { error: insertError } = await supabase
+                .from('borrowers')
+                .insert([
+                    { ...data }
+                ]);
+
+            if (insertError) {
+                console.error('Supabase Insert Error:', insertError);
+                throw new Error('Database submission failed: ' + insertError.message);
+            }
+
+            // 6. Success: Save the new ID and display the Review Modal
+            localStorage.setItem('currentUserId', borrowerId);
+            
+            hideLoading(); // Hide loading before showing the final review modal
+
+            // A. Construct the Review Message (Formatted HTML)
+            const paymentDetailStr = JSON.stringify(paymentDetails)
+                .replace(/[{}"\\]/g, '')
+                .replace(/,/g, ', ');
+
+            let reviewMessage = `
+                <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
+                <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
+                    <li>Full Name: ${fullName}</li>
+                    <li>Contact: ${contactNumber}</li>
+                    <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
+                    <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
+                    <li>Payment Type: ${selectedMethod}</li>
+                    <li class="break-all">Payment Details: ${paymentDetailStr}</li>
+                </ul>
+                <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
+            `;
+
+            // B. Show the custom confirmation modal
+            const result = await customConfirmationAlert(
+                'Final Review Required',  
+                reviewMessage,  
+                'Confirm & Go to Dashboard',  
+                'Go Back to Agreement'
+            );
+            
+            // C. Act based on the user's choice
+            if (result === 'ok') {
+                // User Confirmed -> Redirect to Dashboard
+                localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount only upon final confirmation
+                goToPage('dashboard.html');
+            } else {
+                // User Canceled/Went Back -> Redirect to Agreement page
+                goToPage('agreement.html');
+            }
+
+
+        } catch (error) {
+            hideLoading();
+            console.error('Application Submission Error:', error);
+            await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
         }
-
-        // 6. Success: Save the new ID and display the Review Modal
-        localStorage.setItem('currentUserId', borrowerId);
-        // Do NOT clear requestedLoanAmount yet, as we might go back.
-
-        hideLoading(); // Hide loading before showing the final review modal
-
-        // A. Construct the Review Message (Formatted HTML)
-        const paymentDetailStr = JSON.stringify(paymentDetails)
-            .replace(/[{}"\\]/g, '')
-            .replace(/,/g, ', ');
-
-        let reviewMessage = `
-            <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
-            <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
-                <li>Full Name: ${fullName}</li>
-                <li>Contact: ${contactNumber}</li>
-                <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
-                <li>**Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
-                <li>**Payment Type: ${selectedMethod}</li>
-                <li class="break-all">Payment Details: ${paymentDetailStr}</li>
-            </ul>
-            <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
-        `;
-
-        // B. Show the custom confirmation modal
-        const result = await customConfirmationAlert(
-            'Final Review Required', 
-            reviewMessage, 
-            'Confirm & Go to Dashboard', 
-            'Go Back to Agreement' // This is the new "Go Back" button
-        );
-        
-        // C. Act based on the user's choice
-        if (result === 'ok') {
-            // User Confirmed -> Redirect to Dashboard
-            localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount only upon final confirmation
-            goToPage('dashboard.html');
-        } else {
-            // User Canceled/Went Back -> Redirect to Agreement page
-            // The data is already saved, but the user wants to review the agreement first.
-            goToPage('agreement.html');
-        }
-
-
-    } catch (error) {
-        hideLoading();
-        console.error('Application Submission Error:', error);
-        await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
-    }
+    });
 });
 </script>
+</body>
 </html>
-
-
-
