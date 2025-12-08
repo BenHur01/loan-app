@@ -1,13 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Loan Application Form</title>
-<script src="https://cdn.tailwindcss.com"></script>
-<style>
-/* ...keep all your existing styles as-is... */
-   body {
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Loan Application Form</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
             font-family: 'Inter', sans-serif;
             display: flex;
             flex-direction: column;
@@ -122,31 +121,29 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
-</style>
+    </style>
 </head>
 <body>
-
-<!-- Custom Modal -->
-<div id="custom-alert-modal" class="custom-modal hidden">
-  <div class="custom-modal-content">
-    <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
-    <div id="modal-message-container" class="text-gray-600 mb-6">
-      <p id="modal-message"></p>
+    
+    <div id="custom-alert-modal" class="custom-modal hidden">
+        <div class="custom-modal-content">
+            <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
+            <div id="modal-message-container" class="text-gray-600 mb-6">
+                <p id="modal-message"></p>
+            </div>
+            <div class="flex space-x-3 mt-4">
+                <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">
+                    Cancel
+                </button>
+                <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
+                    OK
+                </button>
+            </div>
+        </div>
     </div>
-    <div class="flex space-x-3 mt-4">
-      <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">
-        Cancel
-      </button>
-      <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
-        OK
-      </button>
-    </div>
-  </div>
-</div>
 
-<main class="container">
-  <!-- ...all form HTML stays exactly as-is... -->
-          <header class="text-center mb-8">
+    <main class="container">
+        <header class="text-center mb-8">
             <h1 class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
             <p class="text-gray-500 mt-2">Personal, Address, Employment, and Document Uploads</p>
         </header>
@@ -286,142 +283,338 @@
         <div class="mt-8 text-center">
             <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a>
         </div>
-</main>
+    </main>
 
-<div id="loadingOverlay" class="loading-overlay hidden">
-  <div class="loader"></div>
-  <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
-  <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
-</div>
-
+    <div id="loadingOverlay" class="loading-overlay hidden">
+        <div class="loader"></div>
+        <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
+        <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
+    </div>
+    
 <script type="module">
+// START OF REQUIRED FIREBASE & SUPABASE SETUP
+// START OF REQUIRED FIREBASE & SUPABASE SETUP (Your existing setup code here...)
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-// Firebase setup
+// --- Global Variables (Provided by Canvas) ---
 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+// --- Firebase Init ---
 let auth;
 if (Object.keys(firebaseConfig).length > 0) {
-  const app = initializeApp(firebaseConfig);
-  auth = getAuth(app);
-  if (initialAuthToken) {
-    signInWithCustomToken(auth, initialAuthToken).catch(() => signInAnonymously(auth));
-  } else signInAnonymously(auth);
+    const app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    if (initialAuthToken) {
+        signInWithCustomToken(auth, initialAuthToken).catch(e => {
+            console.error("Firebase custom sign-in failed:", e);
+            signInAnonymously(auth);
+        });
+    } else {
+        signInAnonymously(auth);
+    }
+} else {
+    console.warn("Firebase configuration not found. Skipping Firebase initialization.");
 }
 
-// Supabase setup
+// --- Supabase Config ---
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-// Modal utilities
+function goToPage(page) {
+    window.location.href = page;
+}
+// END OF REQUIRED FIREBASE & SUPABASE SETUP
+
+// --- UTILITY FUNCTIONS (Your Modal, Loading, Date, Upload, and ID functions remain here) ---
+// (Note: I'm omitting the function definitions here for brevity, but assume they are present)
+
+/**
+ * Custom modal replacement for alert() and confirmation.
+ * @param {string} title
+ * @param {string} messageHtml
+ * @param {string} okText
+ * @param {string | null} cancelText
+ * @returns {Promise<string>} 'ok' or 'cancel'
+ */
 function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText = null) {
-  const modal = document.getElementById('custom-alert-modal');
-  document.getElementById('modal-title').textContent = title;
-  const messageContainer = document.getElementById('modal-message-container');
-  messageContainer.innerHTML = messageHtml;
-  const okButton = document.getElementById('modal-ok-button');
-  const cancelButton = document.getElementById('modal-cancel-button');
-  okButton.textContent = okText;
+    const modal = document.getElementById('custom-alert-modal');
+    document.getElementById('modal-title').textContent = title;
+    
+    const messageContainer = document.getElementById('modal-message-container');
+    messageContainer.innerHTML = messageHtml; 
 
-  if (cancelText) {
-    cancelButton.textContent = cancelText;
-    cancelButton.classList.remove('hidden');
-    okButton.classList.add('w-1/2'); cancelButton.classList.add('w-1/2');
-  } else {
-    cancelButton.classList.add('hidden');
-    okButton.classList.remove('w-1/2');
-    okButton.classList.add('w-full');
-  }
+    const okButton = document.getElementById('modal-ok-button');
+    const cancelButton = document.getElementById('modal-cancel-button');
+    
+    okButton.textContent = okText;
+    okButton.classList.remove('w-full', 'w-1/2');
 
-  modal.classList.remove('hidden');
-  return new Promise(resolve => {
-    const okHandler = () => { modal.classList.add('hidden'); okButton.removeEventListener('click', okHandler); if (cancelText) cancelButton.removeEventListener('click', cancelHandler); resolve('ok'); };
-    const cancelHandler = () => { modal.classList.add('hidden'); okButton.removeEventListener('click', okHandler); cancelButton.removeEventListener('click', cancelHandler); resolve('cancel'); };
-    okButton.addEventListener('click', okHandler);
-    if (cancelText) cancelButton.addEventListener('click', cancelHandler);
-  });
+    if (cancelText) {
+        cancelButton.textContent = cancelText;
+        cancelButton.classList.remove('hidden');
+        okButton.classList.add('w-1/2');
+        cancelButton.classList.add('w-1/2');
+    } else {
+        cancelButton.classList.add('hidden');
+        okButton.classList.add('w-full');
+    }
+    
+    modal.classList.remove('hidden');
+
+    return new Promise(resolve => {
+        const okHandler = () => {
+            modal.classList.add('hidden');
+            okButton.removeEventListener('click', okHandler);
+            if (cancelText) {
+                cancelButton.removeEventListener('click', cancelHandler);
+            }
+            resolve('ok');
+        };
+        
+        const cancelHandler = () => {
+            modal.classList.add('hidden');
+            okButton.removeEventListener('click', okHandler);
+            cancelButton.removeEventListener('click', cancelHandler);
+            resolve('cancel');
+        };
+
+        okButton.addEventListener('click', okHandler);
+        if (cancelText) {
+            cancelButton.addEventListener('click', cancelHandler);
+        }
+    });
 }
 
-function customAlert(title, message) { return customConfirmationAlert(title, `<p>${message}</p>`); }
-function showLoading(message) { document.getElementById('loading-message').textContent = message; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow = 'hidden'; }
-function hideLoading() { document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow = 'auto'; }
-function goToPage(page) { window.location.href = page; }
-function calculateDueDate(submitDate) { const lastDay = new Date(submitDate.getFullYear(), submitDate.getMonth() + 1, 0); return `${lastDay.getFullYear()}-${String(lastDay.getMonth()+1).padStart(2,'0')}-${String(lastDay.getDate()).padStart(2,'0')}`; }
+function customAlert(title, message) {
+    return customConfirmationAlert(title, `<p id="modal-message">${message}</p>`, 'OK', null);
+}
 
-// File upload
+function showLoading(message) {
+    document.getElementById('loading-message').textContent = message;
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+function calculateDueDate(submitDate) {
+    const year = submitDate.getFullYear();
+    const month = submitDate.getMonth();
+    const lastDayOfMonth = new Date(year, month + 1, 0);
+    const yyyy = lastDayOfMonth.getFullYear();
+    const mm = String(lastDayOfMonth.getMonth() + 1).padStart(2, '0');
+    const dd = String(lastDayOfMonth.getDate()).padStart(2, '0');
+    return `${yyyy}-${mm}-${dd}`;
+}
+
+
 async function uploadFile(file, bucket, path, isRequired = true) {
-  if (!file) { if(isRequired) throw new Error("Required file missing."); return null; }
-  const { data, error } = await supabase.storage.from(bucket).upload(path, file, {cacheControl:'3600', upsert:false});
-  if(error) throw new Error(error.message);
-  const { data: urlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
-  return urlData.publicUrl;
+    if (!file) {
+        if (isRequired) {
+            throw new Error("A compulsory file was not provided for upload.");
+        }
+        return null;
+    }
+    
+    const { data, error } = await supabase.storage
+        .from(bucket)
+        .upload(path, file, {
+            cacheControl: '3600',
+            upsert: false  
+        });
+
+    if (error) {
+        console.error('Supabase upload error:', error);
+        throw new Error('File upload failed: ' + error.message);
+    }
+
+    const { data: publicUrlData } = supabase.storage
+        .from(bucket)
+        .getPublicUrl(data.path);
+        
+    if (!publicUrlData || !publicUrlData.publicUrl) {
+        throw new Error('Could not retrieve public URL after successful upload.');
+    }
+
+    return publicUrlData.publicUrl;
 }
 
-function validateSouthAfricanId(idNumber) { return /^\d{13}$/.test(idNumber); }
+function validateSouthAfricanId(idNumber) {
+    if (!/^\d{13}$/.test(idNumber)) {
+        return false;
+    }
 
-// --- PAYMENT FIELDS DYNAMIC LOGIC ---
-const paymentFields = {
-  'Bank Account': `
-    <div class="form-group"><label for="bankName">Bank Name</label><input type="text" id="bankName" required placeholder="FNB, Standard Bank"></div>
-    <div class="form-group"><label for="bankAccountNumber">Account Number</label><input type="text" id="bankAccountNumber" required pattern="\\d+" placeholder="1234567890"></div>
-  `,
-  'Cardless Service': `
-    <div class="form-group"><label for="cardlessBank">Cardless Bank</label><input type="text" id="cardlessBank" required placeholder="FNB, Capitec"></div>
-    <div class="form-group"><label for="cardlessPhoneNumber">Phone Number</label><input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" placeholder="0712345678"></div>
-  `
+    const year = idNumber.substring(0, 2);
+    const month = idNumber.substring(2, 4);
+    const day = idNumber.substring(4, 6);
+    
+    const currentYear = new Date().getFullYear();
+    const currentYY = currentYear % 100;
+    
+    let fullYear;
+    if (parseInt(year, 10) <= currentYY) {
+        fullYear = '20' + year;
+    } else {
+        fullYear = '19' + year;
+    }
+
+    const dateOfBirth = new Date(fullYear, parseInt(month, 10) - 1, parseInt(day, 10));
+    if (
+        dateOfBirth.getFullYear() !== parseInt(fullYear, 10) ||
+        dateOfBirth.getMonth() !== parseInt(month, 10) - 1 ||
+        dateOfBirth.getDate() !== parseInt(day, 10)
+    ) {
+        return false;
+    }
+
+    const citizenship = idNumber.substring(10, 11);
+    if (citizenship !== '0' && citizenship !== '1') {
+        return false;
+    }
+
+    let checkSum = 0;
+    for (let i = 0; i < 12; i++) {
+        let digit = parseInt(idNumber[i], 10);
+        if (i % 2 === 0) {
+            digit *= 2;
+            if (digit > 9) {
+                digit -= 9;
+            }
+        }
+        checkSum += digit;
+    }
+
+    const finalChecksum = (10 - (checkSum % 10)) % 10;
+    const lastDigit = parseInt(idNumber[12], 10);
+
+    return finalChecksum === lastDigit;
+}
+// --- END UTILITY FUNCTIONS ---
+
+
+// --- DYNAMIC PAYMENT FIELD DATA ---
+
+// This data object uses the correct IDs: bankName, bankAccountNumber, cardlessBank, cardlessPhoneNumber
+const fields = {
+    'Bank Account': `
+        <div class="form-group">
+            <label for="bankName">Bank Name (Where funds will be deposited)</label>
+            <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
+        </div>
+        <div class="form-group">
+            <label for="bankAccountNumber">Bank Account Number</label>
+            <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
+        </div>
+    `.trim(),      
+    'Cardless Service': `
+        <div class="form-group">
+            <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
+            <input type="text" id="cardlessBank" required placeholder="e.g., FNB, Capitec, Standard Bank">
+        </div>
+        <div class="form-group">
+            <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
+            <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+        </div>
+    `.trim()
 };
 
+// --- WRAP MAIN PAGE LOGIC IN DOMContentLoaded ---
 document.addEventListener('DOMContentLoaded', () => {
-  const paymentMethod = document.getElementById('paymentMethod');
-  const container = document.getElementById('paymentDetailsContainer');
 
-  function updatePaymentFields() {
-    const selected = paymentMethod.value;
-    if(selected && paymentFields[selected]) {
-      container.innerHTML = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>` + paymentFields[selected];
-      container.classList.remove('hidden');
-    } else {
-      container.innerHTML = '';
-      container.classList.add('hidden');
+    // Retrieve elements now that the DOM is ready
+    const paymentMethod = document.getElementById('paymentMethod');
+    const container = document.getElementById('paymentDetailsContainer');
+
+    // Function to handle updating the fields (Correct Logic)
+    function updatePaymentFields() {
+        const selectedMethod = paymentMethod.value;
+        const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
+
+        if (selectedMethod && fields[selectedMethod]) {
+            // This is the correct logic that generates the fields with the required IDs
+            container.innerHTML = pTag + fields[selectedMethod];
+            container.classList.remove('hidden');
+        } else {
+            container.innerHTML = '';
+            container.classList.add('hidden');
+        }
     }
-  }
 
-  paymentMethod.addEventListener('change', updatePaymentFields);
-  updatePaymentFields(); // initial state
+    // Attach listener for when the user changes the selection
+    paymentMethod.addEventListener('change', updatePaymentFields);
 
-  // --- FORM SUBMISSION ---
-  document.getElementById('loanApplicationForm').addEventListener('submit', async function(e) {
-    e.preventDefault();
-    const confirmationTick = document.getElementById('confirmationTick');
-    const digitalSignature = document.getElementById('digitalSignature').value.trim();
-    const selectedMethod = paymentMethod.value;
-    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
-    if(!confirmationTick.checked){await customAlert('Validation','Tick confirmation box.'); return;}
-    if(digitalSignature!=='YES'){await customAlert('Validation','Type YES to sign.'); return;}
-    if(!selectedMethod){await customAlert('Validation','Select a payment method.'); return;}
-    if(!requestedAmountString){await customAlert('Error','Loan amount missing.'); goToPage('agreement.html'); return;}
-    const borrowerId = document.getElementById('idNumber').value.trim();
-    if(!validateSouthAfricanId(borrowerId)){await customAlert('Validation','ID must be 13 digits.'); return;}
-    
-    // Payment Details Extraction
-    let paymentDetails = {};
-    try {
-      if(selectedMethod==='Bank Account'){
-        const bankName = document.getElementById('bankName')?.value.trim();
-        const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
-        if(!bankName||!bankAccountNumber) throw new Error('Bank Account incomplete.');
-        paymentDetails={name:bankName, account:bankAccountNumber};
-      } else if(selectedMethod==='Cardless Service'){
-        const bank = document.getElementById('cardlessBank')?.value.trim();
-        const phone = document.getElementById('cardlessPhoneNumber')?.value.trim();
-        if(!bank||!phone) throw new Error('Cardless details incomplete.');
-        paymentDetails={bank, phone};
-      }
-    } catch(e){await customAlert('Validation',e.message); return;}
+    // Run the logic once on page load to set the initial state
+    updatePaymentFields();  
 
+    // --- Main submission handler (Your existing submission logic) ---
+    document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        // --- 0. Pre-Submission and Final Confirmation Validation ---
+        const confirmationTick = document.getElementById('confirmationTick');
+        const digitalSignature = document.getElementById('digitalSignature').value.trim();
+        const selectedMethod = document.getElementById('paymentMethod').value;
+        const requestedAmountString = localStorage.getItem('requestedLoanAmount');
+
+        if (!confirmationTick.checked) {
+            await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
+            return;
+        }
+        if (digitalSignature !== 'YES') {
+            await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
+            return;
+        }
+        if (!selectedMethod) {
+            await customAlert('Validation Error', 'Please select a preferred payment method.');
+            return;
+        }
+        if (!requestedAmountString) {
+            await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
+            goToPage('agreement.html');
+            return;
+        }
+        
+        // --- SA ID Validation ---
+        const idNumberInput = document.getElementById('idNumber');
+        const borrowerId = idNumberInput.value.trim();  
+        
+        if (!validateSouthAfricanId(borrowerId)) {
+            await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
+            return;
+        }
+
+        // --- Payment Details Validation & Data Extraction (Uses correct IDs: bankName, bankAccountNumber, etc.) ---
+        let paymentDetails = {};
+        const fullName = document.getElementById('fullName').value;
+        const contactNumber = document.getElementById('contactNumber').value;
+        const residentialAddress = document.getElementById('residentialAddress').value;
+        
+        try {
+            if (selectedMethod === 'Bank Account') {
+                // IMPORTANT: This uses the IDs from the 'fields' object definition
+                const bankName = document.getElementById('bankName')?.value.trim();
+                const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
+                if (!bankName || !bankAccountNumber) throw new Error('Bank Account details are incomplete or missing.');
+                paymentDetails = { name: bankName, account: bankAccountNumber };
+            } else if (selectedMethod === 'Cardless Service') {  
+                // IMPORTANT: This uses the IDs from the 'fields' object definition
+                const bank = document.getElementById('cardlessBank')?.value.trim();  
+                const phone = document.getElementById('cardlessPhoneNumber')?.value.trim();  
+                if (!bank || !phone) throw new Error('Cardless Service details are incomplete or missing.');
+                paymentDetails = { bank: bank, phone: phone };
+            }  
+        } catch (e) {
+            await customAlert('Validation Error', e.message);
+            return;
+        }
         // --- END Payment Details Validation ---
 
         showLoading("Submitting application and starting file uploads...");
@@ -485,10 +678,9 @@ document.addEventListener('DOMContentLoaded', () => {
             data.proof_of_address_url = address_url;
             data.selfie_document_url = selfie_url;
 
-    // Proceed with loading, uploads, DB insertion (keep your existing logic)
-    showLoading('Submitting application...');
-    // ... all upload + Supabase insertion logic remains identical ...
-           // 5. Insert data into the 'borrowers' table
+            showLoading("Inserting application data into the database...");
+            
+            // 5. Insert data into the 'borrowers' table
             const { error: insertError } = await supabase
                 .from('borrowers')
                 .insert([
@@ -515,9 +707,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
                     <li>Full Name: ${fullName}</li>
                     <li>Contact: ${contactNumber}</li>
-                    <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
                     <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
-                    <li>Payment Type: ${selectedMethod}</li>
+                    <li>**Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
+                    <li>**Payment Type: ${selectedMethod}</li>
                     <li class="break-all">Payment Details: ${paymentDetailStr}</li>
                 </ul>
                 <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
@@ -547,8 +739,10 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Application Submission Error:', error);
             await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
         }
-  });
+    });
 });
 </script>
 </body>
 </html>
+
+
