@@ -515,6 +515,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Attach listener for when the user changes the selection
     paymentMethod.addEventListener('change', updatePaymentFields);
+    paymentMethod.addEventListener('input', updatePaymentFields);
 
     // Run the logic once on page load to set the initial state
     updatePaymentFields();  
@@ -709,6 +710,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
