@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -55,10 +56,6 @@
             }
         }
     </style>
-    <script id="supabase-config"
-        data-url="https://kujvvupdqvtkncolhcul.supabase.co"
-        data-anon-key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE">
-    </script>
 </head>
 <body class="main-class-dashboard-layout">
 
@@ -131,7 +128,8 @@
                     </div>
 
                     <div class="col-span-1">
-                        <div class="font-medium text-gray-600">Final Repayment Amount:</div> <div id="detailFinalAmount" class="text-red-600 font-extrabold text-lg"></div>
+                        <div class="font-medium text-gray-600">Final Amount to be Repaid:</div>
+                        <div id="detailFinalAmount" class="text-red-600 font-extrabold text-lg"></div>
                     </div>
 
                     <div class="col-span-1">
@@ -161,7 +159,7 @@
                         </div>
                     </div>
                 </div>
-                <div id="repaymentCountdown" class="mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-lg shadow-md hidden"> 
+                <div id="repaymentCountdown" class="mt-8 p-4 bg-red-50 border-2 border-red-200 rounded-lg shadow-md hidden">
                     <h4 class="text-xl font-semibold text-red-700 flex items-center mb-2">
                         <svg class="w-6 h-6 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
                         Repayment Due In:
@@ -211,29 +209,15 @@
         </div>
     </div>
     <script type="module">
-        // FIX: Retrieve Supabase Config from the script tag attributes
-        const configScript = document.getElementById('supabase-config');
-        const SUPABASE_URL = configScript.dataset.url;
-        const SUPABASE_ANON_KEY = configScript.dataset.anonKey;
-
         // Import Supabase Client
         import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 
-        // FIX: Check for placeholder key for security warning
-        if (SUPABASE_ANON_KEY === 'YOUR_SUPABASE_ANON_KEY') {
-            console.error("SECURITY ALERT: Supabase ANONYMOUS KEY placeholder is still active! Please replace it with your actual key in the HTML head.");
-            document.getElementById('errorMessage').textContent = "ERROR: Supabase key is missing. Please contact support.";
-            document.getElementById('errorMessage').classList.remove('hidden');
-        }
+        // Supabase configuration (as defined in previous steps)
+        const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+        const SUPABASE_ANON_KEY =
+            'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
         const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-        
-        // FIX: Standard currency formatter for South African Rand (ZAR)
-        const zarFormatter = new Intl.NumberFormat('en-ZA', {
-            style: 'currency',
-            currency: 'ZAR',
-            minimumFractionDigits: 2,
-        });
 
         /**
          * Helper function to calculate the last day of the current month.
@@ -286,7 +270,6 @@
 
         /**
          * Calculates and updates the countdown timer based on a fixed due timestamp.
-         * FIX: Timer updated to use 1-second interval initially, then 1-minute interval.
          * @param {number} dueDateTimestamp - The calculated due date timestamp.
          */
         function startCountdown(dueDateTimestamp) {
@@ -296,17 +279,14 @@
             // Immediately show the countdown element
             countdownDiv.classList.remove('hidden');
 
-            let timerInterval;
-
             const updateTimer = () => {
                 const now = new Date().getTime();
                 const distance = dueDateTimestamp - now;
 
                 if (distance < 0) {
                     clearInterval(timerInterval);
-                    countdownDiv.classList.replace('bg-red-50', 'bg-red-200'); // Make it stand out more
-                    countdownDiv.classList.add('border-red-500'); // FIX: Ensure border is also red
                     display.innerHTML = "<strong>OVERDUE</strong> - Please contact support immediately.";
+                    countdownDiv.classList.replace('bg-red-50', 'bg-red-200'); // Make it stand out more
                     return;
                 }
 
@@ -314,45 +294,22 @@
                 const days = Math.floor(distance / (1000 * 60 * 60 * 24));
                 const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
                 const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-                const seconds = Math.floor((distance % (1000 * 60)) / 1000); // FIX: Added seconds calculation
 
-                // FIX: Added seconds to display for immediate visual feedback on load
                 display.innerHTML = `
                     <span class="text-4xl">${days}</span> Days :
                     <span class="text-4xl">${String(hours).padStart(2, '0')}</span> Hrs :
-                    <span class="text-4xl">${String(minutes).padStart(2, '0')}</span> Mins :
-                    <span class="text-4xl text-red-500">${String(seconds).padStart(2, '0')}</span> Secs
+                    <span class="text-4xl">${String(minutes).padStart(2, '0')}</span> Mins
                 `;
                 
                 // Optional: Change color when approaching deadline
                 if (days < 5 && distance > 0) {
                     countdownDiv.classList.replace('bg-red-50', 'bg-orange-100');
-                    countdownDiv.classList.replace('border-red-200', 'border-orange-500');
-                } else {
-                     countdownDiv.classList.replace('bg-orange-100', 'bg-red-50');
-                     countdownDiv.classList.replace('border-orange-500', 'border-red-200');
                 }
             };
 
-            // Run update timer immediately
-            updateTimer(); 
-
-            // FIX: Use an interval for seconds initially (e.g., first minute), then switch to a 1-minute update.
-            // For simplicity, we'll keep the 1 second update for a few minutes and then switch to 1 minute
-            // OR we'll just keep it at 1 second if performance is not a massive concern. 
-            // Sticking to the more performant 1 minute update for the full duration is best:
-            // The original 60,000ms is more efficient on a long-lived dashboard. I'll revert to that.
-            timerInterval = setInterval(updateTimer, 60000); 
-
-            // FIX: Immediate 1-second timer to show initial seconds, then clear it after a minute (UX win)
-            let initialTimer = setInterval(updateTimer, 1000);
-            setTimeout(() => {
-                clearInterval(initialTimer); // Stop the aggressive timer
-                // Restart with the efficient 1-minute timer if not overdue
-                if (dueDateTimestamp > new Date().getTime()) {
-                    timerInterval = setInterval(updateTimer, 60000);
-                }
-            }, 60000);
+            // Run update timer immediately, then every minute (60,000ms) for efficiency
+            updateTimer();
+            const timerInterval = setInterval(updateTimer, 60000);
         }
 
 
@@ -403,12 +360,10 @@
             // --- 1. Display Core Details (Updated) ---
             document.getElementById('detailName').textContent = full_name;
             document.getElementById('detailID').textContent = userId;
-            // FIX: Used ZAR formatter
-            document.getElementById('detailAmount').textContent = zarFormatter.format(requested_amount);
+            document.getElementById('detailAmount').textContent = `R${requested_amount.toFixed(2)}`;
             
             // NEW: Final Amount to be Repaid
-            // FIX: Used ZAR formatter
-            document.getElementById('detailFinalAmount').textContent = zarFormatter.format(finalRepaymentAmount);
+            document.getElementById('detailFinalAmount').textContent = `R${finalRepaymentAmount.toFixed(2)}`;
             
             // MODIFIED: Repayment Due Date
             document.getElementById('detailRepaymentDate').textContent = fixedDueDate.displayDate;
@@ -417,7 +372,7 @@
             document.getElementById('detailInterest').textContent = `${(interest * 100).toFixed(2)}%`;
             
             
-            // --- 2. Display Payment Details (UPDATED LOGIC) ---
+            // --- 2. Display Payment Details (NEW) ---
             document.getElementById('preferredPaymentType').textContent = preferred_payment_type || 'N/A';
             const dynamicDetailsContainer = document.getElementById('dynamicPaymentDetailsDisplay');
 
@@ -431,14 +386,18 @@
                             <li>Bank: **${details.name || 'N/A'}**</li>
                             <li>Account: **${details.account || 'N/A'}**</li>
                         </ul>`;
-                    } else if (preferred_payment_type === 'Cardless Service') { // <<< NEW CARDLESS SERVICE LOGIC
+                    } else if (preferred_payment_type === 'eWallet') {
                         detailHtml += `<ul class="list-disc list-inside ml-4 text-gray-900 font-medium">
-                            <li>Provider/Bank: **${details.bank || 'N/A'}**</li>
-                            <li>Phone No.: **${details.phone || 'N/A'}**</li>
+                            <li>Provider: **${details.provider || 'N/A'}**</li>
+                            <li>Phone: **${details.phone || 'N/A'}**</li>
+                        </ul>`;
+                    } else if (preferred_payment_type === 'CashSend') {
+                        detailHtml += `<ul class="list-disc list-inside ml-4 text-gray-900 font-medium">
+                            <li>Bank: **${details.bank || 'N/A'}**</li>
+                            <li>Phone: **${details.phone || 'N/A'}**</li>
                         </ul>`;
                     } else {
-                        // Fallback for old/unknown payment types
-                        detailHtml += `<p class="text-gray-500">Details available, but method is ${preferred_payment_type}.</p>`;
+                        detailHtml += `<p class="text-gray-500">No structured details available.</p>`;
                     }
                     
                     dynamicDetailsContainer.innerHTML = detailHtml;
@@ -461,8 +420,7 @@
             if (status === 'approved') {
                 statusClass = 'status-approved';
                 messageBg = 'bg-green-100 border-green-500 text-green-800';
-                // FIX: Used ZAR formatter in the message
-                messageContent = `Congratulations! Your loan of ${zarFormatter.format(requested_amount)} has been **APPROVED**. The funds will be transferred to your account (via **${preferred_payment_type}**) within 24 hours. The total amount due is ${zarFormatter.format(finalRepaymentAmount)}.`;
+                messageContent = `Congratulations! Your loan of R${requested_amount.toFixed(2)} has been APPROVED. The funds will be transferred to your account (via **${preferred_payment_type}**) within 24 hours. The total amount due is R${finalRepaymentAmount.toFixed(2)}.`;
                 
                 // Start countdown using the fixed end-of-month date
                 startCountdown(fixedDueDate.timestamp);
@@ -470,12 +428,12 @@
             } else if (status === 'rejected') {
                 statusClass = 'status-rejected';
                 messageBg = 'bg-red-100 border-red-500 text-red-800';
-                messageContent = `Your loan application has been **REJECTED** at this time. This decision is based on a review of the submitted documentation and eligibility criteria.`;
+                messageContent = `Your loan application has been REJECTED at this time. This decision is based on a review of the submitted documentation and eligibility criteria.`;
             } else {
                 // Pending
                 statusClass = 'status-pending'; // Ensure status is explicitly set to pending for visual state
                 messageBg = 'bg-yellow-100 border-yellow-500 text-yellow-800';
-                messageContent = `Your application is currently **PENDING** review by our finance team. We will update you with a final decision within 24 hours. Thank you for your patience.`;
+                messageContent = `Your application is currently PENDING review by our finance team. We will update you with a final decision within 24 hours. Thank you for your patience.`;
             }
             
             document.getElementById('detailStatus').innerHTML = `
@@ -523,7 +481,7 @@
 
             loanDetails.classList.remove('hidden');
 
-            // --- 5. NEW: REVIEW/CORRECTION MODAL LOGIC (UPDATED LOGIC) ---
+            // --- 5. NEW: REVIEW/CORRECTION MODAL LOGIC ---
             const confirmationModal = document.getElementById('confirmationModal');
             const confirmButton = document.getElementById('confirmDetailsButton');
             const correctButton = document.getElementById('correctDetailsButton');
@@ -544,13 +502,7 @@
                                 <li>Bank Name: **${details.name || 'N/A'}**</li>
                                 <li>Account No.: **${details.account || 'N/A'}**</li>
                             `;
-                        } else if (preferred_payment_type === 'Cardless Service') { // <<< NEW CARDLESS SERVICE LOGIC
-                            paymentDetailsSummary = `
-                                <li>Provider/Bank: **${details.bank || 'N/A'}**</li>
-                                <li>Phone No.: **${details.phone || 'N/A'}**</li>
-                            `;
-                        } else {
-                            // Fallback for old payment types (eWallet, CashSend) if they exist in the DB
+                        } else if (preferred_payment_type === 'eWallet' || preferred_payment_type === 'CashSend') {
                             paymentDetailsSummary = `
                                 <li>Provider/Bank: **${details.provider || details.bank || 'N/A'}**</li>
                                 <li>Phone No.: **${details.phone || 'N/A'}**</li>
@@ -566,8 +518,8 @@
                 modalSummary.innerHTML = `
                     <p class="font-bold mb-2 text-base text-gray-800">Loan & Repayment:</p>
                     <ul class="list-disc list-inside ml-4 mb-4">
-                        <li>Amount Requested: **${zarFormatter.format(requested_amount)}**</li>
-                        <li>Final Repayment: **${zarFormatter.format(finalRepaymentAmount)}**</li>
+                        <li>Amount Requested: **R${requested_amount.toFixed(2)}**</li>
+                        <li>Final Repayment: **R${finalRepaymentAmount.toFixed(2)}**</li>
                         <li>Repayment Due: **${fixedDueDate.displayDate}**</li>
                     </ul>
 
@@ -610,3 +562,5 @@
     </script>
 </body>
 </html>
+
+
