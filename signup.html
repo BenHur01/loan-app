@@ -523,11 +523,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     }
 
-    // Attach listener for when the user changes the selection
-    paymentMethod.addEventListener('change', () => {
-    // Force reflow-safe update (desktop + mobile)
+   // Attach listener for when the user changes the selection
+paymentMethod.addEventListener('change', () => {
     requestAnimationFrame(updatePaymentFields);
-    });
+});
+
+// NEW LINE: Add a redundant click listener for better desktop support
+paymentMethod.addEventListener('click', () => {
+    requestAnimationFrame(updatePaymentFields);
+});
 
 
     // Run the logic once on page load to set the initial state
@@ -723,6 +727,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
