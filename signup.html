@@ -672,9 +672,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
                     <li>Full Name: ${fullName}</li>
                     <li>Contact: ${contactNumber}</li>
-                    <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
                     <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
-                    <li>Payment Type: ${selectedMethod}</li>
+                    <li>**Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
+                    <li>**Payment Type: ${selectedMethod}</li>
                     <li class="break-all">Payment Details: ${paymentDetailStr}</li>
                 </ul>
                 <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
@@ -709,7 +709,6 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
-
 
 
 
