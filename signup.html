@@ -503,14 +503,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const selectedMethod = paymentMethod.value;
         const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
-        if (selectedMethod && fields[selectedMethod]) {
-            // This is the correct logic that generates the fields with the required IDs
-            container.innerHTML = pTag + fields[selectedMethod];
-            container.classList.remove('hidden');
-        } else {
-            container.innerHTML = '';
-            container.classList.add('hidden');
-        }
+       if (selectedMethod && fields[selectedMethod]) {
+        // 1. Generate and insert the HTML
+        container.innerHTML = pTag + fields[selectedMethod];
+        
+        // 2. Remove the CSS class that hides it
+        container.classList.remove('hidden');
+        
+        // 3. FORCE VISIBILITY: Overrides aggressive CSS on the PC 
+        container.style.display = 'block'; 
+        
+    } else {
+        // 1. Clear content and add the CSS class to hide it
+        container.innerHTML = '';
+        container.classList.add('hidden');
+        
+        // 2. FORCE HIDING: Ensures it disappears when deselected
+        container.style.display = 'none'; 
+    }
     }
 
     // Attach listener for when the user changes the selection
@@ -713,6 +723,7 @@ document.addEventListener('DOMContentLoaded', () => {
 </script>
 </body>
 </html>
+
 
 
 
