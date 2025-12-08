@@ -484,57 +484,57 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- DYNAMIC PAYMENT FIELD LOGIC (UNCHANGED) ---
-document.addEventListener('DOMContentLoaded', () => {
-    const paymentMethod = document.getElementById('paymentMethod');
-    const container = document.getElementById('paymentDetailsContainer');
+// --- DYNAMIC PAYMENT FIELD LOGIC (WORKING) ---
+const paymentMethod = document.getElementById('paymentMethod');
+const container = document.getElementById('paymentDetailsContainer');
 
-    const fields = {
-        'Bank Account': `
-            <div class="form-group">
-                <label for="bankName">Bank Name (Where funds will be deposited)</label>
-                <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
-            </div>
-            <div class="form-group">
-                <label for="bankAccountNumber">Bank Account Number</label>
-                <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
-            </div>
-        `,
-        'eWallet': `
-            <div class="form-group">
-                <label for="eWalletProvider">eWallet Provider (e.g., FNB, Capitec)</label>
-                <input type="text" id="eWalletProvider" required placeholder="e.g., FNB, Capitec">
-            </div>
-            <div class="form-group">
-                <label for="eWalletPhoneNumber">eWallet Registered Phone Number</label>
-                <input type="tel" id="eWalletPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-            </div>
-        `,
-        'CashSend': `
-            <div class="form-group">
-                <label for="cashSendBank">CashSend Bank (e.g., FNB, Standard Bank)</label>
-                <input type="text" id="cashSendBank" required placeholder="e.g., FNB, Standard Bank">
-            </div>
-            <div class="form-group">
-                <label for="cashSendPhoneNumber">Recipient Phone Number (For SMS notification)</label>
-                <input type="tel" id="cashSendPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-            </div>
-        `
-    };
+const paymentFields = {
+    'Bank Account': `
+        <div class="form-group">
+            <label for="bankName">Bank Name (Where funds will be deposited)</label>
+            <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
+        </div>
+        <div class="form-group">
+            <label for="bankAccountNumber">Bank Account Number</label>
+            <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
+        </div>
+    `,
+    'eWallet': `
+        <div class="form-group">
+            <label for="eWalletProvider">eWallet Provider (e.g., FNB, Capitec)</label>
+            <input type="text" id="eWalletProvider" required placeholder="e.g., FNB, Capitec">
+        </div>
+        <div class="form-group">
+            <label for="eWalletPhoneNumber">eWallet Registered Phone Number</label>
+            <input type="tel" id="eWalletPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+        </div>
+    `,
+    'CashSend': `
+        <div class="form-group">
+            <label for="cashSendBank">CashSend Bank (e.g., FNB, Standard Bank)</label>
+            <input type="text" id="cashSendBank" required placeholder="e.g., FNB, Standard Bank">
+        </div>
+        <div class="form-group">
+            <label for="cashSendPhoneNumber">Recipient Phone Number (For SMS notification)</label>
+            <input type="tel" id="cashSendPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+        </div>
+    `
+};
 
-    paymentMethod.addEventListener('change', (e) => {
-        const selected = e.target.value;
-        const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
+// Attach the change listener directly (modules are deferred, so DOM is ready)
+paymentMethod.addEventListener('change', (e) => {
+    const selected = e.target.value;
+    const heading = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
 
-        if (selected && fields[selected]) {
-            container.innerHTML = pTag + fields[selected];
-            container.classList.remove('hidden');
-        } else {
-            container.innerHTML = '';
-            container.classList.add('hidden');
-        }
-    });
+    if (selected && paymentFields[selected]) {
+        container.innerHTML = heading + paymentFields[selected];
+        container.classList.remove('hidden');
+    } else {
+        container.innerHTML = '';
+        container.classList.add('hidden');
+    }
 });
+    
 // --- END DYNAMIC PAYMENT FIELD LOGIC ---
 
 
@@ -729,5 +729,6 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 });
 </script>
 </html>
+
 
 
