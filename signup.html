@@ -255,7 +255,6 @@ function isSectionFilled(inputs){ return Array.from(inputs).every(input=>input.v
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event){
     event.preventDefault(); event.stopPropagation();
     const submitBtn=event.target.querySelector('button[type="submit"]'); 
-    submitBtn.disabled=true;
 
     // --- Validation ---
     const confirmationTick=document.getElementById('confirmationTick');
@@ -295,6 +294,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     }
     if(paymentValidationError){ await customAlert('Validation Error',paymentValidationError); return; }
 
+    submitBtn.disabled = true;  // disable only after validations pass
     showLoading("Submitting application and uploading files...");
 
     try {
@@ -360,4 +360,5 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 </script>
 </body>
 </html>
+
 
