@@ -77,51 +77,34 @@
     </header>
 
     <form id="loanApplicationForm" class="space-y-6">
-        <!-- Personal Details -->
+
+        <!-- PERSONAL DETAILS -->
         <fieldset class="border p-4 rounded-lg shadow-sm">
             <legend class="text-lg font-semibold text-indigo-600 px-2">1. Personal Details</legend>
-            <div class="form-group">
-                <label for="fullName">Full Name</label>
-                <input type="text" id="fullName" required placeholder="e.g., Jane Doe">
-            </div>
-            <div class="form-group">
-                <label for="idNumber">South African ID Number</label>
-                <input type="text" id="idNumber" required pattern="\d{13}" title="Must be a 13-digit ID number" placeholder="e.g., 9001015000087">
-            </div>
-            <div class="form-group">
-                <label for="contactNumber">Contact Number</label>
-                <input type="tel" id="contactNumber" required pattern="\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-            </div>
+            <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" required placeholder="e.g., Jane Doe"></div>
+            <div class="form-group"><label for="idNumber">South African ID Number</label><input type="text" id="idNumber" required pattern="\d{13}" title="Must be a 13-digit ID number" placeholder="e.g., 9001015000087"></div>
+            <div class="form-group"><label for="contactNumber">Contact Number</label><input type="tel" id="contactNumber" required pattern="\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678"></div>
         </fieldset>
 
-        <!-- Residential Address -->
+        <!-- RESIDENTIAL ADDRESS -->
         <fieldset class="border p-4 rounded-lg shadow-sm">
             <legend class="text-lg font-semibold text-indigo-600 px-2">2. Residential Address</legend>
-            <div class="form-group">
-                <label for="residentialAddress">Physical Address (Must match Proof of Residence)</label>
-                <textarea id="residentialAddress" rows="3" required placeholder="Street Address, Suburb, City, Postal Code"></textarea>
-            </div>
+            <div class="form-group"><label for="residentialAddress">Physical Address (Must match Proof of Residence)</label><textarea id="residentialAddress" rows="3" required placeholder="Street Address, Suburb, City, Postal Code"></textarea></div>
         </fieldset>
 
-        <!-- Employment Details -->
+        <!-- EMPLOYMENT DETAILS -->
         <fieldset class="border p-4 rounded-lg shadow-sm">
             <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details <span class="text-gray-500 text-sm">(Optional)</span></legend>
-            <div class="form-group">
-                <label for="employerName">Employer Name</label>
-                <input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd">
-            </div>
-            <div class="form-group">
-                <label for="employeeAddress">Employee Address</label>
-                <textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea>
-            </div>
+            <div class="form-group"><label for="employerName">Employer Name</label><input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd"></div>
+            <div class="form-group"><label for="employeeAddress">Employee Address</label><textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea></div>
         </fieldset>
 
-        <!-- Payment Preference -->
+        <!-- PAYMENT PREFERENCE -->
         <fieldset class="border p-4 rounded-lg shadow-sm">
             <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
             <p class="text-sm text-gray-600 mb-4">Please fill out only one of the payment sections below.</p>
 
-            <!-- Bank -->
+            <!-- Bank Account -->
             <div id="bankAccountFields">
                 <h3 class="payment-section-header text-gray-800">🏦 Bank Account Transfer</h3>
                 <div class="p-3 border border-gray-300 rounded-lg">
@@ -133,7 +116,7 @@
 
             <div class="my-6 border-t border-gray-300"></div>
 
-            <!-- Cardless -->
+            <!-- Cardless Services -->
             <div id="cardlessServiceFields">
                 <h3 class="payment-section-header text-gray-800">📲 Cardless Services</h3>
                 <div class="p-3 border border-gray-300 rounded-lg">
@@ -159,7 +142,7 @@
             </div>
         </fieldset>
 
-        <!-- Documents -->
+        <!-- DOCUMENTS -->
         <fieldset class="border p-4 rounded-lg shadow-sm">
             <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
             <p class="text-sm text-gray-600 mb-4">Upload clear copies (PDF/JPG).</p>
@@ -169,7 +152,7 @@
             <div class="form-group"><label for="selfieDocument"><span class="file-label-text">Live Selfie <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="selfieDocument" accept="image/*" required capture="user"></div>
         </fieldset>
 
-        <!-- Final Confirmation -->
+        <!-- FINAL CONFIRMATION -->
         <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
             <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
             <div class="form-group">
@@ -193,169 +176,130 @@
 </main>
 
 <script type="module">
-// --- FIREBASE & SUPABASE SETUP ---
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-
-const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
-const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
-
-let auth;
-if (Object.keys(firebaseConfig).length > 0) {
-    const app = initializeApp(firebaseConfig);
-    auth = getAuth(app);
-    if (initialAuthToken) signInWithCustomToken(auth, initialAuthToken).catch(e => signInAnonymously(auth));
-    else signInAnonymously(auth);
-} else console.warn("Firebase configuration not found.");
 
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
-export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function goToPage(page){ window.location.href = page; }
-
-// --- CUSTOM MODAL & ALERT FUNCTIONS ---
-function customConfirmationAlert(title, messageHtml, okText='OK', cancelText=null){
+function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
+function customAlert(title,msg){ 
     const modal=document.getElementById('custom-alert-modal');
     document.getElementById('modal-title').textContent=title;
-    document.getElementById('modal-message-container').innerHTML=messageHtml;
-    const okButton=document.getElementById('modal-ok-button');
-    const cancelButton=document.getElementById('modal-cancel-button');
-    okButton.textContent=okText;
-    if(cancelText){ cancelButton.textContent=cancelText; cancelButton.classList.remove('hidden'); okButton.classList.add('w-1/2'); cancelButton.classList.add('w-1/2'); }
-    else{ cancelButton.classList.add('hidden'); okButton.classList.add('w-full'); }
+    document.getElementById('modal-message-container').innerHTML=`<p>${msg}</p>`;
+    document.getElementById('modal-cancel-button').classList.add('hidden');
+    document.getElementById('modal-ok-button').classList.add('w-full');
     modal.classList.remove('hidden');
-    return new Promise(resolve=>{
-        const okHandler=()=>{ modal.classList.add('hidden'); okButton.removeEventListener('click', okHandler); if(cancelText) cancelButton.removeEventListener('click', cancelHandler); resolve('ok'); };
-        const cancelHandler=()=>{ modal.classList.add('hidden'); okButton.removeEventListener('click', okHandler); cancelButton.removeEventListener('click', cancelHandler); resolve('cancel'); };
-        okButton.addEventListener('click', okHandler);
-        if(cancelText) cancelButton.addEventListener('click', cancelHandler);
+    return new Promise(res=>{
+        const ok=document.getElementById('modal-ok-button');
+        const handler=()=>{ modal.classList.add('hidden'); ok.removeEventListener('click',handler); res(); };
+        ok.addEventListener('click',handler);
     });
 }
 
-function customAlert(title,message){ return customConfirmationAlert(title, `<p>${message}</p>`,'OK',null); }
-function showLoading(message){ document.getElementById('loading-message').textContent=message; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
-function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
-function calculateDueDate(submitDate){ const year=submitDate.getFullYear(); const month=submitDate.getMonth(); const lastDayOfMonth=new Date(year,month+1,0); const yyyy=lastDayOfMonth.getFullYear(); const mm=String(lastDayOfMonth.getMonth()+1).padStart(2,'0'); const dd=String(lastDayOfMonth.getDate()).padStart(2,'0'); return `${yyyy}-${mm}-${dd}`; }
+function validateSAID(id){ return /^\d{13}$/.test(id); }
+function isSectionFilled(inputs){ return Array.from(inputs).every(i=>i.value.trim()!==''); }
 
-async function uploadFile(file, bucket, path, isRequired=true){
-    if(!file){ if(isRequired) throw new Error("A compulsory file was not provided."); return null; }
-    const { data,error } = await supabase.storage.from(bucket).upload(path,file,{ cacheControl:'3600', upsert:false });
-    if(error){ throw new Error('File upload failed: '+error.message);}
+async function uploadFile(file,bucket,path,isRequired=true){
+    if(!file){ if(isRequired) throw new Error("Required file missing"); return null; }
+    const { data,error } = await supabase.storage.from(bucket).upload(path,file,{ upsert:false });
+    if(error) throw new Error(error.message);
     const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
-    if(!publicUrlData || !publicUrlData.publicUrl) throw new Error('Could not retrieve public URL.');
     return publicUrlData.publicUrl;
 }
 
-function validateSouthAfricanId(idNumber){ return /^\d{13}$/.test(idNumber); }
-function isSectionFilled(inputs){ return Array.from(inputs).every(input=>input.value.trim()!==''); }
-
-// --- FORM SUBMISSION ---
-document.getElementById('loanApplicationForm').addEventListener('submit', async function(event){
-    event.preventDefault(); event.stopPropagation();
-    const submitBtn=event.target.querySelector('button[type="submit"]'); 
-
-    // --- Validation ---
-    const confirmationTick=document.getElementById('confirmationTick');
-    const digitalSignature=document.getElementById('digitalSignature').value.trim();
-    
-    if(!confirmationTick.checked){ await customAlert('Validation Error','Tick the confirmation box.'); return; }
-    if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); return; }
-
-    const borrowerId=document.getElementById('idNumber').value.trim();
-    if(!validateSouthAfricanId(borrowerId)){ await customAlert('Validation Error','Invalid SA ID number.'); return; }
+// FORM SUBMISSION
+document.getElementById('loanApplicationForm').addEventListener('submit', async e=>{
+    e.preventDefault(); e.stopPropagation();
+    const submitBtn=e.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
 
     const fullName=document.getElementById('fullName').value.trim();
+    const idNumber=document.getElementById('idNumber').value.trim();
     const contactNumber=document.getElementById('contactNumber').value.trim();
     const residentialAddress=document.getElementById('residentialAddress').value.trim();
-    if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); return; }
+    const confirmationTick=document.getElementById('confirmationTick').checked;
+    const digitalSignature=document.getElementById('digitalSignature').value.trim();
 
-    // --- Payment Method ---
+    if(!confirmationTick){ await customAlert('Validation Error','Tick the confirmation box.'); submitBtn.disabled=false; return; }
+    if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); submitBtn.disabled=false; return; }
+    if(!validateSAID(idNumber)){ await customAlert('Validation Error','Invalid SA ID number.'); submitBtn.disabled=false; return; }
+    if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); submitBtn.disabled=false; return; }
+
+    // PAYMENT METHOD
     const bankInputs=document.querySelectorAll('#bankAccountFields input');
     const cardlessInputs=document.querySelectorAll('#cardlessServiceFields input');
-    const isBankFilled=isSectionFilled(bankInputs);
-    const isCardlessFilled=isSectionFilled(cardlessInputs);
-    let selectedMethod=null, paymentDetails={}, paymentValidationError=null;
-    if(isBankFilled && isCardlessFilled) paymentValidationError='Fill only one payment method.';
-    else if(!isBankFilled && !isCardlessFilled) paymentValidationError='Fill one payment method.';
-    else if(isBankFilled){ selectedMethod='Bank Account'; paymentDetails={ bank_name: document.getElementById('bankName').value.trim(), account_number: document.getElementById('bankAccountNumber').value.trim(), linked_phone: document.getElementById('linkedPhone').value.trim() }; }
-    else if(isCardlessFilled){ selectedMethod='Cardless Services'; const cardlessId=document.getElementById('cardlessId').value.trim();
-        if(!validateSouthAfricanId(cardlessId)) paymentValidationError='Invalid Cardless ID number.';
-        paymentDetails={ bank_to_receive: document.getElementById('cardlessBank').value.trim(), cardless_phone: document.getElementById('cardlessPhone').value.trim(), cardless_id_check: cardlessId, note:"Funds sent via Cardless Cash." };
-        if(!paymentDetails.bank_to_receive) paymentValidationError='Specify the bank for Cardless Service.'; 
+    const isBank=isSectionFilled(bankInputs);
+    const isCardless=isSectionFilled(cardlessInputs);
+    let paymentValidation=null, selectedMethod=null, paymentDetails={};
+    if(isBank && isCardless) paymentValidation='Fill only one payment method.';
+    else if(!isBank && !isCardless) paymentValidation='Fill one payment method.';
+    else if(isBank){
+        selectedMethod='Bank Account';
+        paymentDetails={ bank_name:document.getElementById('bankName').value.trim(), account_number:document.getElementById('bankAccountNumber').value.trim(), linked_phone:document.getElementById('linkedPhone').value.trim() };
+    } else if(isCardless){
+        selectedMethod='Cardless Services';
+        const cardlessId=document.getElementById('cardlessId').value.trim();
+        if(!validateSAID(cardlessId)) paymentValidation='Invalid Cardless ID number.';
+        paymentDetails={ bank_to_receive:document.getElementById('cardlessBank').value.trim(), cardless_phone:document.getElementById('cardlessPhone').value.trim(), cardless_id_check:cardlessId };
     }
-    if(paymentValidationError){ await customAlert('Validation Error',paymentValidationError); return; }
+    if(paymentValidation){ await customAlert('Validation Error',paymentValidation); submitBtn.disabled=false; return; }
 
-    submitBtn.disabled = true;
-    showLoading("Submitting application and uploading files...");
-
-    try {
-        const submissionDate=new Date();
-        const dueDate=calculateDueDate(submissionDate);
-        const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
-        const employerName=document.getElementById('employerName').value.trim();
-        const employeeAddress=document.getElementById('employeeAddress').value.trim();
-        const dataObj={
-            id:borrowerId, full_name:fullName, id_number:borrowerId, contact_number:contactNumber, residential_address:residentialAddress,
-            employer_name:employerName||null, employee_address:employeeAddress||null,
-            preferred_payment_type:selectedMethod, payment_details_json: JSON.stringify(paymentDetails),
-            requested_amount: parseFloat(localStorage.getItem('requestedLoanAmount'))||0, 
-            digital_signature:digitalSignature, confirmed_accurate:confirmationTick.checked,
-            status:'Pending Review', repayment_due_date:dueDate, repayment_period:repaymentDays, interest_rate:0.50, date_submitted:submissionDate.toISOString()
-        };
-
+    // FILE UPLOADS
+    showLoading("Uploading files...");
+    try{
         const files={
             idDocument: document.getElementById('idDocument').files[0],
             bankStatement: document.getElementById('bankStatement').files[0],
             proofOfAddress: document.getElementById('proofOfAddress').files[0],
             selfieDocument: document.getElementById('selfieDocument').files[0]
         };
+        const timestamp=Date.now();
+        const id_url=await uploadFile(files.idDocument,'loan_documents',`${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`,true);
+        const statement_url=files.bankStatement ? await uploadFile(files.bankStatement,'loan_documents',`${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`,false):null;
+        const address_url=await uploadFile(files.proofOfAddress,'loan_documents',`${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`,true);
+        const selfie_url=await uploadFile(files.selfieDocument,'loan_documents',`${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`,true);
 
-        const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
-            uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}.${files.idDocument.name.split('.').pop()}`, true),
-            uploadFile(files.bankStatement, 'loan_documents', files.bankStatement?`${borrowerId}/bank-statement-${Date.now()}.${files.bankStatement.name.split('.').pop()}`:null,false),
-            uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}.${files.proofOfAddress.name.split('.').pop()}`, true),
-            uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}.${files.selfieDocument.name.split('.').pop()}`, true)
-        ]);
+        // DATA INSERT
+        const requestedAmount=parseFloat(localStorage.getItem('requestedLoanAmount'))||0;
+        const submissionDate=new Date();
+        const dueDate=new Date(submissionDate.getFullYear(),submissionDate.getMonth()+1,0).toISOString().split('T')[0];
+        const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
 
-        dataObj.id_document_url=id_url; dataObj.bank_statement_url=statement_url; dataObj.proof_of_address_url=address_url; dataObj.selfie_document_url=selfie_url;
+        const dataObj={
+            id:idNumber, full_name:fullName, id_number:idNumber, contact_number:contactNumber, residential_address:residentialAddress,
+            employer_name:document.getElementById('employerName').value.trim()||null,
+            employee_address:document.getElementById('employeeAddress').value.trim()||null,
+            preferred_payment_type:selectedMethod,
+            payment_details_json:JSON.stringify(paymentDetails),
+            requested_amount:requestedAmount,
+            digital_signature:digitalSignature,
+            confirmed_accurate:confirmationTick,
+            status:'Pending Review',
+            repayment_due_date:dueDate,
+            repayment_period:repaymentDays,
+            interest_rate:0.50,
+            date_submitted:submissionDate.toISOString(),
+            id_document_url:id_url,
+            bank_statement_url:statement_url,
+            proof_of_address_url:address_url,
+            selfie_document_url:selfie_url
+        };
 
-        showLoading("Inserting application data into the database...");
-        const { error: insertError } = await supabase.from('borrowers').insert([ dataObj ]);
-        if(insertError) throw new Error('Database submission failed: '+insertError.message);
+        showLoading("Inserting application data...");
+        const { error } = await supabase.from('borrowers').insert([dataObj]);
+        if(error) throw error;
 
         hideLoading();
+        alert('Application submitted successfully!'); 
+        window.location.href='dashboard.html';
 
-        const paymentDetailStr = JSON.stringify(paymentDetails).replace(/[{}"\\]/g,'').replace(/,/g,', ');
-        const reviewMessage=`
-            <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
-            <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
-                <li>Full Name: ${fullName}</li>
-                <li>Contact: ${contactNumber}</li>
-                <li>Loan Amount: R ${(parseFloat(localStorage.getItem('requestedLoanAmount'))||0).toFixed(2)}</li>
-                <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
-                <li>Payment Type: <span class="font-bold text-indigo-600">${selectedMethod}</span></li>
-                <li class="break-all">Payment Details: ${paymentDetailStr}</li>
-            </ul>
-            <p class="mt-4 font-semibold text-red-600">Confirm details are correct before proceeding.</p>
-        `;
-
-        const result = await customConfirmationAlert('Final Review Required', reviewMessage,'Confirm & Go to Dashboard','Go Back to Agreement');
-        if(result==='ok'){ goToPage('dashboard.html'); }
-        else goToPage('agreement.html');
-
-    } catch(error){
+    } catch(err){
         hideLoading();
-        console.error('Submission Error:',error);
-        await customAlert('Submission Failed', `Error during submission: ${error.message}`);
+        await customAlert('Submission Failed',err.message);
+        submitBtn.disabled=false;
     }
 });
 </script>
 </body>
 </html>
-
-
-
-
-
