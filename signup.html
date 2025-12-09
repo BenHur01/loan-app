@@ -290,9 +290,10 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         const { error } = await supabase.from('borrowers').insert([dataObj]);
         if(error) throw error;
 
-        hideLoading();
-        alert('Application submitted successfully!'); 
-        window.location.href='dashboard.html';
+       hideLoading();
+       await customAlert('Success','Application submitted successfully!');
+       window.location.href='dashboard.html';
+
 
     } catch(err){
         hideLoading();
@@ -303,3 +304,4 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 </script>
 </body>
 </html>
+
