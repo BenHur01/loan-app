@@ -6,434 +6,312 @@
 <title>Loan Application Form</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    body {
-        font-family: 'Inter', sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center; 
-        min-height: 100vh;
-        background-color: #f7f9fb;
-    }
-    .container {
-        max-width: 600px;
-        width: 95%;
-        padding: 2.5rem;
-        margin-top: 2rem; 
-        margin-bottom: 4rem; 
-        background-color: #fff;
-        border-radius: 0.75rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    /* RESTORED ORIGINAL SPACING */
-    .form-group { margin-bottom: 1.25rem; }
-    label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #1f2937; text-align: left; }
-    
-    .file-label-text { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-    input[type="text"], input[type="number"], input[type="tel"], input[type="file"], select, textarea {
-        width: 100%; 
-        padding: 0.75rem; 
-        border: 1px solid #d1d5db; 
-        border-radius: 0.375rem; 
-        transition: border-color 0.15s, box-shadow 0.15s; 
-        resize: vertical;
-        line-height: normal; /* Retain the critical fix for textarea placeholder alignment */
-    }
-    input:focus, select:focus, textarea:focus { border-color: #4f46e5; outline: 0; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-    .custom-modal {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-        display: flex; justify-content: center; align-items: center; z-index: 1001; transition: opacity 0.3s;
-    }
-    .custom-modal-content {
-        background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-    .loading-overlay {
-        position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9);
-        display: flex; justify-content: center; align-items: center; z-index: 100; flex-direction: column; text-align: center;
-    }
-    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width:40px; height:40px; animation: spin 1s linear infinite; margin-bottom:1rem; }
-    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
-    .payment-section-header { padding:0.75rem 0; margin-top:1.5rem; margin-bottom:0.5rem; font-size:1.125rem; font-weight:600; color:#1f2937; }
+    body {
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center; 
+        min-height: 100vh;
+        background-color: #f7f9fb;
+    }
+    .container {
+        max-width: 600px;
+        width: 95%;
+        padding: 2.5rem;
+        margin-top: 2rem; 
+        margin-bottom: 4rem; 
+        background-color: #fff;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #1f2937; text-align: left; }
+    .file-label-text { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    input[type="text"], input[type="number"], input[type="tel"], input[type="file"], select, textarea {
+        width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; transition: border-color 0.15s, box-shadow 0.15s; resize: vertical;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #4f46e5; outline: 0; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    .custom-modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+        display: flex; justify-content: center; align-items: center; z-index: 1001; transition: opacity 0.3s;
+    }
+    .custom-modal-content {
+        background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .loading-overlay {
+        position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9);
+        display: flex; justify-content: center; align-items: center; z-index: 100; flex-direction: column; text-align: center;
+    }
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width:40px; height:40px; animation: spin 1s linear infinite; margin-bottom:1rem; }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+    .payment-section-header { padding:0.75rem 0; margin-top:1.5rem; margin-bottom:0.5rem; font-size:1.125rem; font-weight:600; color:#1f2937; }
 </style>
 </head>
 <body>
 
+<!-- CUSTOM MODAL -->
 <div id="custom-alert-modal" class="custom-modal hidden">
-    <div class="custom-modal-content">
-        <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
-        <div id="modal-message-container" class="text-gray-600 mb-6"><p id="modal-message"></p></div>
-        <div class="flex space-x-3 mt-4">
-            <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none hidden">Cancel</button>
-            <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none">OK</button>
-        </div>
-    </div>
+    <div class="custom-modal-content">
+        <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
+        <div id="modal-message-container" class="text-gray-600 mb-6"><p id="modal-message"></p></div>
+        <div class="flex space-x-3 mt-4">
+            <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none hidden">Cancel</button>
+            <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none">OK</button>
+        </div>
+    </div>
 </div>
 
+<!-- LOADING OVERLAY -->
 <div id="loadingOverlay" class="loading-overlay hidden">
-    <div class="loader"></div>
-    <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
-    <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
+    <div class="loader"></div>
+    <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
+    <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
 </div>
 
 <main class="container">
-    <header class="text-center mb-8">
-        <h1 id="formHeader" class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
-        <p class="text-gray-500 mt-2">Personal, Address, Employment, and Document Uploads</p>
-        <div id="editModeAlert" class="mt-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 font-medium hidden">
-            You are in **EDIT MODE**. Please correct your details and re-submit the form. Documents do not need to be re-uploaded unless they're incorrect.
-        </div>
-    </header>
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
+        <p class="text-gray-500 mt-2">Personal, Address, Employment, and Document Uploads</p>
+    </header>
 
-    <form id="loanApplicationForm" class="space-y-6">
+    <form id="loanApplicationForm" class="space-y-6">
 
-                <fieldset class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">1. Personal Details</legend>
-            <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" required placeholder="e.g., Jane Doe"></div>
-            <div class="form-group"><label for="idNumber">South African ID Number</label><input type="text" id="idNumber" required pattern="\d{13}" title="Must be a 13-digit ID number" placeholder="e.g., 9001015000087"></div>
-            <div class="form-group"><label for="contactNumber">Contact Number</label><input type="tel" id="contactNumber" required pattern="\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678"></div>
-        </fieldset>
+        <!-- PERSONAL DETAILS -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">1. Personal Details</legend>
+            <div class="form-group"><label for="fullName">Full Name</label><input type="text" id="fullName" required placeholder="e.g., Jane Doe"></div>
+            <div class="form-group"><label for="idNumber">South African ID Number</label><input type="text" id="idNumber" required pattern="\d{13}" title="Must be a 13-digit ID number" placeholder="e.g., 9001015000087"></div>
+            <div class="form-group"><label for="contactNumber">Contact Number</label><input type="tel" id="contactNumber" required pattern="\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678"></div>
+        </fieldset>
 
-                <fieldset class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">2. Residential Address</legend>
-            <div class="form-group"><label for="residentialAddress">Physical Address (Must match Proof of Residence)</label><textarea id="residentialAddress" rows="3" required placeholder="Street Address, Suburb, City, Postal Code"></textarea></div>
-        </fieldset>
+        <!-- RESIDENTIAL ADDRESS -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">2. Residential Address</legend>
+            <div class="form-group"><label for="residentialAddress">Physical Address (Must match Proof of Residence)</label><textarea id="residentialAddress" rows="3" required placeholder="Street Address, Suburb, City, Postal Code"></textarea></div>
+        </fieldset>
 
-                <fieldset class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details <span class="text-gray-500 text-sm">(Optional)</span></legend>
-            <div class="form-group"><label for="employerName">Employer Name</label><input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd"></div>
-            <div class="form-group"><label for="employeeAddress">Employee Address</label><textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea></div>
-        </fieldset>
+        <!-- EMPLOYMENT DETAILS -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details <span class="text-gray-500 text-sm">(Optional)</span></legend>
+            <div class="form-group"><label for="employerName">Employer Name</label><input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd"></div>
+            <div class="form-group"><label for="employeeAddress">Employee Address</label><textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea></div>
+        </fieldset>
 
-                <fieldset class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
-            <p class="text-sm text-gray-600 mb-4">Please fill out only one of the payment sections below.</p>
+        <!-- PAYMENT PREFERENCE -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
+            <p class="text-sm text-gray-600 mb-4">Please fill out only one of the payment sections below.</p>
 
-                        <div id="bankAccountFields">
-                <h3 class="payment-section-header text-gray-800">🏦 Bank Account Transfer</h3>
-                <div class="p-3 border border-gray-300 rounded-lg">
-                    <div class="form-group"><label for="bankName">Bank Name</label><input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc."></div>
-                    <div class="form-group"><label for="bankAccountNumber">Bank Account Number</label><input type="text" id="bankAccountNumber" placeholder="Account Number"></div>
-                    <div class="form-group"><label for="linkedPhone">Phone Number Linked to Bank Account</label><input type="tel" id="linkedPhone" placeholder="10-digit phone number"></div>
-                </div>
-            </div>
+            <!-- Bank Account -->
+            <div id="bankAccountFields">
+                <h3 class="payment-section-header text-gray-800">🏦 Bank Account Transfer</h3>
+                <div class="p-3 border border-gray-300 rounded-lg">
+                    <div class="form-group"><label for="bankName">Bank Name</label><input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc."></div>
+                    <div class="form-group"><label for="bankAccountNumber">Bank Account Number</label><input type="text" id="bankAccountNumber" placeholder="Account Number"></div>
+                    <div class="form-group"><label for="linkedPhone">Phone Number Linked to Bank Account</label><input type="tel" id="linkedPhone" placeholder="10-digit phone number"></div>
+                </div>
+            </div>
 
-            <div class="my-6 border-t border-gray-300"></div>
+            <div class="my-6 border-t border-gray-300"></div>
 
-                        <div id="cardlessServiceFields">
-                <h3 class="payment-section-header text-gray-800">📲 Cardless Services</h3>
-                <div class="p-3 border border-gray-300 rounded-lg">
-                    <div class="form-group"><label for="cardlessBank">Bank Name to receive Cardless Funds</label><input type="text" id="cardlessBank" placeholder="e.g., FNB, Capitec, etc."></div>
-                    <div class="form-group"><label for="cardlessPhone">Phone Number for Cardless Service</label><input type="tel" id="cardlessPhone" placeholder="10-digit phone number"></div>
-                    <div class="form-group"><label for="cardlessId">Your ID Number (for Security)</label><input type="text" id="cardlessId" placeholder="Your 13-digit ID"></div>
-                    <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
-                        <p class="font-bold text-yellow-800">Note:</p>
-                        <p>We will use this phone number to send the Cardless Cash PIN if your application is approved.</p>
-                    </div>
-                </div>
-            </div>
+            <!-- Cardless Services -->
+            <div id="cardlessServiceFields">
+                <h3 class="payment-section-header text-gray-800">📲 Cardless Services</h3>
+                <div class="p-3 border border-gray-300 rounded-lg">
+                    <div class="form-group"><label for="cardlessBank">Bank Name to receive Cardless Funds</label><input type="text" id="cardlessBank" placeholder="e.g., FNB, Capitec, etc."></div>
+                    <div class="form-group"><label for="cardlessPhone">Phone Number for Cardless Service</label><input type="tel" id="cardlessPhone" placeholder="10-digit phone number"></div>
+                    <div class="form-group"><label for="cardlessId">Your ID Number (for Security)</label><input type="text" id="cardlessId" placeholder="Your 13-digit ID"></div>
+                    <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
+                        <p class="font-bold text-yellow-800">Note:</p>
+                        <p>We will use this phone number to send the Cardless Cash PIN if your application is approved.</p>
+                    </div>
+                </div>
+            </div>
 
-            <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
-                <p class="font-bold mb-2 text-blue-800">For Loan Repayment/Settlement (EFT) Reference:</p>
-                <ul class="list-disc list-inside space-y-1">
-                    <li>Account Name: Savings Account</li>
-                    <li>Bank: Capitec</li>
-                    <li>Account Number: 1213614048</li>
-                    <li>Branch Code: 470010</li>
-                    <li>REFERENCE: Your Name</li>
-                </ul>
-            </div>
-        </fieldset>
+            <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
+                <p class="font-bold mb-2 text-blue-800">For Loan Repayment/Settlement (EFT) Reference:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Account Name: Savings Account</li>
+                    <li>Bank: Capitec</li>
+                    <li>Account Number: 1213614048</li>
+                    <li>Branch Code: 470010</li>
+                    <li>REFERENCE: Your Name</li>
+                </ul>
+            </div>
+        </fieldset>
 
-                <fieldset id="documentSection" class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
-            <p class="text-sm text-gray-600 mb-4">Upload clear copies (PDF/JPG).</p>
-            <div class="form-group"><label for="idDocument"><span class="file-label-text">Copy of ID Document <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required></div>
-            <div class="form-group"><label for="bankStatement"><span class="file-label-text">Latest Bank Statement (Optional)</span></label><input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg"></div>
-            <div class="form-group"><label for="proofOfAddress"><span class="file-label-text">Proof of Residence <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required></div>
-            <div class="form-group"><label for="selfieDocument"><span class="file-label-text">Live Selfie <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="selfieDocument" accept="image/*" required capture="user"></div>
-        </fieldset>
+        <!-- DOCUMENTS -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
+            <p class="text-sm text-gray-600 mb-4">Upload clear copies (PDF/JPG).</p>
+            <div class="form-group"><label for="idDocument"><span class="file-label-text">Copy of ID Document <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required></div>
+            <div class="form-group"><label for="bankStatement"><span class="file-label-text">Latest Bank Statement (Optional)</span></label><input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg"></div>
+            <div class="form-group"><label for="proofOfAddress"><span class="file-label-text">Proof of Residence <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required></div>
+            <div class="form-group"><label for="selfieDocument"><span class="file-label-text">Live Selfie <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="selfieDocument" accept="image/*" required capture="user"></div>
+        </fieldset>
 
-                <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
-            <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
-            <div class="form-group">
-                <label class="flex items-start cursor-pointer p-3 border border-indigo-200 bg-white rounded-lg shadow-inner">
-                    <input type="checkbox" id="confirmationTick" required class="mt-1 mr-3 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                    <span class="text-sm text-gray-800 font-medium">
-                        I confirm all details are true and complete. I understand that any false statement may lead to rejection and legal action.
-                    </span>
-                </label>
-            </div>
-            <div class="form-group mt-6">
-                <label for="digitalSignature" class="block text-base font-bold text-gray-900 mb-2">Type "YES" to digitally sign</label>
-                <input type="text" id="digitalSignature" required placeholder="Type YES">
-            </div>
-        </fieldset>
+        <!-- FINAL CONFIRMATION -->
+        <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
+            <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
+            <div class="form-group">
+                <label class="flex items-start cursor-pointer p-3 border border-indigo-200 bg-white rounded-lg shadow-inner">
+                    <input type="checkbox" id="confirmationTick" required class="mt-1 mr-3 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                    <span class="text-sm text-gray-800 font-medium">
+                        I confirm all details are true and complete. I understand that any false statement may lead to rejection and legal action.
+                    </span>
+                </label>
+            </div>
+            <div class="form-group mt-6">
+                <label for="digitalSignature" class="block text-base font-bold text-gray-900 mb-2">Type "YES" to digitally sign</label>
+                <input type="text" id="digitalSignature" required placeholder="Type YES">
+            </div>
+        </fieldset>
 
-        <button type="submit" id="submitButton" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">Submit Application</button>
-    </form>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">Submit Application</button>
+    </form>
 
-    <div class="mt-8 text-center"><a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a></div>
+    <div class="mt-8 text-center"><a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a></div>
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <script>
-    // Define your constants
-    const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
-    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
+    // Define your constants
+    const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
-    // FIX: Explicitly reference the global 'supabase' object using 'window.supabase' and fix the reference error
-    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
-    // Global state variable for edit mode
-    let isEditMode = false;
+    // Create the client using the global variable 'supabase'
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    // Utility functions
-    function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
-    function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
-    function customAlert(title,msg){ 
-        const modal=document.getElementById('custom-alert-modal');
-        document.getElementById('modal-title').textContent=title;
-        document.getElementById('modal-message-container').innerHTML=`<p>${msg}</p>`;
-        document.getElementById('modal-cancel-button').classList.add('hidden');
-        document.getElementById('modal-ok-button').classList.add('w-full');
-        modal.classList.remove('hidden');
-        return new Promise(res=>{
-            const ok=document.getElementById('modal-ok-button');
-            const handler=()=>{ modal.classList.add('hidden'); ok.removeEventListener('click',handler); res(); };
-            ok.addEventListener('click',handler);
-        });
-    }
+    // Everything below this line is the rest of your original code
+    function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+    function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
+    function customAlert(title,msg){ 
+        const modal=document.getElementById('custom-alert-modal');
+        document.getElementById('modal-title').textContent=title;
+        document.getElementById('modal-message-container').innerHTML=`<p>${msg}</p>`;
+        document.getElementById('modal-cancel-button').classList.add('hidden');
+        document.getElementById('modal-ok-button').classList.add('w-full');
+        modal.classList.remove('hidden');
+        return new Promise(res=>{
+            const ok=document.getElementById('modal-ok-button');
+            const handler=()=>{ modal.classList.add('hidden'); ok.removeEventListener('click',handler); res(); };
+            ok.addEventListener('click',handler);
+        });
+    }
 
-    function validateSAID(id){ return /^\d{13}$/.test(id); }
-    function isSectionFilled(inputs){ return Array.from(inputs).every(i=>i.value.trim()!==''); }
+    function validateSAID(id){ return /^\d{13}$/.test(id); }
+    function isSectionFilled(inputs){ return Array.from(inputs).every(i=>i.value.trim()!==''); }
 
-    // Updated uploadFile function for Edit Mode: Only upload if a new file is selected
-    async function uploadFile(file, bucket, path, isRequired = true, isEdit = false) {
-        // In edit mode, if no file is selected, return null and skip upload.
-        if (isEdit && !file) {
-            return null; 
-        }
-        // In initial mode, if file is required and missing, throw error
-        if (isRequired && !file) {
-            throw new Error("Required file missing: " + path.split('/')[1]); 
-        }
+    async function uploadFile(file,bucket,path,isRequired=true){
+        if(!file){ if(isRequired) throw new Error("Required file missing"); return null; }
+        const { data,error } = await supabaseClient.storage.from(bucket).upload(path,file,{ upsert:false });
+        if(error) throw new Error(error.message);
+        const { data: publicUrlData } = supabaseClient.storage.from(bucket).getPublicUrl(data.path);
+        return publicUrlData.publicUrl;
+    }
 
-        const { data, error } = await supabaseClient.storage.from(bucket).upload(path, file, { upsert: true }); // Using upsert:true for overwriting
-        if (error) throw new Error(error.message);
-        const { data: publicUrlData } = supabaseClient.storage.from(bucket).getPublicUrl(data.path);
-        return publicUrlData.publicUrl;
-    }
+    // FORM SUBMISSION
+    document.getElementById('loanApplicationForm').addEventListener('submit', async e=>{
+        e.preventDefault(); e.stopPropagation();
+        const submitBtn=e.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
 
-    
-    // --- Pre-fill/Edit Mode Logic (for dashboard link) ---
+        const fullName=document.getElementById('fullName').value.trim();
+        const idNumber=document.getElementById('idNumber').value.trim();
+        const contactNumber=document.getElementById('contactNumber').value.trim();
+        const residentialAddress=document.getElementById('residentialAddress').value.trim();
+        const confirmationTick=document.getElementById('confirmationTick').checked;
+        const digitalSignature=document.getElementById('digitalSignature').value.trim();
 
-    function initForm() {
-        const prefillDataRaw = sessionStorage.getItem('prefillData');
-        
-        if (prefillDataRaw) {
-            isEditMode = true;
-            sessionStorage.removeItem('prefillData'); // Clear session storage after loading
+        if(!confirmationTick){ await customAlert('Validation Error','Tick the confirmation box.'); submitBtn.disabled=false; return; }
+        if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); submitBtn.disabled=false; return; }
+        if(!validateSAID(idNumber)){ await customAlert('Validation Error','Invalid SA ID number.'); submitBtn.disabled=false; return; }
+        if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); submitBtn.disabled=false; return; }
 
-            const borrower = JSON.parse(prefillDataRaw);
-            const paymentDetails = JSON.parse(borrower.payment_details_json || '{}');
-            
-            // 1. Update UI for Edit Mode
-            document.getElementById('formHeader').textContent = 'Edit Loan Application Details';
-            document.getElementById('editModeAlert').classList.remove('hidden');
-            document.getElementById('submitButton').textContent = 'Update Application Details';
-            
-            // Hide and remove 'required' attribute from file inputs in edit mode
-            const docSection = document.getElementById('documentSection');
-            docSection.style.opacity = 0.5; // Visual hint that documents are optional
-            docSection.querySelector('legend').textContent = '5. Required Documents (Optional to Change)';
-            
-            docSection.querySelectorAll('input[type="file"]').forEach(input => {
-                input.removeAttribute('required');
-                // Add a visual hint next to the file label text if the file is already uploaded
-                const fileKey = input.id.replace('Document', '_document_url');
-                if (borrower[fileKey]) {
-                    let label = input.closest('.form-group').querySelector('.file-label-text');
-                    if (label) {
-                        label.innerHTML += '<span class="text-green-600 font-bold ml-2">(Uploaded)</span>';
-                    }
-                }
-            });
+        // PAYMENT METHOD
+        const bankInputs=document.querySelectorAll('#bankAccountFields input');
+        const cardlessInputs=document.querySelectorAll('#cardlessServiceFields input');
+        const isBank=isSectionFilled(bankInputs);
+        const isCardless=isSectionFilled(cardlessInputs);
+        let paymentValidation=null, selectedMethod=null, paymentDetails={};
+        if(isBank && isCardless) paymentValidation='Fill only one payment method.';
+        else if(!isBank && !isCardless) paymentValidation='Fill one payment method.';
+        else if(isBank){
+            selectedMethod='Bank Account';
+            paymentDetails={ bank_name:document.getElementById('bankName').value.trim(), account_number:document.getElementById('bankAccountNumber').value.trim(), linked_phone:document.getElementById('linkedPhone').value.trim() };
+        } else if(isCardless){
+            selectedMethod='Cardless Services';
+            const cardlessId=document.getElementById('cardlessId').value.trim();
+            if(!validateSAID(cardlessId)) paymentValidation='Invalid Cardless ID number.';
+            paymentDetails={ bank_to_receive:document.getElementById('cardlessBank').value.trim(), cardless_phone:document.getElementById('cardlessPhone').value.trim(), cardless_id_check:cardlessId };
+        }
+        if(paymentValidation){ await customAlert('Validation Error',paymentValidation); submitBtn.disabled=false; return; }
 
+        // FILE UPLOADS
+        showLoading("Uploading files...");
+        try{
+            const files={
+                idDocument: document.getElementById('idDocument').files[0],
+                bankStatement: document.getElementById('bankStatement').files[0],
+                proofOfAddress: document.getElementById('proofOfAddress').files[0],
+                selfieDocument: document.getElementById('selfieDocument').files[0]
+            };
+            const timestamp=Date.now();
+            const id_url=await uploadFile(files.idDocument,'loan_documents',`${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`,true);
+            const statement_url=files.bankStatement ? await uploadFile(files.bankStatement,'loan_documents',`${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`,false):null;
+            const address_url=await uploadFile(files.proofOfAddress,'loan_documents',`${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`,true);
+            const selfie_url=await uploadFile(files.selfieDocument,'loan_documents',`${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`,true);
 
-            // 2. Pre-fill Application Data
-            document.getElementById('fullName').value = borrower.full_name || '';
-            document.getElementById('idNumber').value = borrower.id_number || '';
-            // Disable ID number in edit mode to prevent changing the database key
-            document.getElementById('idNumber').disabled = true; 
-            document.getElementById('contactNumber').value = borrower.contact_number || '';
-            document.getElementById('residentialAddress').value = borrower.residential_address || '';
-            document.getElementById('employerName').value = borrower.employer_name || '';
-            document.getElementById('employeeAddress').value = borrower.employee_address || '';
-            
-            // 3. Pre-fill Payment Details
-            if (borrower.preferred_payment_type === 'Bank Account') {
-                document.getElementById('bankName').value = paymentDetails.bank_name || '';
-                document.getElementById('bankAccountNumber').value = paymentDetails.account_number || '';
-                document.getElementById('linkedPhone').value = paymentDetails.linked_phone || '';
-                // Clear cardless fields
-                document.querySelectorAll('#cardlessServiceFields input').forEach(input => input.value = '');
-                
-            } else if (borrower.preferred_payment_type === 'Cardless Services') {
-                document.getElementById('cardlessBank').value = paymentDetails.bank_to_receive || '';
-                document.getElementById('cardlessPhone').value = paymentDetails.cardless_phone || '';
-                document.getElementById('cardlessId').value = paymentDetails.cardless_id_check || '';
-                // Clear bank fields
-                document.querySelectorAll('#bankAccountFields input').forEach(input => input.value = '');
-            }
-            
-            // Store existing document URLs for reuse if files aren't changed
-            localStorage.setItem('existing_id_url', borrower.id_document_url || '');
-            localStorage.setItem('existing_statement_url', borrower.bank_statement_url || '');
-            localStorage.setItem('existing_address_url', borrower.proof_of_address_url || '');
-            localStorage.setItem('existing_selfie_url', borrower.selfie_document_url || '');
-            localStorage.setItem('existing_status', borrower.status); // Store old status for update logic
-        }
-    }
+            // DATA INSERT
+            const requestedAmount=parseFloat(localStorage.getItem('requestedLoanAmount'))||0;
+            const submissionDate=new Date();
+            const dueDate=new Date(submissionDate.getFullYear(),submissionDate.getMonth()+1,0).toISOString().split('T')[0];
+            const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
 
-    // --- FORM SUBMISSION (UPDATED FOR EDIT/UPSERT) ---
-    document.getElementById('loanApplicationForm').addEventListener('submit', async e=>{
-        e.preventDefault(); e.stopPropagation();
-        // Re-enable ID number if disabled for submission
-        const idInput = document.getElementById('idNumber');
-        if (isEditMode) idInput.disabled = false;
-        
-        const submitBtn=e.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
+            const dataObj={
+                id:idNumber, full_name:fullName, id_number:idNumber, contact_number:contactNumber, residential_address:residentialAddress,
+                employer_name:document.getElementById('employerName').value.trim()||null,
+                employee_address:document.getElementById('employeeAddress').value.trim()||null,
+                preferred_payment_type:selectedMethod,
+                payment_details_json:JSON.stringify(paymentDetails),
+                requested_amount:requestedAmount,
+                digital_signature:digitalSignature,
+                confirmed_accurate:confirmationTick,
+                status:'Pending Review',
+                repayment_due_date:dueDate,
+                repayment_period:repaymentDays,
+                interest_rate:0.50,
+                date_submitted:submissionDate.toISOString(),
+                id_document_url:id_url,
+                bank_statement_url:statement_url,
+                proof_of_address_url:address_url,
+                selfie_document_url:selfie_url
+            };
 
-        // Fetch current values
-        const fullName=document.getElementById('fullName').value.trim();
-        const idNumber=idInput.value.trim();
-        const contactNumber=document.getElementById('contactNumber').value.trim();
-        const residentialAddress=document.getElementById('residentialAddress').value.trim();
-        const confirmationTick=document.getElementById('confirmationTick').checked;
-        const digitalSignature=document.getElementById('digitalSignature').value.trim();
-
-        if(!confirmationTick){ await customAlert('Validation Error','Tick the confirmation box.'); submitBtn.disabled=false; if(isEditMode) idInput.disabled=true; return; }
-        if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); submitBtn.disabled=false; if(isEditMode) idInput.disabled=true; return; }
-        if(!validateSAID(idNumber)){ await customAlert('Validation Error','Invalid SA ID number.'); submitBtn.disabled=false; if(isEditMode) idInput.disabled=true; return; }
-        if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); submitBtn.disabled=false; if(isEditMode) idInput.disabled=true; return; }
-
-        // PAYMENT METHOD
-        const bankInputs=document.querySelectorAll('#bankAccountFields input');
-        const cardlessInputs=document.querySelectorAll('#cardlessServiceFields input');
-        const isBank=isSectionFilled(bankInputs);
-        const isCardless=isSectionFilled(cardlessInputs);
-        let paymentValidation=null, selectedMethod=null, paymentDetails={};
-        if(isBank && isCardless) paymentValidation='Fill only one payment method.';
-        else if(!isBank && !isCardless) paymentValidation='Fill one payment method.';
-        else if(isBank){
-            selectedMethod='Bank Account';
-            paymentDetails={ bank_name:document.getElementById('bankName').value.trim(), account_number:document.getElementById('bankAccountNumber').value.trim(), linked_phone:document.getElementById('linkedPhone').value.trim() };
-        } else if(isCardless){
-            selectedMethod='Cardless Services';
-            const cardlessId=document.getElementById('cardlessId').value.trim();
-            if(!validateSAID(cardlessId)) paymentValidation='Invalid Cardless ID number.';
-            paymentDetails={ bank_to_receive:document.getElementById('cardlessBank').value.trim(), cardless_phone:document.getElementById('cardlessPhone').value.trim(), cardless_id_check:cardlessId };
-        }
-        if(paymentValidation){ await customAlert('Validation Error',paymentValidation); submitBtn.disabled=false; if(isEditMode) idInput.disabled=true; return; }
-
-        // FILE UPLOADS (Conditional on isEditMode)
-        let id_url = localStorage.getItem('existing_id_url');
-        let statement_url = localStorage.getItem('existing_statement_url');
-        let address_url = localStorage.getItem('existing_address_url');
-        let selfie_url = localStorage.getItem('existing_selfie_url');
-
-        try{
-            const files={
-                idDocument: document.getElementById('idDocument').files[0],
-                bankStatement: document.getElementById('bankStatement').files[0],
-                proofOfAddress: document.getElementById('proofOfAddress').files[0],
-                selfieDocument: document.getElementById('selfieDocument').files[0]
-            };
-            
-            showLoading(isEditMode ? "Updating data and checking files..." : "Uploading files...");
-
-            // Upload only if a new file is present. Reuse existing URL if in edit mode and no new file.
-            const timestamp=Date.now();
-            
-            // If a new file is present, upload it and update the URL variable.
-            if (files.idDocument) id_url = await uploadFile(files.idDocument, 'loan_documents', `${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`, true, isEditMode);
-            if (files.bankStatement) {
-                const newUrl = await uploadFile(files.bankStatement, 'loan_documents', `${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`, false, isEditMode);
-                if (newUrl) statement_url = newUrl;
-            }
-            if (files.proofOfAddress) address_url = await uploadFile(files.proofOfAddress, 'loan_documents', `${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`, true, isEditMode);
-            if (files.selfieDocument) selfie_url = await uploadFile(files.selfieDocument, 'loan_documents', `${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`, true, isEditMode);
+            showLoading("Inserting application data...");
+            const { error } = await supabaseClient.from('borrowers').insert([dataObj]);
+            if(error) throw error;
+            
+            localStorage.setItem("currentUserId", idNumber); // <-- THIS IS THE FIX
+            
+            hideLoading();
+            await customAlert('Success','Application submitted successfully!');
+            window.location.href='dashboard.html';
 
 
-            // DATA STRUCTURE (RETAINS LOAN DETAILS)
-            const requestedAmount=parseFloat(localStorage.getItem('requestedLoanAmount'))||0;
-            const submissionDate=new Date();
-            const dueDate=new Date(submissionDate.getFullYear(),submissionDate.getMonth()+1,0).toISOString().split('T')[0];
-            const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
-
-            const dataObj={
-                id:idNumber, full_name:fullName, id_number:idNumber, contact_number:contactNumber, residential_address:residentialAddress,
-                employer_name:document.getElementById('employerName').value.trim()||null,
-                employee_address:document.getElementById('employeeAddress').value.trim()||null,
-                preferred_payment_type:selectedMethod,
-                payment_details_json:JSON.stringify(paymentDetails),
-                requested_amount:requestedAmount,
-                digital_signature:digitalSignature,
-                confirmed_accurate:confirmationTick,
-                
-                // CRITICAL: Reset status to 'Pending Review' for re-verification if user edited details
-                status: 'Pending Review', 
-                
-                repayment_due_date:dueDate,
-                repayment_period:repaymentDays,
-                interest_rate:0.50,
-                date_submitted:submissionDate.toISOString(),
-                id_document_url:id_url, // Use potentially new/existing URL
-                bank_statement_url:statement_url, // Use potentially new/existing URL
-                proof_of_address_url:address_url, // Use potentially new/existing URL
-                selfie_document_url:selfie_url // Use potentially new/existing URL
-            };
-
-            showLoading(isEditMode ? "Updating application data..." : "Inserting application data...");
-            
-            // Choose between INSERT or UPSERT based on edit mode
-            let error;
-            if (isEditMode) {
-                // Update the existing row using the primary key (id_number)
-                ({ error } = await supabaseClient.from('borrowers').update(dataObj).eq('id_number', idNumber));
-            } else {
-                // Insert a new row
-                ({ error } = await supabaseClient.from('borrowers').insert([dataObj]));
-            }
-            
-            if(error) throw error;
-            
-            localStorage.setItem("currentUserId", idNumber); 
-            
-            hideLoading();
-            // Clear local storage of existing URLs after successful update
-            localStorage.removeItem('existing_id_url');
-            localStorage.removeItem('existing_statement_url');
-            localStorage.removeItem('existing_address_url');
-            localStorage.removeItem('existing_selfie_url');
-
-            await customAlert('Success', isEditMode ? 'Application details updated successfully!' : 'Application submitted successfully!');
-            window.location.href='dashboard.html';
-
-
-        } catch(err){
-            hideLoading();
-            await customAlert('Submission Failed',err.message);
-            submitBtn.disabled=false;
-            if(isEditMode) idInput.disabled=true;
-        }
-    });
-    
-    // Run initialization when the document is ready
-    document.addEventListener('DOMContentLoaded', initForm);
-
+        } catch(err){
+            hideLoading();
+            await customAlert('Submission Failed',err.message);
+            submitBtn.disabled=false;
+        }
+    });
 </script>
 </body>
 </html>
+
+
+
+
+
