@@ -137,6 +137,7 @@
             background-color: #f0f4ff; /* Light indigo background */
             box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
         }
+        /* IMPORTANT: Radio input must be hidden but still functional */
         .payment-option-box input[type="radio"] {
             display: none;
         }
@@ -516,7 +517,7 @@ function validateSouthAfricanId(idNumber) {
 }
 // --- END UTILITY FUNCTIONS ---
 
-// --- New Interactivity for Payment Method Boxes ---
+// --- New Interactivity for Payment Method Boxes (FIXED) ---
 document.addEventListener('DOMContentLoaded', () => {
     const radioBank = document.getElementById('radioBank');
     const radioCardless = document.getElementById('radioCardless');
@@ -561,23 +562,11 @@ document.addEventListener('DOMContentLoaded', () => {
     togglePaymentFields(radioBank.checked ? 'Bank Account' : 'Cardless Services');
 
     // Event listeners for radio button changes
+    // This is the *only* necessary JS listener. The native <label for> handles the click.
     radioBank.addEventListener('change', () => togglePaymentFields('Bank Account'));
     radioCardless.addEventListener('change', () => togglePaymentFields('Cardless Services'));
     
-    // Optionally, allow clicking the labels to trigger the change (already handled by <label for="id"> structure, but ensures the state is correct)
-    labelBank.addEventListener('click', () => {
-        if (!radioBank.checked) {
-            radioBank.checked = true;
-            togglePaymentFields('Bank Account');
-        }
-    });
-    
-    labelCardless.addEventListener('click', () => {
-        if (!radioCardless.checked) {
-            radioCardless.checked = true;
-            togglePaymentFields('Cardless Services');
-        }
-    });
+    // REDUNDANT/CONFLICTING CLICK HANDLERS REMOVED
 });
 
 
