@@ -207,9 +207,9 @@
 
     async function uploadFile(file,bucket,path,isRequired=true){
         if(!file){ if(isRequired) throw new Error("Required file missing"); return null; }
-        const { data,error } = await supabase.storage.from(bucket).upload(path,file,{ upsert:false });
+        const { data,error } = await supabaseClient.storage.from(bucket).upload(path,file,{ upsert:false });
         if(error) throw new Error(error.message);
-        const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+        const { data: publicUrlData } = supabaseClient.storage.from(bucket).getPublicUrl(data.path);
         return publicUrlData.publicUrl;
     }
 
@@ -291,7 +291,7 @@
             };
 
             showLoading("Inserting application data...");
-            const { error } = await supabase.from('borrowers').insert([dataObj]);
+            const { error } = await supabaseClient.from('borrowers').insert([dataObj]);
             if(error) throw error;
 
             hideLoading();
@@ -308,6 +308,7 @@
 </script>
 </body>
 </html>
+
 
 
 
