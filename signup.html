@@ -112,7 +112,6 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* Removed all custom payment section styling for pure display */
         .payment-section-header {
             padding: 0.75rem 0;
             margin-top: 1.5rem;
@@ -217,6 +216,10 @@
                 <div id="cardlessServiceFields">
                     <h3 class="payment-section-header text-gray-800">📲 Cardless Services</h3>
                     <div class="p-3 border border-gray-300 rounded-lg">
+                        <div class="form-group">
+                            <label for="cardlessBank">Bank Name to receive Cardless Funds</label>
+                            <input type="text" id="cardlessBank" placeholder="e.g., FNB, Capitec, etc.">
+                        </div>
                         <div class="form-group">
                             <label for="cardlessPhone">Phone Number for Cardless Service</label>
                             <input type="tel" id="cardlessPhone" placeholder="10-digit phone number">
@@ -469,7 +472,6 @@ function validateSouthAfricanId(idNumber) {
     return true; 
 }
 
-// --- NEW FUNCTIONALITY: CHECK IF A SECTION IS FILLED ---
 function isSectionFilled(inputElements) {
     // Check if ALL fields in the provided list have non-empty values
     let isFilled = true;
@@ -482,7 +484,6 @@ function isSectionFilled(inputElements) {
     return isFilled;
 }
 // --- END UTILITY FUNCTIONS ---
-
 
 // --- Main submission handler (Updated Validation Logic) ---
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
@@ -531,7 +532,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     }
 
 
-    // --- 1. Payment Method Detection & Validation (New Logic) ---
+    // --- 1. Payment Method Detection & Validation ---
     const bankInputs = document.querySelectorAll('#bankAccountFields input');
     const cardlessInputs = document.querySelectorAll('#cardlessServiceFields input');
     
@@ -563,11 +564,18 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             paymentValidationError = 'The ID number for Cardless Services is invalid. Please check the 13 digits.';
         }
         
+        // **UPDATED** to include the new cardlessBank field
         paymentDetails = {
+            bank_to_receive: document.getElementById('cardlessBank').value.trim(),
             cardless_phone: document.getElementById('cardlessPhone').value.trim(),
             cardless_id_check: cardlessId,
             note: "Funds will be sent via Cardless Cash (e.g., eWallet) to the cardless_phone number."
         };
+
+        // Check the new bank field for emptiness as well
+        if (!paymentDetails.bank_to_receive) {
+            paymentValidationError = 'Please specify the Bank Name for the Cardless Service.';
+        }
     }
 
     if (paymentValidationError) {
