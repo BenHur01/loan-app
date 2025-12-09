@@ -121,6 +121,25 @@
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
+        
+        /* New styles for payment selection boxes */
+        .payment-option-box {
+            border: 2px solid #e5e7eb;
+            border-radius: 0.5rem;
+            padding: 1rem;
+            margin-bottom: 1rem;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #f9fafb;
+        }
+        .payment-option-box.active {
+            border-color: #4f46e5; /* Indigo */
+            background-color: #f0f4ff; /* Light indigo background */
+            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+        }
+        .payment-option-box input[type="radio"] {
+            display: none;
+        }
     </style>
 </head>
 <body>
@@ -191,30 +210,35 @@
             <fieldset class="border p-4 rounded-lg shadow-sm">
                 <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
                 
-                <div class="form-group">
-                    <label for="paymentMethod">Choose Payment Method</label>
-                    <select id="paymentMethod" required>
-                        <option value="" disabled selected>Select a method</option>
-                        <option value="Bank Account">Bank Account Transfer</option>
-                        <option value="Cardless Services">Cardless Cash/EFT (e.g., eWallet)</option>
-                    </select>
+                <div class="flex space-x-4 mb-6">
+                    <label for="radioBank" id="labelBank" class="payment-option-box flex-1 active">
+                        <input type="radio" id="radioBank" name="paymentType" value="Bank Account" checked required>
+                        <h3 class="text-md font-bold text-gray-800">🏦 Bank Account Transfer</h3>
+                        <p class="text-xs text-gray-500 mt-1">Receive funds directly into your nominated bank account.</p>
+                    </label>
+
+                    <label for="radioCardless" id="labelCardless" class="payment-option-box flex-1">
+                        <input type="radio" id="radioCardless" name="paymentType" value="Cardless Services">
+                        <h3 class="text-md font-bold text-gray-800">📲 Cardless Services</h3>
+                        <p class="text-xs text-gray-500 mt-1">Receive funds instantly via Cardless Cash or eWallet PIN.</p>
+                    </label>
                 </div>
 
-                <div id="bankAccountFields" class="hidden">
+                <div id="bankAccountFields">
                     <h3 class="text-md font-semibold text-gray-700 mt-4 mb-2">Bank Account Details</h3>
                     <div class="form-group">
                         <label for="bankName">Bank Name</label>
-                        <input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc.">
+                        <input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc." required>
                     </div>
                     
                     <div class="form-group">
                         <label for="bankAccountNumber">Bank Account Number</label>
-                        <input type="text" id="bankAccountNumber" placeholder="Account Number">
+                        <input type="text" id="bankAccountNumber" placeholder="Account Number" required>
                     </div>
                     
                     <div class="form-group">
                         <label for="linkedPhone">Phone Number Linked to Bank Account</label>
-                        <input type="tel" id="linkedPhone" placeholder="10-digit phone number">
+                        <input type="tel" id="linkedPhone" placeholder="10-digit phone number" required>
                     </div>
                 </div>
 
@@ -492,38 +516,67 @@ function validateSouthAfricanId(idNumber) {
 }
 // --- END UTILITY FUNCTIONS ---
 
-// --- New Interactivity for Payment Method ---
+// --- New Interactivity for Payment Method Boxes ---
 document.addEventListener('DOMContentLoaded', () => {
-    const methodSelector = document.getElementById('paymentMethod');
-    const bankFields = document.getElementById('bankAccountFields');
-    const cardlessFields = document.getElementById('cardlessServiceFields');
+    const radioBank = document.getElementById('radioBank');
+    const radioCardless = document.getElementById('radioCardless');
+    const labelBank = document.getElementById('labelBank');
+    const labelCardless = document.getElementById('labelCardless');
     
-    // Function to set required attributes and visibility
-    function togglePaymentFields(selectedMethod) {
-        // Toggle Visibility
-        bankFields.classList.toggle('hidden', selectedMethod !== 'Bank Account');
-        cardlessFields.classList.toggle('hidden', selectedMethod !== 'Cardless Services');
+    const bankFieldsContainer = document.getElementById('bankAccountFields');
+    const cardlessFieldsContainer = document.getElementById('cardlessServiceFields');
+    
+    // Get all required inputs within the containers
+    const bankInputs = bankFieldsContainer.querySelectorAll('input[required]');
+    const cardlessInputs = cardlessFieldsContainer.querySelectorAll('input[required]');
 
-        // Toggle Required Attributes for Bank Fields
-        document.getElementById('bankName').required = (selectedMethod === 'Bank Account');
-        document.getElementById('bankAccountNumber').required = (selectedMethod === 'Bank Account');
-        document.getElementById('linkedPhone').required = (selectedMethod === 'Bank Account');
-        
-        // Toggle Required Attributes for Cardless Fields
-        document.getElementById('cardlessPhone').required = (selectedMethod === 'Cardless Services');
-        document.getElementById('cardlessId').required = (selectedMethod === 'Cardless Services');
-        
-        // Ensure that if fields are hidden, their required attribute is removed
-        // (already done implicitly by the lines above, but good practice to be aware of).
+    // Function to handle the state change
+    function togglePaymentFields(selectedMethod) {
+        // Handle visibility and required attributes
+        if (selectedMethod === 'Bank Account') {
+            labelBank.classList.add('active');
+            labelCardless.classList.remove('active');
+            
+            bankFieldsContainer.classList.remove('hidden');
+            cardlessFieldsContainer.classList.add('hidden');
+
+            // Set Bank inputs to required, Cardless inputs to optional
+            bankInputs.forEach(input => input.required = true);
+            cardlessInputs.forEach(input => input.required = false);
+            
+        } else if (selectedMethod === 'Cardless Services') {
+            labelCardless.classList.add('active');
+            labelBank.classList.remove('active');
+
+            cardlessFieldsContainer.classList.remove('hidden');
+            bankFieldsContainer.classList.add('hidden');
+
+            // Set Cardless inputs to required, Bank inputs to optional
+            cardlessInputs.forEach(input => input.required = true);
+            bankInputs.forEach(input => input.required = false);
+        }
     }
 
-    // Initial check (to hide fields before user selects)
-    // We start with all hidden because the dropdown default is 'Select a method' (value="")
-    togglePaymentFields(methodSelector.value);
+    // Initial check (Bank is checked by default in HTML)
+    togglePaymentFields(radioBank.checked ? 'Bank Account' : 'Cardless Services');
 
-    // Event listener for changes
-    methodSelector.addEventListener('change', (event) => {
-        togglePaymentFields(event.target.value);
+    // Event listeners for radio button changes
+    radioBank.addEventListener('change', () => togglePaymentFields('Bank Account'));
+    radioCardless.addEventListener('change', () => togglePaymentFields('Cardless Services'));
+    
+    // Optionally, allow clicking the labels to trigger the change (already handled by <label for="id"> structure, but ensures the state is correct)
+    labelBank.addEventListener('click', () => {
+        if (!radioBank.checked) {
+            radioBank.checked = true;
+            togglePaymentFields('Bank Account');
+        }
+    });
+    
+    labelCardless.addEventListener('click', () => {
+        if (!radioCardless.checked) {
+            radioCardless.checked = true;
+            togglePaymentFields('Cardless Services');
+        }
     });
 });
 
@@ -535,8 +588,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- 0. Pre-Submission and Final Confirmation Validation ---
         const confirmationTick = document.getElementById('confirmationTick');
         const digitalSignature = document.getElementById('digitalSignature').value.trim();
-        const methodSelector = document.getElementById('paymentMethod'); // Retrieve the selector element
-        const selectedMethod = methodSelector.value; // Get the currently selected value
+        
+        // Get the selected payment method from the radio group
+        const selectedMethod = document.querySelector('input[name="paymentType"]:checked')?.value; 
+        
         const requestedAmountString = localStorage.getItem('requestedLoanAmount');
 
         if (!confirmationTick.checked) {
@@ -590,9 +645,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const bankAccountNumber = document.getElementById('bankAccountNumber').value.trim();
                 const linkedPhone = document.getElementById('linkedPhone').value.trim();
                 
+                // Final check (form validation should handle this, but for safety)
                 if (!bankName || !bankAccountNumber || !linkedPhone) {
-                    // Note: HTML required attributes should ideally handle this, but JS is the final check
-                    await customAlert('Validation Error', 'Please complete all Bank Account payment details.');
+                    await customAlert('Validation Error', 'Please complete all required Bank Account payment details.');
                     return;
                 }
                 
@@ -606,8 +661,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 const cardlessPhone = document.getElementById('cardlessPhone').value.trim();
                 const cardlessId = document.getElementById('cardlessId').value.trim();
                 
+                // Final check (form validation should handle this, but for safety)
                 if (!cardlessPhone || !cardlessId) {
-                    await customAlert('Validation Error', 'Please complete all Cardless Service details.');
+                    await customAlert('Validation Error', 'Please complete all required Cardless Service details.');
                     return;
                 }
 
@@ -712,6 +768,7 @@ document.addEventListener('DOMContentLoaded', () => {
             hideLoading(); // Hide loading before showing the final review modal
 
             // A. Construct the Review Message (Formatted HTML)
+            // Use the JSON.stringify of paymentDetails which will be specific to the chosen method
             const paymentDetailStr = JSON.stringify(paymentDetails)
                 .replace(/[{}"\\]/g, '')
                 .replace(/,/g, ', ');
