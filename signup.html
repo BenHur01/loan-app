@@ -1,719 +1,359 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Loan Application Form</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
-            align-items: center; 
-            min-height: 100vh;
-            background-color: #f7f9fb;
-        }
-        .container {
-            max-width: 600px;
-            width: 95%;
-            padding: 2.5rem;
-            margin-top: 2rem; 
-            margin-bottom: 4rem; 
-            background-color: #fff;
-            border-radius: 0.75rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-        }
-        .form-group {
-            margin-bottom: 1.25rem;
-        }
-        label {
-            display: block;
-            font-weight: 500;
-            margin-bottom: 0.5rem;
-            color: #1f2937;
-            text-align: left;
-        }
-        .file-label-text {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            width: 100%;
-        }
-        input[type="text"],
-        input[type="number"],
-        input[type="tel"],
-        input[type="file"],
-        select,
-        textarea {
-            width: 100%;
-            padding: 0.75rem;
-            border: 1px solid #d1d5db;
-            border-radius: 0.375rem;
-            transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-            resize: vertical;
-        }
-        input:focus,
-        select:focus,
-        textarea:focus {
-            border-color: #4f46e5;
-            outline: 0;
-            box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-        }
-        /* Custom Modal Styles */
-        .custom-modal {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.6);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 1001;
-            transition: opacity 0.3s;
-        }
-        .custom-modal-content {
-            background: white;
-            padding: 30px;
-            border-radius: 12px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(255, 255, 255, 0.9);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            z-index: 100;
-            flex-direction: column;
-            text-align: center;
-        }
-        .loader {
-            border: 4px solid #f3f3f3;
-            border-top: 4px solid #4f46e5;
-            border-radius: 50%;
-            width: 40px;
-            height: 40px;
-            animation: spin 1s linear infinite;
-            margin-bottom: 1rem;
-        }
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-        
-        .payment-section-header {
-            padding: 0.75rem 0;
-            margin-top: 1.5rem;
-            margin-bottom: 0.5rem;
-            font-size: 1.125rem;
-            font-weight: 600;
-            color: #1f2937;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Loan Application Form</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<style>
+    body {
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center; 
+        min-height: 100vh;
+        background-color: #f7f9fb;
+    }
+    .container {
+        max-width: 600px;
+        width: 95%;
+        padding: 2.5rem;
+        margin-top: 2rem; 
+        margin-bottom: 4rem; 
+        background-color: #fff;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #1f2937; text-align: left; }
+    .file-label-text { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    input[type="text"], input[type="number"], input[type="tel"], input[type="file"], select, textarea {
+        width: 100%; padding: 0.75rem; border: 1px solid #d1d5db; border-radius: 0.375rem; transition: border-color 0.15s, box-shadow 0.15s; resize: vertical;
+    }
+    input:focus, select:focus, textarea:focus { border-color: #4f46e5; outline: 0; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    .custom-modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+        display: flex; justify-content: center; align-items: center; z-index: 1001; transition: opacity 0.3s;
+    }
+    .custom-modal-content {
+        background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    }
+    .loading-overlay {
+        position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9);
+        display: flex; justify-content: center; align-items: center; z-index: 100; flex-direction: column; text-align: center;
+    }
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width:40px; height:40px; animation: spin 1s linear infinite; margin-bottom:1rem; }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+    .payment-section-header { padding:0.75rem 0; margin-top:1.5rem; margin-bottom:0.5rem; font-size:1.125rem; font-weight:600; color:#1f2937; }
+</style>
 </head>
 <body>
-    
-    <div id="custom-alert-modal" class="custom-modal hidden">
-        <div class="custom-modal-content">
-            <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
-            <div id="modal-message-container" class="text-gray-600 mb-6">
-                <p id="modal-message"></p>
-            </div>
-            <div class="flex space-x-3 mt-4">
-                <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline hidden">
-                    Cancel
-                </button>
-                <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none focus:shadow-outline">
-                    OK
-                </button>
-            </div>
+
+<!-- CUSTOM MODAL -->
+<div id="custom-alert-modal" class="custom-modal hidden">
+    <div class="custom-modal-content">
+        <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
+        <div id="modal-message-container" class="text-gray-600 mb-6"><p id="modal-message"></p></div>
+        <div class="flex space-x-3 mt-4">
+            <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none hidden">Cancel</button>
+            <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none">OK</button>
         </div>
     </div>
+</div>
 
-    <main class="container">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
-            <p class="text-gray-500 mt-2">Personal, Address, Employment, and Document Uploads</p>
-        </header>
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" class="loading-overlay hidden">
+    <div class="loader"></div>
+    <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
+    <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
+</div>
 
-        <form id="loanApplicationForm" class="space-y-6">
-            
-            <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">1. Personal Details</legend>
-                <div class="form-group">
-                    <label for="fullName">Full Name</label>
-                    <input type="text" id="fullName" required placeholder="e.g., Jane Doe">
-                </div>
-                <div class="form-group">
-                    <label for="idNumber">South African ID Number</label>
-                    <input type="text" id="idNumber" required pattern="\d{13}" title="Must be a 13-digit ID number" placeholder="e.g., 9001015000087">
-                </div>
-                <div class="form-group">
-                    <label for="contactNumber">Contact Number</label>
-                    <input type="tel" id="contactNumber" required pattern="\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-                </div>
-            </fieldset>
+<main class="container">
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
+        <p class="text-gray-500 mt-2">Personal, Address, Employment, and Document Uploads</p>
+    </header>
 
-            <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">2. Residential Address</legend>
-                <div class="form-group">
-                    <label for="residentialAddress">Physical Address (Must match Proof of Residence)</label>
-                    <textarea id="residentialAddress" rows="3" required placeholder="Street Address, Suburb, City, Postal Code"></textarea>
-                </div>
-            </fieldset>
+    <form id="loanApplicationForm" class="space-y-6">
+        <!-- Personal Details -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">1. Personal Details</legend>
+            <div class="form-group">
+                <label for="fullName">Full Name</label>
+                <input type="text" id="fullName" required placeholder="e.g., Jane Doe">
+            </div>
+            <div class="form-group">
+                <label for="idNumber">South African ID Number</label>
+                <input type="text" id="idNumber" required pattern="\d{13}" title="Must be a 13-digit ID number" placeholder="e.g., 9001015000087">
+            </div>
+            <div class="form-group">
+                <label for="contactNumber">Contact Number</label>
+                <input type="tel" id="contactNumber" required pattern="\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
+            </div>
+        </fieldset>
 
-            <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details <span class="text-gray-500 text-sm">(All fields below are optional)</span></legend>
-                
-                <div class="form-group">
-                    <label for="employerName">Employer Name <span class="text-gray-500 font-medium">(Optional)</span></label>
-                    <input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd">
+        <!-- Residential Address -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">2. Residential Address</legend>
+            <div class="form-group">
+                <label for="residentialAddress">Physical Address (Must match Proof of Residence)</label>
+                <textarea id="residentialAddress" rows="3" required placeholder="Street Address, Suburb, City, Postal Code"></textarea>
+            </div>
+        </fieldset>
+
+        <!-- Employment Details -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details <span class="text-gray-500 text-sm">(Optional)</span></legend>
+            <div class="form-group">
+                <label for="employerName">Employer Name</label>
+                <input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd">
+            </div>
+            <div class="form-group">
+                <label for="employeeAddress">Employee Address</label>
+                <textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea>
+            </div>
+        </fieldset>
+
+        <!-- Payment Preference -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
+            <p class="text-sm text-gray-600 mb-4">Please fill out only one of the payment sections below.</p>
+
+            <!-- Bank -->
+            <div id="bankAccountFields">
+                <h3 class="payment-section-header text-gray-800">🏦 Bank Account Transfer</h3>
+                <div class="p-3 border border-gray-300 rounded-lg">
+                    <div class="form-group"><label for="bankName">Bank Name</label><input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc."></div>
+                    <div class="form-group"><label for="bankAccountNumber">Bank Account Number</label><input type="text" id="bankAccountNumber" placeholder="Account Number"></div>
+                    <div class="form-group"><label for="linkedPhone">Phone Number Linked to Bank Account</label><input type="tel" id="linkedPhone" placeholder="10-digit phone number"></div>
                 </div>
-                
-                <div class="form-group">
-                    <label for="employeeAddress">Employee's Address <span class="text-gray-500 font-medium">(Optional)</span></label>
-                    <textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea>
-                </div>
-            </fieldset>
-            
-            <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
-                <p class="text-sm text-gray-600 mb-4">Please fill out **only one** of the payment sections below.</p>
-                
-                <div id="bankAccountFields">
-                    <h3 class="payment-section-header text-gray-800">🏦 Bank Account Transfer</h3>
-                    <div class="p-3 border border-gray-300 rounded-lg">
-                        <div class="form-group">
-                            <label for="bankName">Bank Name</label>
-                            <input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc.">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="bankAccountNumber">Bank Account Number</label>
-                            <input type="text" id="bankAccountNumber" placeholder="Account Number">
-                        </div>
-                        
-                        <div class="form-group">
-                            <label for="linkedPhone">Phone Number Linked to Bank Account</label>
-                            <input type="tel" id="linkedPhone" placeholder="10-digit phone number">
-                        </div>
+            </div>
+
+            <div class="my-6 border-t border-gray-300"></div>
+
+            <!-- Cardless -->
+            <div id="cardlessServiceFields">
+                <h3 class="payment-section-header text-gray-800">📲 Cardless Services</h3>
+                <div class="p-3 border border-gray-300 rounded-lg">
+                    <div class="form-group"><label for="cardlessBank">Bank Name to receive Cardless Funds</label><input type="text" id="cardlessBank" placeholder="e.g., FNB, Capitec, etc."></div>
+                    <div class="form-group"><label for="cardlessPhone">Phone Number for Cardless Service</label><input type="tel" id="cardlessPhone" placeholder="10-digit phone number"></div>
+                    <div class="form-group"><label for="cardlessId">Your ID Number (for Security)</label><input type="text" id="cardlessId" placeholder="Your 13-digit ID"></div>
+                    <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
+                        <p class="font-bold text-yellow-800">Note:</p>
+                        <p>We will use this phone number to send the Cardless Cash PIN if your application is approved.</p>
                     </div>
                 </div>
+            </div>
 
-                <div class="my-6 border-t border-gray-300"></div>
+            <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
+                <p class="font-bold mb-2 text-blue-800">For Loan Repayment/Settlement (EFT) Reference:</p>
+                <ul class="list-disc list-inside space-y-1">
+                    <li>Account Name: Savings Account</li>
+                    <li>Bank: Capitec</li>
+                    <li>Account Number: 1213614048</li>
+                    <li>Branch Code: 470010</li>
+                    <li>REFERENCE: Your Name</li>
+                </ul>
+            </div>
+        </fieldset>
 
-                <div id="cardlessServiceFields">
-                    <h3 class="payment-section-header text-gray-800">📲 Cardless Services</h3>
-                    <div class="p-3 border border-gray-300 rounded-lg">
-                        <div class="form-group">
-                            <label for="cardlessBank">Bank Name to receive Cardless Funds</label>
-                            <input type="text" id="cardlessBank" placeholder="e.g., FNB, Capitec, etc.">
-                        </div>
-                        <div class="form-group">
-                            <label for="cardlessPhone">Phone Number for Cardless Service</label>
-                            <input type="tel" id="cardlessPhone" placeholder="10-digit phone number">
-                        </div>
-                        <div class="form-group">
-                            <label for="cardlessId">Your ID Number (for Security)</label>
-                            <input type="text" id="cardlessId" placeholder="Your 13-digit ID">
-                        </div>
-                        <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
-                            <p class="font-bold text-yellow-800">Note:</p>
-                            <p>We will use this phone number to send the **Cardless Cash PIN** if your application is approved.</p>
-                        </div>
-                    </div>
-                </div>
-                
+        <!-- Documents -->
+        <fieldset class="border p-4 rounded-lg shadow-sm">
+            <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
+            <p class="text-sm text-gray-600 mb-4">Upload clear copies (PDF/JPG).</p>
+            <div class="form-group"><label for="idDocument"><span class="file-label-text">Copy of ID Document <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required></div>
+            <div class="form-group"><label for="bankStatement"><span class="file-label-text">Latest Bank Statement (Optional)</span></label><input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg"></div>
+            <div class="form-group"><label for="proofOfAddress"><span class="file-label-text">Proof of Residence <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required></div>
+            <div class="form-group"><label for="selfieDocument"><span class="file-label-text">Live Selfie <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="selfieDocument" accept="image/*" required capture="user"></div>
+        </fieldset>
 
-                <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
-                    <p class="font-bold mb-2 text-blue-800">For Loan Repayment/Settlement (EFT) Reference:</p>
-                    <ul class="list-disc list-inside space-y-1">
-                        <li>Account Name: Savings Account</li>
-                        <li>Bank: Capitec</li>
-                        <li>Account Number: 1213614048</li>
-                        <li>Branch Code: 470010</li>
-                        <li>REFERENCE: Your Name</li>
-                    </ul>
-                </div>
-            </fieldset>
+        <!-- Final Confirmation -->
+        <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
+            <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
+            <div class="form-group">
+                <label class="flex items-start cursor-pointer p-3 border border-indigo-200 bg-white rounded-lg shadow-inner">
+                    <input type="checkbox" id="confirmationTick" required class="mt-1 mr-3 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+                    <span class="text-sm text-gray-800 font-medium">
+                        I confirm all details are true and complete. I understand that any false statement may lead to rejection and legal action.
+                    </span>
+                </label>
+            </div>
+            <div class="form-group mt-6">
+                <label for="digitalSignature" class="block text-base font-bold text-gray-900 mb-2">Type "YES" to digitally sign</label>
+                <input type="text" id="digitalSignature" required placeholder="Type YES">
+            </div>
+        </fieldset>
 
-            <fieldset class="border p-4 rounded-lg shadow-sm">
-                <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
-                <p class="text-sm text-gray-600 mb-4">Please upload clear, legible copies (PDF or JPG format).</p>
-                
-                <div class="form-group">
-                    <label for="idDocument">
-                        <span class="file-label-text">
-                            Copy of ID Document <span class="text-red-500 font-bold">(Compulsory)</span>
-                        </span>
-                    </label>
-                    <input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required>
-                </div>
-                
-                <div class="form-group">
-                    <label for="bankStatement">
-                        <span class="file-label-text">
-                            Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
-                        </span>
-                    </label>
-                    <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
-                </div>
+        <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">Submit Application</button>
+    </form>
 
-                <div class="form-group">
-                    <label for="proofOfAddress">
-                        <span class="file-label-text">
-                            Proof of Residence (e.g., Utility Bill) <span class="text-red-500 font-bold">(Compulsory)</span>
-                        </span>
-                        
-                    </label>
-                    <input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required>
-                </div>
+    <div class="mt-8 text-center"><a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a></div>
+</main>
 
-                <div class="form-group">
-                    <label for="selfieDocument">
-                        <span class="file-label-text">
-                            Live Selfie <span class="text-red-500 font-bold">(Compulsory - Camera Only)</span>
-                        </span>
-                    </label>
-                    <input type="file" id="selfieDocument" accept="image/*" required capture="user">
-                </div>
-            </fieldset>
-
-            <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
-                <legend class="text-lg font-semibold text-indigo-700 px-2">6. Final Confirmation</legend>
-                <div class="form-group">
-                    <label class="flex items-start cursor-pointer p-3 border border-indigo-200 bg-white rounded-lg shadow-inner">
-                        <input type="checkbox" id="confirmationTick" required class="mt-1 mr-3 h-5 w-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                        <span class="text-sm text-gray-800 font-medium">
-                            I confirm that all details provided in this loan application are true, accurate, and complete to the best of my knowledge and belief. I understand that any false statement or omission may lead to the rejection of my application, withdrawal of any agreement, and potential legal action.
-                        </span>
-                    </label>
-                </div>
-
-                <div class="form-group mt-6">
-                    <label for="digitalSignature" class="block text-base font-bold text-gray-900 mb-2">Type "YES" to digitally sign the application</label>
-                    <input type="text" id="digitalSignature" required placeholder="Type YES in capital letters">
-                </div>
-            </fieldset>
-            
-            <button type="submit" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
-                Submit Application
-            </button>
-        </form>
-
-        <div class="mt-8 text-center">
-            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a>
-        </div>
-    </main>
-
-    <div id="loadingOverlay" class="loading-overlay hidden">
-        <div class="loader"></div>
-        <p id="loading-message" class="text-lg font-semibold text-indigo-700">Submitting your application and uploading documents...</p>
-        <p class="text-sm text-gray-600 mt-2">This may take a moment. Please do not close the window.</p>
-    </div>
-    
 <script type="module">
-// START OF REQUIRED FIREBASE & SUPABASE SETUP
+// --- FIREBASE & SUPABASE SETUP ---
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
 
-// --- Global Variables (Provided by Canvas) ---
 const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
 const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
 
-// --- Firebase Init ---
 let auth;
 if (Object.keys(firebaseConfig).length > 0) {
     const app = initializeApp(firebaseConfig);
     auth = getAuth(app);
-    if (initialAuthToken) {
-        signInWithCustomToken(auth, initialAuthToken).catch(e => {
-            console.error("Firebase custom sign-in failed:", e);
-            signInAnonymously(auth);
-        });
-    } else {
-        signInAnonymously(auth);
-    }
-} else {
-    console.warn("Firebase configuration not found. Skipping Firebase initialization.");
-}
+    if (initialAuthToken) signInWithCustomToken(auth, initialAuthToken).catch(e => signInAnonymously(auth));
+    else signInAnonymously(auth);
+} else console.warn("Firebase configuration not found.");
 
-// --- Supabase Config ---
 const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
-
 export const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-function goToPage(page) {
-    window.location.href = page;
-}
-// END OF REQUIRED FIREBASE & SUPABASE SETUP
+function goToPage(page){ window.location.href = page; }
 
-// --- UTILITY FUNCTIONS ---
-function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText = null) {
-    const modal = document.getElementById('custom-alert-modal');
-    document.getElementById('modal-title').textContent = title;
-    const messageContainer = document.getElementById('modal-message-container');
-    messageContainer.innerHTML = messageHtml; 
-    const okButton = document.getElementById('modal-ok-button');
-    const cancelButton = document.getElementById('modal-cancel-button');
-    
-    okButton.textContent = okText;
-    okButton.classList.remove('w-full', 'w-1/2');
-
-    if (cancelText) {
-        cancelButton.textContent = cancelText;
-        cancelButton.classList.remove('hidden');
-        okButton.classList.add('w-1/2');
-        cancelButton.classList.add('w-1/2');
-    } else {
-        cancelButton.classList.add('hidden');
-        okButton.classList.add('w-full');
-    }
-    
+// --- CUSTOM MODAL & ALERT FUNCTIONS ---
+function customConfirmationAlert(title, messageHtml, okText='OK', cancelText=null){
+    const modal=document.getElementById('custom-alert-modal');
+    document.getElementById('modal-title').textContent=title;
+    document.getElementById('modal-message-container').innerHTML=messageHtml;
+    const okButton=document.getElementById('modal-ok-button');
+    const cancelButton=document.getElementById('modal-cancel-button');
+    okButton.textContent=okText;
+    if(cancelText){ cancelButton.textContent=cancelText; cancelButton.classList.remove('hidden'); okButton.classList.add('w-1/2'); cancelButton.classList.add('w-1/2'); }
+    else{ cancelButton.classList.add('hidden'); okButton.classList.add('w-full'); }
     modal.classList.remove('hidden');
-
-    return new Promise(resolve => {
-        const okHandler = () => {
-            modal.classList.add('hidden');
-            okButton.removeEventListener('click', okHandler);
-            if (cancelText) {
-                cancelButton.removeEventListener('click', cancelHandler);
-            }
-            resolve('ok');
-        };
-        
-        const cancelHandler = () => {
-            modal.classList.add('hidden');
-            okButton.removeEventListener('click', okHandler);
-            cancelButton.removeEventListener('click', cancelHandler);
-            resolve('cancel');
-        };
-
+    return new Promise(resolve=>{
+        const okHandler=()=>{ modal.classList.add('hidden'); okButton.removeEventListener('click', okHandler); if(cancelText) cancelButton.removeEventListener('click', cancelHandler); resolve('ok'); };
+        const cancelHandler=()=>{ modal.classList.add('hidden'); okButton.removeEventListener('click', okHandler); cancelButton.removeEventListener('click', cancelHandler); resolve('cancel'); };
         okButton.addEventListener('click', okHandler);
-        if (cancelText) {
-            cancelButton.addEventListener('click', cancelHandler);
-        }
+        if(cancelText) cancelButton.addEventListener('click', cancelHandler);
     });
 }
 
-function customAlert(title, message) {
-    return customConfirmationAlert(title, `<p id="modal-message">${message}</p>`, 'OK', null);
-}
+function customAlert(title,message){ return customConfirmationAlert(title, `<p>${message}</p>`,'OK',null); }
+function showLoading(message){ document.getElementById('loading-message').textContent=message; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
+function calculateDueDate(submitDate){ const year=submitDate.getFullYear(); const month=submitDate.getMonth(); const lastDayOfMonth=new Date(year,month+1,0); const yyyy=lastDayOfMonth.getFullYear(); const mm=String(lastDayOfMonth.getMonth()+1).padStart(2,'0'); const dd=String(lastDayOfMonth.getDate()).padStart(2,'0'); return `${yyyy}-${mm}-${dd}`; }
 
-function showLoading(message) {
-    document.getElementById('loading-message').textContent = message;
-    document.getElementById('loadingOverlay').classList.remove('hidden');
-    document.body.style.overflow = 'hidden';
-}
-
-function hideLoading() {
-    document.getElementById('loadingOverlay').classList.add('hidden');
-    document.body.style.overflow = 'auto';
-}
-
-function calculateDueDate(submitDate) {
-    const year = submitDate.getFullYear();
-    const month = submitDate.getMonth();
-    const lastDayOfMonth = new Date(year, month + 1, 0);
-    const yyyy = lastDayOfMonth.getFullYear();
-    const mm = String(lastDayOfMonth.getMonth() + 1).padStart(2, '0');
-    const dd = String(lastDayOfMonth.getDate()).padStart(2, '0');
-    return `${yyyy}-${mm}-${dd}`;
-}
-
-async function uploadFile(file, bucket, path, isRequired = true) {
-    if (!file) {
-        if (isRequired) {
-            throw new Error("A compulsory file was not provided for upload.");
-        }
-        return null;
-    }
-    
-    const { data, error } = await supabase.storage
-        .from(bucket)
-        .upload(path, file, {
-            cacheControl: '3600',
-            upsert: false  
-        });
-
-    if (error) {
-        console.error('Supabase upload error:', error);
-        throw new Error('File upload failed: ' + error.message);
-    }
-
-    const { data: publicUrlData } = supabase.storage
-        .from(bucket)
-        .getPublicUrl(data.path);
-        
-    if (!publicUrlData || !publicUrlData.publicUrl) {
-        throw new Error('Could not retrieve public URL after successful upload.');
-    }
-
+async function uploadFile(file, bucket, path, isRequired=true){
+    if(!file){ if(isRequired) throw new Error("A compulsory file was not provided."); return null; }
+    const { data,error } = await supabase.storage.from(bucket).upload(path,file,{ cacheControl:'3600', upsert:false });
+    if(error){ throw new Error('File upload failed: '+error.message);}
+    const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+    if(!publicUrlData || !publicUrlData.publicUrl) throw new Error('Could not retrieve public URL.');
     return publicUrlData.publicUrl;
 }
 
-function validateSouthAfricanId(idNumber) {
-    if (!/^\d{13}$/.test(idNumber)) {
-        return false;
-    }
-    return true; 
-}
+function validateSouthAfricanId(idNumber){ return /^\d{13}$/.test(idNumber); }
+function isSectionFilled(inputs){ return Array.from(inputs).every(input=>input.value.trim()!==''); }
 
-function isSectionFilled(inputElements) {
-    // Check if ALL fields in the provided list have non-empty values
-    let isFilled = true;
-    inputElements.forEach(input => {
-        // Trim the value and check if it's empty
-        if (input.value.trim() === '') {
-            isFilled = false;
-        }
-    });
-    return isFilled;
-}
-// --- END UTILITY FUNCTIONS ---
+// --- FORM SUBMISSION ---
+document.getElementById('loanApplicationForm').addEventListener('submit', async function(event){
+    event.preventDefault(); event.stopPropagation();
+    const submitBtn=event.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
 
-// --- Main submission handler (Updated Validation Logic) ---
-document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
-    event.preventDefault();
-    
-    // --- 0. Pre-Submission and Final Confirmation Validation ---
-    const confirmationTick = document.getElementById('confirmationTick');
-    const digitalSignature = document.getElementById('digitalSignature').value.trim();
-    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
-
-    if (!confirmationTick.checked) {
-        await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
-        return;
-    }
-    if (digitalSignature !== 'YES') {
-        await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
-        return;
+    // --- Validation ---
+    const confirmationTick=document.getElementById('confirmationTick');
+    const digitalSignature=document.getElementById('digitalSignature').value.trim();
+    const requestedAmountString=localStorage.getItem('requestedLoanAmount');
+    if(!confirmationTick.checked){ await customAlert('Validation Error','Tick the confirmation box.'); return; }
+    if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); return; }
+    if(!requestedAmountString){
+        const message='<p>The requested loan amount was not found. You may have skipped the previous step.</p>';
+        const result=await customConfirmationAlert('Missing Data Error',message,'Go Back','Cancel');
+        if(result==='ok') goToPage('agreement.html'); return;
     }
 
-    // *** FIX APPLIED HERE: Added a confirmation/cancel option for missing requestedLoanAmount ***
-    if (!requestedAmountString) {
-        const message = '<p>The **requested loan amount** was not found in your session storage. This often means you accessed the form directly or skipped the previous step (agreement.html).</p><p class="mt-2 font-bold">Please select an option below:</p>';
-        const result = await customConfirmationAlert(
-            'Missing Data Error', 
-            message, 
-            'Go Back to Agreement', 
-            'Cancel Submission'
-        );
-        
-        if (result === 'ok') {
-            goToPage('agreement.html'); // Redirect to previous step to set loan amount
-        } 
-        return; // Stop submission and stay on the current page if cancelled
+    // --- SA ID ---
+    const borrowerId=document.getElementById('idNumber').value.trim();
+    if(!validateSouthAfricanId(borrowerId)){ await customAlert('Validation Error','Invalid SA ID number.'); return; }
+
+    // --- Required Personal & Address ---
+    const fullName=document.getElementById('fullName').value.trim();
+    const contactNumber=document.getElementById('contactNumber').value.trim();
+    const residentialAddress=document.getElementById('residentialAddress').value.trim();
+    if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); return; }
+
+    // --- Payment Method ---
+    const bankInputs=document.querySelectorAll('#bankAccountFields input');
+    const cardlessInputs=document.querySelectorAll('#cardlessServiceFields input');
+    const isBankFilled=isSectionFilled(bankInputs);
+    const isCardlessFilled=isSectionFilled(cardlessInputs);
+    let selectedMethod=null, paymentDetails={}, paymentValidationError=null;
+    if(isBankFilled && isCardlessFilled) paymentValidationError='Fill only one payment method.';
+    else if(!isBankFilled && !isCardlessFilled) paymentValidationError='Fill one payment method.';
+    else if(isBankFilled){ selectedMethod='Bank Account'; paymentDetails={ bank_name: document.getElementById('bankName').value.trim(), account_number: document.getElementById('bankAccountNumber').value.trim(), linked_phone: document.getElementById('linkedPhone').value.trim() }; }
+    else if(isCardlessFilled){ selectedMethod='Cardless Services'; const cardlessId=document.getElementById('cardlessId').value.trim();
+        if(!validateSouthAfricanId(cardlessId)) paymentValidationError='Invalid Cardless ID number.';
+        paymentDetails={ bank_to_receive: document.getElementById('cardlessBank').value.trim(), cardless_phone: document.getElementById('cardlessPhone').value.trim(), cardless_id_check: cardlessId, note:"Funds sent via Cardless Cash." };
+        if(!paymentDetails.bank_to_receive) paymentValidationError='Specify the bank for Cardless Service.';
     }
-    // ------------------------------------------------------------------------------------------
-    
-    // --- SA ID Validation ---
-    const idNumberInput = document.getElementById('idNumber');
-    const borrowerId = idNumberInput.value.trim();  
-    
-    if (!validateSouthAfricanId(borrowerId)) {
-        await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
-        return;
-    }
+    if(paymentValidationError){ await customAlert('Validation Error',paymentValidationError); return; }
 
-    // --- Required Personal & Address Fields ---
-    const fullName = document.getElementById('fullName').value.trim();
-    const contactNumber = document.getElementById('contactNumber').value.trim();
-    const residentialAddress = document.getElementById('residentialAddress').value.trim();
-    
-    if (!fullName || !contactNumber || !residentialAddress) {
-        await customAlert(
-            'Validation Error',
-            'Please complete all required personal and residential address details.'
-        );
-        return;
-    }
-
-
-    // --- 1. Payment Method Detection & Validation ---
-    const bankInputs = document.querySelectorAll('#bankAccountFields input');
-    const cardlessInputs = document.querySelectorAll('#cardlessServiceFields input');
-    
-    const isBankFilled = isSectionFilled(bankInputs);
-    const isCardlessFilled = isSectionFilled(cardlessInputs);
-
-    let selectedMethod = null;
-    let paymentDetails = {};
-    let paymentValidationError = null;
-
-    if (isBankFilled && isCardlessFilled) {
-        paymentValidationError = 'Please fill out **only one** payment method section (Bank Account OR Cardless Services), not both.';
-    } else if (!isBankFilled && !isCardlessFilled) {
-        paymentValidationError = 'Please fill out **one** payment method section completely.';
-    } else if (isBankFilled) {
-        // Bank Account Selected
-        selectedMethod = 'Bank Account';
-        paymentDetails = {
-            bank_name: document.getElementById('bankName').value.trim(),
-            account_number: document.getElementById('bankAccountNumber').value.trim(),
-            linked_phone: document.getElementById('linkedPhone').value.trim()
-        };
-    } else if (isCardlessFilled) {
-        // Cardless Services Selected
-        selectedMethod = 'Cardless Services';
-        const cardlessId = document.getElementById('cardlessId').value.trim();
-
-        if (!validateSouthAfricanId(cardlessId)) {
-            paymentValidationError = 'The ID number for Cardless Services is invalid. Please check the 13 digits.';
-        }
-        
-        // **UPDATED** to include the new cardlessBank field
-        paymentDetails = {
-            bank_to_receive: document.getElementById('cardlessBank').value.trim(),
-            cardless_phone: document.getElementById('cardlessPhone').value.trim(),
-            cardless_id_check: cardlessId,
-            note: "Funds will be sent via Cardless Cash (e.g., eWallet) to the cardless_phone number."
-        };
-
-        // Check the new bank field for emptiness as well
-        if (!paymentDetails.bank_to_receive) {
-            paymentValidationError = 'Please specify the Bank Name for the Cardless Service.';
-        }
-    }
-
-    if (paymentValidationError) {
-        await customAlert('Validation Error', paymentValidationError);
-        return;
-    }
-    // --- END Payment Method Detection & Validation ---
-
-
-    showLoading("Submitting application and starting file uploads...");
+    showLoading("Submitting application and uploading files...");
 
     try {
-        // --- Date Calculation ---
-        const submissionDate = new Date();
-        const dueDate = calculateDueDate(submissionDate);
-        const repaymentDays = Math.ceil((new Date(dueDate).getTime() - submissionDate.getTime()) / (1000 * 60 * 60 * 24));
-        
-        // --- Get Optional Employment Values ---
-        const employerName = document.getElementById('employerName').value.trim();
-        const employeeAddress = document.getElementById('employeeAddress').value.trim();
-        
-        // 2. Initial data object setup
-        const data = {
-            id: borrowerId,  
-            full_name: fullName,
-            id_number: borrowerId,  
-            contact_number: contactNumber,
-            residential_address: residentialAddress,
-            
-            employer_name: employerName || null,  
-            employee_address: employeeAddress || null,  
-            
-            preferred_payment_type: selectedMethod, // Uses the dynamically detected method
-            payment_details_json: JSON.stringify(paymentDetails),  
-            
-            requested_amount: parseFloat(requestedAmountString),
-            digital_signature: digitalSignature,
-            confirmed_accurate: confirmationTick.checked,
-            
-            status: 'Pending Review',
-            repayment_due_date: dueDate,
-            repayment_period: repaymentDays,
-            interest_rate: 0.50,
-            date_submitted: submissionDate.toISOString()
+        const submissionDate=new Date();
+        const dueDate=calculateDueDate(submissionDate);
+        const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
+        const employerName=document.getElementById('employerName').value.trim();
+        const employeeAddress=document.getElementById('employeeAddress').value.trim();
+        const dataObj={
+            id:borrowerId, full_name:fullName, id_number:borrowerId, contact_number:contactNumber, residential_address:residentialAddress,
+            employer_name:employerName||null, employee_address:employeeAddress||null,
+            preferred_payment_type:selectedMethod, payment_details_json: JSON.stringify(paymentDetails),
+            requested_amount: parseFloat(requestedAmountString), digital_signature:digitalSignature, confirmed_accurate:confirmationTick.checked,
+            status:'Pending Review', repayment_due_date:dueDate, repayment_period:repaymentDays, interest_rate:0.50, date_submitted:submissionDate.toISOString()
         };
-        
-        // 3. Prepare files for upload
-        const files = {
+
+        const files={
             idDocument: document.getElementById('idDocument').files[0],
             bankStatement: document.getElementById('bankStatement').files[0],
             proofOfAddress: document.getElementById('proofOfAddress').files[0],
             selfieDocument: document.getElementById('selfieDocument').files[0]
         };
 
-        // 4. Upload all files and collect URLs
-        showLoading("Uploading documents (This may take up to 30 seconds)...");
-        
         const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
             uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}.${files.idDocument.name.split('.').pop()}`, true),
-            uploadFile(files.bankStatement, 'loan_documents', files.bankStatement ? `${borrowerId}/bank-statement-${Date.now()}.${files.bankStatement.name.split('.').pop()}` : null, false),
+            uploadFile(files.bankStatement, 'loan_documents', files.bankStatement?`${borrowerId}/bank-statement-${Date.now()}.${files.bankStatement.name.split('.').pop()}`:null,false),
             uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}.${files.proofOfAddress.name.split('.').pop()}`, true),
             uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}.${files.selfieDocument.name.split('.').pop()}`, true)
         ]);
 
-        // 5. Update data object with document URLs
-        data.id_document_url = id_url;
-        data.bank_statement_url = statement_url;
-        data.proof_of_address_url = address_url;
-        data.selfie_document_url = selfie_url;
+        dataObj.id_document_url=id_url; dataObj.bank_statement_url=statement_url; dataObj.proof_of_address_url=address_url; dataObj.selfie_document_url=selfie_url;
 
         showLoading("Inserting application data into the database...");
-        
-        // 6. Insert data into the 'borrowers' table
-        const { error: insertError } = await supabase
-            .from('borrowers')
-            .insert([
-                { ...data }
-            ]);
+        const { error: insertError } = await supabase.from('borrowers').insert([ dataObj ]);
+        if(insertError) throw new Error('Database submission failed: '+insertError.message);
 
-        if (insertError) {
-            console.error('Supabase Insert Error:', insertError);
-            throw new Error('Database submission failed: ' + insertError.message);
-        }
+        localStorage.setItem('currentUserId', borrowerId); hideLoading();
 
-        // 7. Success: Save the new ID and display the Review Modal
-        localStorage.setItem('currentUserId', borrowerId);
-        
-        hideLoading(); // Hide loading before showing the final review modal
-
-        // A. Construct the Review Message (Formatted HTML)
-        const paymentDetailStr = JSON.stringify(paymentDetails)
-            .replace(/[{}"\\]/g, '')
-            .replace(/,/g, ', ');
-
-        let reviewMessage = `
+        const paymentDetailStr = JSON.stringify(paymentDetails).replace(/[{}"\\]/g,'').replace(/,/g,', ');
+        const reviewMessage=`
             <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
             <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
                 <li>Full Name: ${fullName}</li>
                 <li>Contact: ${contactNumber}</li>
                 <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
                 <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
-                <li>Payment Type: <span class="font-bold text-indigo-600">${selectedMethod}</span></li> <li class="break-all">Payment Details: ${paymentDetailStr}</li>
+                <li>Payment Type: <span class="font-bold text-indigo-600">${selectedMethod}</span></li>
+                <li class="break-all">Payment Details: ${paymentDetailStr}</li>
             </ul>
-            <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
+            <p class="mt-4 font-semibold text-red-600">Confirm details are correct before proceeding.</p>
         `;
 
-        // B. Show the custom confirmation modal
-        const result = await customConfirmationAlert(
-            'Final Review Required',  
-            reviewMessage,  
-            'Confirm & Go to Dashboard',  
-            'Go Back to Agreement'
-        );
-        
-        // C. Act based on the user's choice
-        if (result === 'ok') {
-            localStorage.removeItem('requestedLoanAmount');
-            goToPage('dashboard.html');
-        } else {
-            goToPage('agreement.html');
-        }
+        const result = await customConfirmationAlert('Final Review Required', reviewMessage,'Confirm & Go to Dashboard','Go Back to Agreement');
+        if(result==='ok'){ localStorage.removeItem('requestedLoanAmount'); goToPage('dashboard.html'); }
+        else goToPage('agreement.html');
 
-
-    } catch (error) {
+    } catch(error){
         hideLoading();
-        console.error('Application Submission Error:', error);
-        await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
+        console.error('Submission Error:',error);
+        await customAlert('Submission Failed', `Error during submission: ${error.message}`);
     }
 });
 </script>
