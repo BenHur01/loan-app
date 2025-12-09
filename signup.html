@@ -251,11 +251,6 @@ async function uploadFile(file, bucket, path, isRequired=true){
 function validateSouthAfricanId(idNumber){ return /^\d{13}$/.test(idNumber); }
 function isSectionFilled(inputs){ return Array.from(inputs).every(input=>input.value.trim()!==''); }
 
-// 🔒 SAFE PAGE GUARD — prevents looping after submission
-if (!localStorage.getItem('requestedLoanAmount') && !localStorage.getItem('currentUserId')) {
-    customAlert('Session Expired','Please restart your loan application.').then(()=> goToPage('index.html'));
-}
-
 // --- FORM SUBMISSION ---
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event){
     event.preventDefault(); event.stopPropagation();
@@ -267,13 +262,10 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     
     if(!confirmationTick.checked){ await customAlert('Validation Error','Tick the confirmation box.'); return; }
     if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); return; }
-    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
 
-    // --- SA ID ---
     const borrowerId=document.getElementById('idNumber').value.trim();
     if(!validateSouthAfricanId(borrowerId)){ await customAlert('Validation Error','Invalid SA ID number.'); return; }
 
-    // --- Required Personal & Address ---
     const fullName=document.getElementById('fullName').value.trim();
     const contactNumber=document.getElementById('contactNumber').value.trim();
     const residentialAddress=document.getElementById('residentialAddress').value.trim();
@@ -287,28 +279,15 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     let selectedMethod=null, paymentDetails={}, paymentValidationError=null;
     if(isBankFilled && isCardlessFilled) paymentValidationError='Fill only one payment method.';
     else if(!isBankFilled && !isCardlessFilled) paymentValidationError='Fill one payment method.';
-    else if(isBankFilled){ 
-        selectedMethod='Bank Account'; 
-        paymentDetails={ 
-            bank_name: document.getElementById('bankName').value.trim(), 
-            account_number: document.getElementById('bankAccountNumber').value.trim(), 
-            linked_phone: document.getElementById('linkedPhone').value.trim() 
-        }; 
-    } else if(isCardlessFilled){ 
-        selectedMethod='Cardless Services'; 
-        const cardlessId=document.getElementById('cardlessId').value.trim();
+    else if(isBankFilled){ selectedMethod='Bank Account'; paymentDetails={ bank_name: document.getElementById('bankName').value.trim(), account_number: document.getElementById('bankAccountNumber').value.trim(), linked_phone: document.getElementById('linkedPhone').value.trim() }; }
+    else if(isCardlessFilled){ selectedMethod='Cardless Services'; const cardlessId=document.getElementById('cardlessId').value.trim();
         if(!validateSouthAfricanId(cardlessId)) paymentValidationError='Invalid Cardless ID number.';
-        paymentDetails={ 
-            bank_to_receive: document.getElementById('cardlessBank').value.trim(), 
-            cardless_phone: document.getElementById('cardlessPhone').value.trim(), 
-            cardless_id_check: cardlessId, 
-            note:"Funds sent via Cardless Cash." 
-        };
-        if(!paymentDetails.bank_to_receive) paymentValidationError='Specify the bank for Cardless Service.';
+        paymentDetails={ bank_to_receive: document.getElementById('cardlessBank').value.trim(), cardless_phone: document.getElementById('cardlessPhone').value.trim(), cardless_id_check: cardlessId, note:"Funds sent via Cardless Cash." };
+        if(!paymentDetails.bank_to_receive) paymentValidationError='Specify the bank for Cardless Service.'; 
     }
     if(paymentValidationError){ await customAlert('Validation Error',paymentValidationError); return; }
 
-    submitBtn.disabled = true;  // disable only after validations pass
+    submitBtn.disabled = true;
     showLoading("Submitting application and uploading files...");
 
     try {
@@ -321,7 +300,8 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             id:borrowerId, full_name:fullName, id_number:borrowerId, contact_number:contactNumber, residential_address:residentialAddress,
             employer_name:employerName||null, employee_address:employeeAddress||null,
             preferred_payment_type:selectedMethod, payment_details_json: JSON.stringify(paymentDetails),
-            requested_amount: parseFloat(requestedAmountString), digital_signature:digitalSignature, confirmed_accurate:confirmationTick.checked,
+            requested_amount: parseFloat(localStorage.getItem('requestedLoanAmount'))||0, 
+            digital_signature:digitalSignature, confirmed_accurate:confirmationTick.checked,
             status:'Pending Review', repayment_due_date:dueDate, repayment_period:repaymentDays, interest_rate:0.50, date_submitted:submissionDate.toISOString()
         };
 
@@ -345,8 +325,6 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         const { error: insertError } = await supabase.from('borrowers').insert([ dataObj ]);
         if(insertError) throw new Error('Database submission failed: '+insertError.message);
 
-        localStorage.setItem('currentUserId', borrowerId); 
-        localStorage.removeItem('requestedLoanAmount'); // remove requested amount after submission
         hideLoading();
 
         const paymentDetailStr = JSON.stringify(paymentDetails).replace(/[{}"\\]/g,'').replace(/,/g,', ');
@@ -355,7 +333,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
             <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
                 <li>Full Name: ${fullName}</li>
                 <li>Contact: ${contactNumber}</li>
-                <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
+                <li>Loan Amount: R ${(parseFloat(localStorage.getItem('requestedLoanAmount'))||0).toFixed(2)}</li>
                 <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
                 <li>Payment Type: <span class="font-bold text-indigo-600">${selectedMethod}</span></li>
                 <li class="break-all">Payment Details: ${paymentDetailStr}</li>
@@ -376,6 +354,7 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 </script>
 </body>
 </html>
+
 
 
 
