@@ -6,66 +6,158 @@
 <title>Loan Application Form</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    body {
-        font-family: 'Inter', sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center; 
-        min-height: 100vh;
-        background-color: #f7f9fb;
-    }
-    .container {
-        max-width: 600px;
-        width: 95%;
-        padding: 2.5rem;
-        margin-top: 2rem; 
-        margin-bottom: 4rem; 
-        background-color: #fff;
-        border-radius: 0.75rem;
-        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
-    }
-    
-    /* ADJUSTED SPACING: Reduced vertical gap slightly */
-    .form-group { 
-        margin-bottom: 1rem; 
-    }
-    
-    /* FIX: Ensure labels are displayed correctly with proper bottom margin */
-    label { 
-        display: block; 
-        font-weight: 500; 
-        margin-bottom: 0.375rem; /* Adjusted margin here for tighter spacing */
-        color: #1f2937; 
-        text-align: left; 
-    }
-    
-    .file-label-text { display: flex; justify-content: space-between; align-items: center; width: 100%; }
-    input[type="text"], input[type="number"], input[type="tel"], input[type="file"], select, textarea {
-        width: 100%; 
-        padding: 0.75rem; 
-        border: 1px solid #d1d5db; 
-        border-radius: 0.375rem; 
-        transition: border-color 0.15s, box-shadow 0.15s; 
-        resize: vertical;
-        line-height: normal; /* Retain fix for textarea placeholder */
-    }
-    input:focus, select:focus, textarea:focus { border-color: #4f46e5; outline: 0; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
-    .custom-modal {
-        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
-        display: flex; justify-content: center; align-items: center; z-index: 1001; transition: opacity 0.3s;
-    }
-    .custom-modal-content {
-        background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%;
-        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-    }
-    .loading-overlay {
-        position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9);
-        display: flex; justify-content: center; align-items: center; z-index: 100; flex-direction: column; text-align: center;
-    }
-    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width:40px; height:40px; animation: spin 1s linear infinite; margin-bottom:1rem; }
-    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
-    .payment-section-header { padding:0.75rem 0; margin-top:1.5rem; margin-bottom:0.5rem; font-size:1.125rem; font-weight:600; color:#1f2937; }
+body {
+    font-family: 'Inter', sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #f7f9fb;
+}
+
+.container {
+    max-width: 600px;
+    width: 95%;
+    padding: 2.5rem;
+    margin: 2rem 0 4rem 0;
+    background-color: #fff;
+    border-radius: 0.75rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+}
+
+header {
+    margin-bottom: 2rem;
+}
+
+header h1 {
+    font-size: 2.25rem; /* text-3xl */
+    font-weight: 700;
+    color: #111827;
+}
+
+header p {
+    margin-top: 0.5rem;
+    color: #6b7280;
+}
+
+header .edit-mode-alert {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    background-color: #fee2e2;
+    border-left: 4px solid #ef4444;
+    color: #b91c1c;
+    font-weight: 500;
+}
+
+form fieldset {
+    border: 1px solid #d1d5db;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+    border-radius: 0.75rem;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+form legend {
+    font-size: 1.125rem; /* text-lg */
+    font-weight: 600;
+    color: #4f46e5; /* indigo-600 */
+    padding: 0 0.5rem;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    margin-bottom: 1rem;
+}
+
+label {
+    font-weight: 500;
+    margin-bottom: 0.375rem;
+    color: #1f2937;
+}
+
+input[type="text"],
+input[type="tel"],
+input[type="number"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    padding: 0.75rem;
+    border: 1px solid #d1d5db;
+    border-radius: 0.375rem;
+    transition: border-color 0.15s, box-shadow 0.15s;
+    line-height: 1.5;
+    resize: vertical;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: #4f46e5;
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(79,70,229,0.1);
+}
+
+.file-label-text {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    width: 100%;
+}
+
+.payment-section-header {
+    padding: 0.75rem 0;
+    margin: 1.25rem 0 0.5rem 0;
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+}
+
+.bg-section-note {
+    margin-top: 1rem;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+}
+
+.checkbox-label {
+    flex-direction: row;
+    align-items: start;
+    padding: 0.75rem;
+    border-radius: 0.5rem;
+    border: 1px solid #d1d5db;
+    background-color: #fff;
+}
+
+button[type="submit"] {
+    margin-top: 1.5rem;
+    width: 100%;
+    padding: 0.75rem;
+    font-weight: 700;
+    border-radius: 0.5rem;
+    background-color: #4f46e5;
+    color: #fff;
+    box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+    transition: background-color 0.2s;
+}
+
+button[type="submit"]:hover {
+    background-color: #4338ca;
+}
+
+a {
+    color: #4f46e5;
+    font-weight: 500;
+}
+
+a:hover {
+    color: #4338ca;
+}
+
+.loading-overlay p {
+    margin-top: 0.5rem;
+}
 </style>
 </head>
 <body>
@@ -448,3 +540,4 @@
 </script>
 </body>
 </html>
+
