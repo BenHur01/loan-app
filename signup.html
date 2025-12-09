@@ -188,38 +188,64 @@
                 </div>
             </fieldset>
             
-           <fieldset class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
-            
-            <div class="form-group">
-              <label for="bankName">Bank Name</label>
-              <input type="text" id="bankName" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="bankAccountNumber">Bank Account Number</label>
-          <input type="text" id="bankAccountNumber" required>
-        </div>
-        
-        <div class="form-group">
-          <label for="linkedPhone">Phone Number Linked to Bank Account</label>
-          <input type="tel" id="linkedPhone" required>
-        </div>
+            <fieldset class="border p-4 rounded-lg shadow-sm">
+                <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
+                
+                <div class="form-group">
+                    <label for="paymentMethod">Choose Payment Method</label>
+                    <select id="paymentMethod" required>
+                        <option value="" disabled selected>Select a method</option>
+                        <option value="Bank Account">Bank Account Transfer</option>
+                        <option value="Cardless Services">Cardless Cash/EFT (e.g., eWallet)</option>
+                    </select>
+                </div>
 
-             
+                <div id="bankAccountFields" class="hidden">
+                    <h3 class="text-md font-semibold text-gray-700 mt-4 mb-2">Bank Account Details</h3>
+                    <div class="form-group">
+                        <label for="bankName">Bank Name</label>
+                        <input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc.">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="bankAccountNumber">Bank Account Number</label>
+                        <input type="text" id="bankAccountNumber" placeholder="Account Number">
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="linkedPhone">Phone Number Linked to Bank Account</label>
+                        <input type="tel" id="linkedPhone" placeholder="10-digit phone number">
+                    </div>
+                </div>
 
-            
-            <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
-                <p class="font-bold mb-2 text-blue-800">For Loan Repayment/Settlement (EFT) Reference:</p>
-                <ul class="list-disc list-inside space-y-1">
-                    <li>Account Name: Savings Account</li>
-                    <li>Bank: Capitec</li>
-                    <li>Account Number: 1213614048</li>
-                    <li>Branch Code: 470010</li>
-                    <li>REFERENCE: Your Name</li>
-                </ul>
-            </div>
-        </fieldset>
+                <div id="cardlessServiceFields" class="hidden">
+                    <h3 class="text-md font-semibold text-gray-700 mt-4 mb-2">Cardless Services Details</h3>
+                    <div class="form-group">
+                        <label for="cardlessPhone">Phone Number for Cardless Service</label>
+                        <input type="tel" id="cardlessPhone" placeholder="10-digit phone number">
+                    </div>
+                    <div class="form-group">
+                        <label for="cardlessId">Your ID Number (for Security)</label>
+                        <input type="text" id="cardlessId" placeholder="Your 13-digit ID">
+                    </div>
+                    <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
+                        <p class="font-bold text-yellow-800">Note:</p>
+                        <p>We will use this phone number to send the **Cardless Cash PIN** if your application is approved.</p>
+                    </div>
+                </div>
+                
+
+                <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
+                    <p class="font-bold mb-2 text-blue-800">For Loan Repayment/Settlement (EFT) Reference:</p>
+                    <ul class="list-disc list-inside space-y-1">
+                        <li>Account Name: Savings Account</li>
+                        <li>Bank: Capitec</li>
+                        <li>Account Number: 1213614048</li>
+                        <li>Branch Code: 470010</li>
+                        <li>REFERENCE: Your Name</li>
+                    </ul>
+                </div>
+            </fieldset>
 
             <fieldset class="border p-4 rounded-lg shadow-sm">
                 <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
@@ -236,9 +262,9 @@
                 
                 <div class="form-group">
                     <label for="bankStatement">
-                                            <span class="file-label-text">
-                                                 Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
-                                            </span>
+                        <span class="file-label-text">
+                            Latest Bank Statement (Proof of Income) <span class="text-gray-500 font-medium">(Optional)</span>
+                        </span>
                     </label>
                     <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
                 </div>
@@ -297,7 +323,6 @@
     
 <script type="module">
 // START OF REQUIRED FIREBASE & SUPABASE SETUP
-// START OF REQUIRED FIREBASE & SUPABASE SETUP (Your existing setup code here...)
 import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
 import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
 import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
@@ -334,8 +359,7 @@ function goToPage(page) {
 }
 // END OF REQUIRED FIREBASE & SUPABASE SETUP
 
-// --- UTILITY FUNCTIONS (Your Modal, Loading, Date, Upload, and ID functions remain here) ---
-// (Note: I'm omitting the function definitions here for brevity, but assume they are present)
+// --- UTILITY FUNCTIONS ---
 
 /**
  * Custom modal replacement for alert() and confirmation.
@@ -468,8 +492,41 @@ function validateSouthAfricanId(idNumber) {
 }
 // --- END UTILITY FUNCTIONS ---
 
+// --- New Interactivity for Payment Method ---
+document.addEventListener('DOMContentLoaded', () => {
+    const methodSelector = document.getElementById('paymentMethod');
+    const bankFields = document.getElementById('bankAccountFields');
+    const cardlessFields = document.getElementById('cardlessServiceFields');
+    
+    // Function to set required attributes and visibility
+    function togglePaymentFields(selectedMethod) {
+        // Toggle Visibility
+        bankFields.classList.toggle('hidden', selectedMethod !== 'Bank Account');
+        cardlessFields.classList.toggle('hidden', selectedMethod !== 'Cardless Services');
 
-// 
+        // Toggle Required Attributes for Bank Fields
+        document.getElementById('bankName').required = (selectedMethod === 'Bank Account');
+        document.getElementById('bankAccountNumber').required = (selectedMethod === 'Bank Account');
+        document.getElementById('linkedPhone').required = (selectedMethod === 'Bank Account');
+        
+        // Toggle Required Attributes for Cardless Fields
+        document.getElementById('cardlessPhone').required = (selectedMethod === 'Cardless Services');
+        document.getElementById('cardlessId').required = (selectedMethod === 'Cardless Services');
+        
+        // Ensure that if fields are hidden, their required attribute is removed
+        // (already done implicitly by the lines above, but good practice to be aware of).
+    }
+
+    // Initial check (to hide fields before user selects)
+    // We start with all hidden because the dropdown default is 'Select a method' (value="")
+    togglePaymentFields(methodSelector.value);
+
+    // Event listener for changes
+    methodSelector.addEventListener('change', (event) => {
+        togglePaymentFields(event.target.value);
+    });
+});
+
 
     // --- Main submission handler (Your existing submission logic) ---
     document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
@@ -478,7 +535,8 @@ function validateSouthAfricanId(idNumber) {
         // --- 0. Pre-Submission and Final Confirmation Validation ---
         const confirmationTick = document.getElementById('confirmationTick');
         const digitalSignature = document.getElementById('digitalSignature').value.trim();
-        const selectedMethod = 'Bank Account';
+        const methodSelector = document.getElementById('paymentMethod'); // Retrieve the selector element
+        const selectedMethod = methodSelector.value; // Get the currently selected value
         const requestedAmountString = localStorage.getItem('requestedLoanAmount');
 
         if (!confirmationTick.checked) {
@@ -504,7 +562,7 @@ function validateSouthAfricanId(idNumber) {
             await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
             return;
         }
-                // --- Required Personal & Address Fields ---
+              // --- Required Personal & Address Fields ---
         const fullName = document.getElementById('fullName').value.trim();
         const contactNumber = document.getElementById('contactNumber').value.trim();
         const residentialAddress = document.getElementById('residentialAddress').value.trim();
@@ -518,25 +576,54 @@ function validateSouthAfricanId(idNumber) {
         }
 
 
-        // --- Payment Details Validation & Data Extraction (Uses correct IDs: bankName, bankAccountNumber, etc.) ---
-            let paymentDetails = {};
+        // --- Payment Details Validation & Data Extraction (Handle both methods) ---
+        let paymentDetails = {};
+        
+        if (!selectedMethod) {
+            await customAlert('Validation Error', 'Please select a preferred payment method.');
+            return;
+        }
 
         try {
-            const bankName = document.getElementById('bankName').value.trim();
-            const bankAccountNumber = document.getElementById('bankAccountNumber').value.trim();
-            const linkedPhone = document.getElementById('linkedPhone').value.trim();
-        
-            if (!bankName || !bankAccountNumber || !linkedPhone) {
-                await customAlert('Validation Error', 'Please complete all bank payment details.');
-                return;
+            if (selectedMethod === 'Bank Account') {
+                const bankName = document.getElementById('bankName').value.trim();
+                const bankAccountNumber = document.getElementById('bankAccountNumber').value.trim();
+                const linkedPhone = document.getElementById('linkedPhone').value.trim();
+                
+                if (!bankName || !bankAccountNumber || !linkedPhone) {
+                    // Note: HTML required attributes should ideally handle this, but JS is the final check
+                    await customAlert('Validation Error', 'Please complete all Bank Account payment details.');
+                    return;
+                }
+                
+                paymentDetails = {
+                    bank_name: bankName,
+                    account_number: bankAccountNumber,
+                    linked_phone: linkedPhone
+                };
+                
+            } else if (selectedMethod === 'Cardless Services') {
+                const cardlessPhone = document.getElementById('cardlessPhone').value.trim();
+                const cardlessId = document.getElementById('cardlessId').value.trim();
+                
+                if (!cardlessPhone || !cardlessId) {
+                    await customAlert('Validation Error', 'Please complete all Cardless Service details.');
+                    return;
+                }
+
+                if (!validateSouthAfricanId(cardlessId)) {
+                    await customAlert('Validation Error', 'The ID number for Cardless Services is invalid. Please check the 13 digits.');
+                    return;
+                }
+                
+                paymentDetails = {
+                    cardless_phone: cardlessPhone,
+                    cardless_id_check: cardlessId,
+                    note: "Funds will be sent via Cardless Cash (e.g., eWallet) to the cardless_phone number."
+                };
+            } else {
+                throw new Error("Invalid payment method selected.");
             }
-        
-            paymentDetails = {
-                bank_name: bankName,
-                account_number: bankAccountNumber,
-                linked_phone: linkedPhone
-            };
-        
         } catch (e) {
             await customAlert('Validation Error', e.message);
             return;
@@ -567,7 +654,7 @@ function validateSouthAfricanId(idNumber) {
                 employer_name: employerName || null,  
                 employee_address: employeeAddress || null,  
                 
-                preferred_payment_type: selectedMethod,
+                preferred_payment_type: selectedMethod, // Uses the dynamically selected method
                 payment_details_json: JSON.stringify(paymentDetails),  
                 
                 requested_amount: parseFloat(requestedAmountString),
@@ -636,8 +723,7 @@ function validateSouthAfricanId(idNumber) {
                     <li>Contact: ${contactNumber}</li>
                     <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
                     <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
-                    <li>Payment Type: ${selectedMethod}</li>
-                    <li class="break-all">Payment Details: ${paymentDetailStr}</li>
+                    <li>Payment Type: <span class="font-bold text-indigo-600">${selectedMethod}</span></li> <li class="break-all">Payment Details: ${paymentDetailStr}</li>
                 </ul>
                 <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
             `;
@@ -670,7 +756,3 @@ function validateSouthAfricanId(idNumber) {
 </script>
 </body>
 </html>
-
-
-
-
