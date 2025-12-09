@@ -183,7 +183,7 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
     // Create the client using the global variable 'supabase'
-    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Everything below this line is the rest of your original code
     function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
@@ -308,5 +308,6 @@
 </script>
 </body>
 </html>
+
 
 
