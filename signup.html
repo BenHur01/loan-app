@@ -6,170 +6,55 @@
 <title>Loan Application Form</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <style>
-    /* BODY & CONTAINER */
-    body {
-        font-family: 'Inter', sans-serif;
-        display: flex;
-        flex-direction: column;
-        justify-content: flex-start;
-        align-items: center; 
-        min-height: 100vh;
-        background-color: #f7f9fb;
-        margin: 0;
-        padding: 0;
-    }
-
-    .container {
-        max-width: 600px;
-        width: 95%;
-        padding: 2rem;
-        margin-top: 2rem;
-        margin-bottom: 2rem;
-        background-color: #fff;
-        border-radius: 0.75rem;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-    }
-
-    /* FORM ELEMENTS */
-    fieldset {
-        border: 1px solid #e5e7eb;
-        padding: 1rem 1.25rem;
-        margin-bottom: 1.5rem;
-        border-radius: 0.5rem;
-    }
-
-    legend {
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #4f46e5;
-        padding: 0 0.5rem;
-    }
-
-    .form-group {
-        margin-bottom: 1rem;
-    }
-
-    label {
-        display: block;
-        font-weight: 500;
-        margin-bottom: 0.3rem;
-        color: #1f2937;
-        text-align: left;
-    }
-
-    input[type="text"],
-    input[type="number"],
-    input[type="tel"],
-    input[type="file"],
-    select,
-    textarea {
-        width: 100%;
-        padding: 0.6rem 0.75rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        transition: border-color 0.15s, box-shadow 0.15s;
-        resize: vertical;
-    }
-
-    input:focus,
-    select:focus,
-    textarea:focus {
-        border-color: #4f46e5;
-        outline: 0;
-        box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
-    }
-
-    /* CUSTOM MODAL */
-    .custom-modal {
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100%;
-        background: rgba(0,0,0,0.6);
-        display: flex; justify-content: center; align-items: center;
-        z-index: 1001;
-        transition: opacity 0.3s;
-    }
-
-    .custom-modal-content {
-        background: white;
-        padding: 30px;
-        border-radius: 12px;
-        max-width: 400px;
-        width: 90%;
-        box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-    }
-
-    /* LOADING OVERLAY */
-    .loading-overlay {
-        position: fixed;
-        top:0; left:0;
-        width:100%; height:100%;
-        background: rgba(255,255,255,0.9);
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        z-index: 100;
-        flex-direction: column;
-        text-align: center;
-    }
-
-    .loader {
-        border: 4px solid #f3f3f3;
-        border-top: 4px solid #4f46e5;
-        border-radius: 50%;
-        width: 40px;
-        height: 40px;
-        animation: spin 1s linear infinite;
-        margin-bottom: 1rem;
-    }
-
-    @keyframes spin {
-        0% { transform: rotate(0deg);}
-        100% { transform: rotate(360deg);}
-    }
-
-    /* PAYMENT HEADERS */
-    .payment-section-header {
-        padding: 0.5rem 0;
-        margin-top: 1rem;
-        margin-bottom: 0.5rem;
-        font-size: 1.125rem;
-        font-weight: 600;
-        color: #1f2937;
-    }
-
-    /* FILE LABEL TEXT */
-    .file-label-text {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        width: 100%;
-    }
-
-    /* FINAL CONFIRMATION */
-    .confirmation-label {
-        display: flex;
-        align-items: flex-start;
-        cursor: pointer;
-        padding: 0.5rem;
-        border: 1px solid #d1d5db;
-        border-radius: 0.375rem;
-        background: #fff;
-    }
-
-    .confirmation-label input {
-        margin-right: 0.5rem;
-        margin-top: 0.2rem;
-    }
-
-    /* ALERT COLORS */
-    .bg-blue-50 { background-color: #eff6ff; }
-    .text-blue-800 { color: #1e40af; }
-    .bg-yellow-50 { background-color: #fef3c7; }
-    .text-yellow-800 { color: #78350f; }
-
-    /* REMOVE EXTRA SPACE */
-    textarea, input { margin: 0; }
+    body {
+        font-family: 'Inter', sans-serif;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        align-items: center; 
+        min-height: 100vh;
+        background-color: #f7f9fb;
+    }
+    .container {
+        max-width: 600px;
+        width: 95%;
+        padding: 2.5rem;
+        margin-top: 2rem; 
+        margin-bottom: 4rem; 
+        background-color: #fff;
+        border-radius: 0.75rem;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    }
+    /* RESTORED ORIGINAL SPACING */
+    .form-group { margin-bottom: 1.25rem; }
+    label { display: block; font-weight: 500; margin-bottom: 0.5rem; color: #1f2937; text-align: left; }
+    
+    .file-label-text { display: flex; justify-content: space-between; align-items: center; width: 100%; }
+    input[type="text"], input[type="number"], input[type="tel"], input[type="file"], select, textarea {
+        width: 100%; 
+        padding: 0.75rem; 
+        border: 1px solid #d1d5db; 
+        border-radius: 0.375rem; 
+        transition: border-color 0.15s, box-shadow 0.15s; 
+        resize: vertical;
+        line-height: normal; /* Retain the critical fix for textarea placeholder alignment */
+    }
+    input:focus, select:focus, textarea:focus { border-color: #4f46e5; outline: 0; box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1); }
+    .custom-modal {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6);
+        display: flex; justify-content: center; align-items: center; z-index: 1001; transition: opacity 0.3s;
+    }
+    .custom-modal-content {
+        background: white; padding: 30px; border-radius: 12px; max-width: 400px; width: 90%;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
+    }
+    .loading-overlay {
+        position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.9);
+        display: flex; justify-content: center; align-items: center; z-index: 100; flex-direction: column; text-align: center;
+    }
+    .loader { border: 4px solid #f3f3f3; border-top: 4px solid #4f46e5; border-radius: 50%; width:40px; height:40px; animation: spin 1s linear infinite; margin-bottom:1rem; }
+    @keyframes spin { 0% { transform: rotate(0deg);} 100% { transform: rotate(360deg);} }
+    .payment-section-header { padding:0.75rem 0; margin-top:1.5rem; margin-bottom:0.5rem; font-size:1.125rem; font-weight:600; color:#1f2937; }
 </style>
 </head>
 <body>
@@ -298,7 +183,7 @@
     const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
-    // FIX: Explicitly reference the global 'supabase' object using 'window.supabase' 
+    // FIX: Explicitly reference the global 'supabase' object using 'window.supabase' and fix the reference error
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
     
     // Global state variable for edit mode
@@ -342,7 +227,7 @@
     }
 
     
-    // --- NEW: Pre-fill/Edit Mode Logic ---
+    // --- Pre-fill/Edit Mode Logic (for dashboard link) ---
 
     function initForm() {
         const prefillDataRaw = sessionStorage.getItem('prefillData');
@@ -552,6 +437,3 @@
 </script>
 </body>
 </html>
-
-
-
