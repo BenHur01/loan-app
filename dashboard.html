@@ -286,7 +286,6 @@
 
         /**
          * Calculates and updates the countdown timer based on a fixed due timestamp.
-         * FIX: Timer updated to use 1-second interval initially, then 1-minute interval.
          * @param {number} dueDateTimestamp - The calculated due date timestamp.
          */
         function startCountdown(dueDateTimestamp) {
@@ -337,14 +336,6 @@
             // Run update timer immediately
             updateTimer(); 
 
-            // FIX: Use an interval for seconds initially (e.g., first minute), then switch to a 1-minute update.
-            // For simplicity, we'll keep the 1 second update for a few minutes and then switch to 1 minute
-            // OR we'll just keep it at 1 second if performance is not a massive concern. 
-            // Sticking to the more performant 1 minute update for the full duration is best:
-            // The original 60,000ms is more efficient on a long-lived dashboard. I'll revert to that.
-            timerInterval = setInterval(updateTimer, 60000); 
-
-            // FIX: Immediate 1-second timer to show initial seconds, then clear it after a minute (UX win)
             let initialTimer = setInterval(updateTimer, 1000);
             setTimeout(() => {
                 clearInterval(initialTimer); // Stop the aggressive timer
@@ -358,6 +349,7 @@
 
         // Logic for the Dashboard Page
         document.addEventListener('DOMContentLoaded', async () => {
+            // CRITICAL FIX: The key must be correct. Assuming you applied the fix in signup.html 
             const userId = localStorage.getItem('currentUserId');
             const loadingMessage = document.getElementById('loadingMessage');
             const noApplicationMessage = document.getElementById('noApplicationMessage');
@@ -386,10 +378,10 @@
                 full_name, 
                 requested_amount, 
                 interest_rate, // Required for calculation
-                document_id_url, 
-                document_address_url, 
-                document_bank_url,
-                document_selfie_url,
+                id_document_url, // Changed to match signup.html
+                proof_of_address_url, // Changed to match signup.html
+                bank_statement_url, // Changed to match signup.html
+                selfie_document_url, // Changed to match signup.html
                 preferred_payment_type, 
                 payment_details_json 
             } = borrower;
@@ -400,24 +392,16 @@
             const fixedDueDate = getFixedRepaymentDueDate();
 
 
-            // --- 1. Display Core Details (Updated) ---
+            // --- 1. Display Core Details ---
             document.getElementById('detailName').textContent = full_name;
             document.getElementById('detailID').textContent = userId;
-            // FIX: Used ZAR formatter
             document.getElementById('detailAmount').textContent = zarFormatter.format(requested_amount);
-            
-            // NEW: Final Amount to be Repaid
-            // FIX: Used ZAR formatter
             document.getElementById('detailFinalAmount').textContent = zarFormatter.format(finalRepaymentAmount);
-            
-            // MODIFIED: Repayment Due Date
             document.getElementById('detailRepaymentDate').textContent = fixedDueDate.displayDate;
-            
-            // Interest Rate
             document.getElementById('detailInterest').textContent = `${(interest * 100).toFixed(2)}%`;
             
             
-            // --- 2. Display Payment Details (UPDATED LOGIC) ---
+            // --- 2. Display Payment Details (CORRECTED LOGIC) ---
             document.getElementById('preferredPaymentType').textContent = preferred_payment_type || 'N/A';
             const dynamicDetailsContainer = document.getElementById('dynamicPaymentDetailsDisplay');
 
@@ -427,14 +411,16 @@
                     let detailHtml = '<p class="font-medium text-gray-600">Specific Details:</p>';
 
                     if (preferred_payment_type === 'Bank Account') {
+                        // CRITICAL FIX: Using correct keys from signup.html
                         detailHtml += `<ul class="list-disc list-inside ml-4 text-gray-900 font-medium">
-                            <li>Bank: **${details.name || 'N/A'}**</li>
-                            <li>Account: **${details.account || 'N/A'}**</li>
+                            <li>Bank: **${details.bank_name || 'N/A'}**</li>
+                            <li>Account: **${details.account_number || 'N/A'}**</li>
                         </ul>`;
-                    } else if (preferred_payment_type === 'Cardless Service') { // <<< NEW CARDLESS SERVICE LOGIC
+                    } else if (preferred_payment_type === 'Cardless Services') { 
+                        // CRITICAL FIX: Using correct keys from signup.html
                         detailHtml += `<ul class="list-disc list-inside ml-4 text-gray-900 font-medium">
-                            <li>Provider/Bank: **${details.bank || 'N/A'}**</li>
-                            <li>Phone No.: **${details.phone || 'N/A'}**</li>
+                            <li>Provider/Bank: **${details.bank_to_receive || 'N/A'}**</li>
+                            <li>Phone No.: **${details.cardless_phone || 'N/A'}**</li>
                         </ul>`;
                     } else {
                         // Fallback for old/unknown payment types
@@ -461,7 +447,6 @@
             if (status === 'approved') {
                 statusClass = 'status-approved';
                 messageBg = 'bg-green-100 border-green-500 text-green-800';
-                // FIX: Used ZAR formatter in the message
                 messageContent = `Congratulations! Your loan of ${zarFormatter.format(requested_amount)} has been **APPROVED**. The funds will be transferred to your account (via **${preferred_payment_type}**) within 24 hours. The total amount due is ${zarFormatter.format(finalRepaymentAmount)}.`;
                 
                 // Start countdown using the fixed end-of-month date
@@ -472,8 +457,8 @@
                 messageBg = 'bg-red-100 border-red-500 text-red-800';
                 messageContent = `Your loan application has been **REJECTED** at this time. This decision is based on a review of the submitted documentation and eligibility criteria.`;
             } else {
-                // Pending
-                statusClass = 'status-pending'; // Ensure status is explicitly set to pending for visual state
+                // Defaulting to Pending Review
+                statusClass = 'status-pending'; 
                 messageBg = 'bg-yellow-100 border-yellow-500 text-yellow-800';
                 messageContent = `Your application is currently **PENDING** review by our finance team. We will update you with a final decision within 24 hours. Thank you for your patience.`;
             }
@@ -516,14 +501,14 @@
             };
 
             document.getElementById('documentLinks').innerHTML = 
-                getCompulsoryDocStatus(document_id_url, 'ID Document') +
-                getOptionalDocStatus(document_bank_url, 'Bank Statement') +
-                getCompulsoryDocStatus(document_address_url, 'Proof of Address') +
-                getCompulsoryDocStatus(document_selfie_url, 'Live Selfie');
+                getCompulsoryDocStatus(id_document_url, 'ID Document') +
+                getOptionalDocStatus(bank_statement_url, 'Bank Statement') +
+                getCompulsoryDocStatus(proof_of_address_url, 'Proof of Address') +
+                getCompulsoryDocStatus(selfie_document_url, 'Live Selfie');
 
             loanDetails.classList.remove('hidden');
 
-            // --- 5. NEW: REVIEW/CORRECTION MODAL LOGIC (UPDATED LOGIC) ---
+            // --- 5. REVIEW/CORRECTION MODAL LOGIC (COMPLETED AND CORRECTED) ---
             const confirmationModal = document.getElementById('confirmationModal');
             const confirmButton = document.getElementById('confirmDetailsButton');
             const correctButton = document.getElementById('correctDetailsButton');
@@ -532,29 +517,29 @@
             // Check if the user has already confirmed (using a localStorage flag) and if the status is PENDING
             const isConfirmed = localStorage.getItem('detailsConfirmed') === 'true';
 
-            if (status === 'pending' && !isConfirmed) {
+            // CRITICAL FIX: Check against 'Pending Review' status from signup.html
+            if (status === 'Pending Review' && !isConfirmed) {
                 
-                // 1. Build the summary content
+                // 1. Build the payment details summary (CORRECTED KEYS)
                 let paymentDetailsSummary = '';
                 if (payment_details_json) {
                     try {
                         const details = JSON.parse(payment_details_json);
+                        
                         if (preferred_payment_type === 'Bank Account') {
                             paymentDetailsSummary = `
-                                <li>Bank Name: **${details.name || 'N/A'}**</li>
-                                <li>Account No.: **${details.account || 'N/A'}**</li>
+                                <li>Bank Name: **${details.bank_name || 'N/A'}**</li>
+                                <li>Account Number: **${details.account_number || 'N/A'}**</li>
+                                <li>Linked Phone: **${details.linked_phone || 'N/A'}**</li>
                             `;
-                        } else if (preferred_payment_type === 'Cardless Service') { // <<< NEW CARDLESS SERVICE LOGIC
+                        } else if (preferred_payment_type === 'Cardless Services') {
                             paymentDetailsSummary = `
-                                <li>Provider/Bank: **${details.bank || 'N/A'}**</li>
-                                <li>Phone No.: **${details.phone || 'N/A'}**</li>
+                                <li>Bank for Payout: **${details.bank_to_receive || 'N/A'}**</li>
+                                <li>Cardless Phone: **${details.cardless_phone || 'N/A'}**</li>
+                                <li>ID Check: **${details.cardless_id_check || 'N/A'}**</li>
                             `;
                         } else {
-                            // Fallback for old payment types (eWallet, CashSend) if they exist in the DB
-                            paymentDetailsSummary = `
-                                <li>Provider/Bank: **${details.provider || details.bank || 'N/A'}**</li>
-                                <li>Phone No.: **${details.phone || 'N/A'}**</li>
-                            `;
+                            paymentDetailsSummary = `<li><span class="text-gray-500">Details available for method: ${preferred_payment_type}.</span></li>`;
                         }
                     } catch (e) {
                         paymentDetailsSummary = `<li><span class="text-red-500">Error: Could not parse payment details.</span></li>`;
@@ -563,6 +548,7 @@
                     paymentDetailsSummary = `<li><span class="text-red-500">Missing Payment Details.</span></li>`;
                 }
 
+                // Final Modal Summary HTML
                 modalSummary.innerHTML = `
                     <p class="font-bold mb-2 text-base text-gray-800">Loan & Repayment:</p>
                     <ul class="list-disc list-inside ml-4 mb-4">
@@ -586,21 +572,25 @@
                 `;
                 
                 // 2. Show the modal
-                confirmationModal.classList.remove('hidden');
+                // Adding a slight delay to ensure the dashboard content loads first
+                setTimeout(() => {
+                    confirmationModal.classList.remove('hidden');
+                    document.body.style.overflow = 'hidden'; // Prevents scrolling behind the modal
+                }, 500); 
 
                 // 3. Handle 'Confirm' button click
                 confirmButton.onclick = () => {
                     localStorage.setItem('detailsConfirmed', 'true');
                     confirmationModal.classList.add('hidden');
+                    document.body.style.overflow = 'auto';
                 };
 
                 // 4. Handle 'Correct' button click
                 correctButton.onclick = () => {
                     // Store ALL borrower data in session storage for pre-filling the form
                     sessionStorage.setItem('prefillData', JSON.stringify(borrower));
-                    
+                    document.body.style.overflow = 'auto';
                     // Redirect to the application form page (signup.html)
-                    // The '?edit=true' flag can be used by the signup page for custom messaging/flow
                     window.location.href = 'signup.html?edit=true'; 
                 };
             }
