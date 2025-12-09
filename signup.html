@@ -73,7 +73,7 @@
         <h1 id="formHeader" class="text-3xl font-bold text-gray-900">Loan Application Form</h1>
         <p class="text-gray-500 mt-2">Personal, Address, Employment, and Document Uploads</p>
         <div id="editModeAlert" class="mt-4 p-3 bg-red-100 border-l-4 border-red-500 text-red-700 font-medium hidden">
-            You are in **EDIT MODE**. Please correct your details and re-submit the form. Documents do not need to be re-uploaded.
+            You are in **EDIT MODE**. Please correct your details and re-submit the form. Documents do not need to be re-uploaded unless they're incorrect.
         </div>
     </header>
 
@@ -177,11 +177,11 @@
 
     // Create the client using the global variable 'supabase'
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    
+    
     // Global state variable for edit mode
     let isEditMode = false;
 
-    // Utility functions (rest of your original code)
+    // Utility functions
     function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
     function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
     function customAlert(title,msg){ 
@@ -205,11 +205,11 @@
     async function uploadFile(file, bucket, path, isRequired = true, isEdit = false) {
         // In edit mode, if no file is selected, return null and skip upload.
         if (isEdit && !file) {
-            return null; 
+            return null; 
         }
         // In initial mode, if file is required and missing, throw error
         if (isRequired && !file) {
-            throw new Error("Required file missing: " + path.split('/')[1]); 
+            throw new Error("Required file missing: " + path.split('/')[1]); 
         }
 
         const { data, error } = await supabaseClient.storage.from(bucket).upload(path, file, { upsert: true }); // Using upsert:true for overwriting
@@ -218,29 +218,29 @@
         return publicUrlData.publicUrl;
     }
 
-    
+    
     // --- NEW: Pre-fill/Edit Mode Logic ---
 
     function initForm() {
         const prefillDataRaw = sessionStorage.getItem('prefillData');
-        
+        
         if (prefillDataRaw) {
             isEditMode = true;
             sessionStorage.removeItem('prefillData'); // Clear session storage after loading
 
             const borrower = JSON.parse(prefillDataRaw);
             const paymentDetails = JSON.parse(borrower.payment_details_json || '{}');
-            
+            
             // 1. Update UI for Edit Mode
             document.getElementById('formHeader').textContent = 'Edit Loan Application Details';
             document.getElementById('editModeAlert').classList.remove('hidden');
             document.getElementById('submitButton').textContent = 'Update Application Details';
-            
+            
             // Hide and remove 'required' attribute from file inputs in edit mode
             const docSection = document.getElementById('documentSection');
             docSection.style.opacity = 0.5; // Visual hint that documents are optional
             docSection.querySelector('legend').textContent = '5. Required Documents (Optional to Change)';
-            
+            
             docSection.querySelectorAll('input[type="file"]').forEach(input => {
                 input.removeAttribute('required');
                 // Add a visual hint next to the file label text if the file is already uploaded
@@ -258,20 +258,20 @@
             document.getElementById('fullName').value = borrower.full_name || '';
             document.getElementById('idNumber').value = borrower.id_number || '';
             // Disable ID number in edit mode to prevent changing the database key
-            document.getElementById('idNumber').disabled = true; 
+            document.getElementById('idNumber').disabled = true; 
             document.getElementById('contactNumber').value = borrower.contact_number || '';
             document.getElementById('residentialAddress').value = borrower.residential_address || '';
             document.getElementById('employerName').value = borrower.employer_name || '';
             document.getElementById('employeeAddress').value = borrower.employee_address || '';
-            
-            // 3. Pre-fill Payment Details (CORRECTED KEYS used here)
+            
+            // 3. Pre-fill Payment Details
             if (borrower.preferred_payment_type === 'Bank Account') {
                 document.getElementById('bankName').value = paymentDetails.bank_name || '';
                 document.getElementById('bankAccountNumber').value = paymentDetails.account_number || '';
                 document.getElementById('linkedPhone').value = paymentDetails.linked_phone || '';
                 // Clear cardless fields
                 document.querySelectorAll('#cardlessServiceFields input').forEach(input => input.value = '');
-                
+                
             } else if (borrower.preferred_payment_type === 'Cardless Services') {
                 document.getElementById('cardlessBank').value = paymentDetails.bank_to_receive || '';
                 document.getElementById('cardlessPhone').value = paymentDetails.cardless_phone || '';
@@ -279,7 +279,7 @@
                 // Clear bank fields
                 document.querySelectorAll('#bankAccountFields input').forEach(input => input.value = '');
             }
-            
+            
             // Store existing document URLs for reuse if files aren't changed
             localStorage.setItem('existing_id_url', borrower.id_document_url || '');
             localStorage.setItem('existing_statement_url', borrower.bank_statement_url || '');
@@ -295,7 +295,7 @@
         // Re-enable ID number if disabled for submission
         const idInput = document.getElementById('idNumber');
         if (isEditMode) idInput.disabled = false;
-        
+        
         const submitBtn=e.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
 
         // Fetch current values
@@ -343,14 +343,19 @@
                 proofOfAddress: document.getElementById('proofOfAddress').files[0],
                 selfieDocument: document.getElementById('selfieDocument').files[0]
             };
-            
+            
             showLoading(isEditMode ? "Updating data and checking files..." : "Uploading files...");
 
             // Upload only if a new file is present. Reuse existing URL if in edit mode and no new file.
             const timestamp=Date.now();
-            
+            
+            // Use the 'uploadFile' function to either upload a new file OR return null if in edit mode and no new file is selected.
+            // If the result is null, the existing URL (id_url, statement_url, etc.) is retained from the localStorage initialization above.
             if (files.idDocument) id_url = await uploadFile(files.idDocument, 'loan_documents', `${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`, true, isEditMode);
-            if (files.bankStatement) statement_url = await uploadFile(files.bankStatement, 'loan_documents', `${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`, false, isEditMode);
+            if (files.bankStatement) {
+                const newUrl = await uploadFile(files.bankStatement, 'loan_documents', `${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`, false, isEditMode);
+                if (newUrl) statement_url = newUrl;
+            }
             if (files.proofOfAddress) address_url = await uploadFile(files.proofOfAddress, 'loan_documents', `${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`, true, isEditMode);
             if (files.selfieDocument) selfie_url = await uploadFile(files.selfieDocument, 'loan_documents', `${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`, true, isEditMode);
 
@@ -370,10 +375,10 @@
                 requested_amount:requestedAmount,
                 digital_signature:digitalSignature,
                 confirmed_accurate:confirmationTick,
-                
+                
                 // CRITICAL: Reset status to 'Pending Review' for re-verification if user edited details
-                status: isEditMode ? 'Pending Review' : 'Pending Review', 
-                
+                status: 'Pending Review', 
+                
                 repayment_due_date:dueDate,
                 repayment_period:repaymentDays,
                 interest_rate:0.50,
@@ -385,7 +390,7 @@
             };
 
             showLoading(isEditMode ? "Updating application data..." : "Inserting application data...");
-            
+            
             // Choose between INSERT or UPSERT based on edit mode
             let error;
             if (isEditMode) {
@@ -395,11 +400,11 @@
                 // Insert a new row
                 ({ error } = await supabaseClient.from('borrowers').insert([dataObj]));
             }
-            
+            
             if(error) throw error;
-            
-            localStorage.setItem("currentUserId", idNumber); 
-            
+            
+            localStorage.setItem("currentUserId", idNumber); 
+            
             hideLoading();
             // Clear local storage of existing URLs after successful update
             localStorage.removeItem('existing_id_url');
@@ -418,7 +423,7 @@
             if(isEditMode) idInput.disabled=true;
         }
     });
-    
+    
     // Run initialization when the document is ready
     document.addEventListener('DOMContentLoaded', initForm);
 
