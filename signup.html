@@ -192,19 +192,22 @@
             <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
             
             <div class="form-group">
-                <label for="paymentMethod">How would you like to be paid?</label>
-               <select id="paymentMethod" required>
-              <option value="" hidden>Select a payment method...</option>
-              <option value="bank">Bank Account (EFT)</option>
-              <option value="cardless">Cardless Service (Instant PIN)</option>
-            </select>
-
-            </div>
+              <label for="bankName">Bank Name</label>
+              <input type="text" id="bankName" required>
+        </div>
         
-            <div id="paymentDetailsContainer" class="mt-4 p-4 border border-dashed border-gray-300 rounded-lg bg-gray-50 hidden">
-                <p class="font-semibold text-gray-700 mb-1">Payment Details:</p>
-            
-            </div>
+        <div class="form-group">
+          <label for="bankAccountNumber">Bank Account Number</label>
+          <input type="text" id="bankAccountNumber" required>
+        </div>
+        
+        <div class="form-group">
+          <label for="linkedPhone">Phone Number Linked to Bank Account</label>
+          <input type="tel" id="linkedPhone" required>
+        </div>
+
+             
+
             
             <div class="mt-6 p-4 border border-blue-400 bg-blue-50 rounded-lg text-sm text-gray-700">
                 <p class="font-bold mb-2 text-blue-800">For Loan Repayment/Settlement (EFT) Reference:</p>
@@ -466,59 +469,7 @@ function validateSouthAfricanId(idNumber) {
 // --- END UTILITY FUNCTIONS ---
 
 
-// --- DYNAMIC PAYMENT FIELD DATA ---
-
-// This data object uses the correct IDs: bankName, bankAccountNumber, cardlessBank, cardlessPhoneNumber
-const fields = {
-    'Bank Account': `
-        <div class="form-group">
-            <label for="bankName">Bank Name (Where funds will be deposited)</label>
-            <input type="text" id="bankName" required placeholder="e.g., FNB, Standard Bank">
-        </div>
-        <div class="form-group">
-            <label for="bankAccountNumber">Bank Account Number</label>
-            <input type="text" id="bankAccountNumber" required pattern="\\d+" title="Only digits are allowed" placeholder="e.g., 1234567890">
-        </div>
-    `.trim(),      
-    'Cardless Service': `
-        <div class="form-group">
-            <label for="cardlessBank">Preferred Cardless Service Bank (e.g., FNB eWallet, Capitec CashSend)</label>
-            <input type="text" id="cardlessBank" required placeholder="e.g., FNB, Capitec, Standard Bank">
-        </div>
-        <div class="form-group">
-            <label for="cardlessPhoneNumber">Recipient Phone Number (For SMS PIN notification)</label>
-            <input type="tel" id="cardlessPhoneNumber" required pattern="\\d{10}" title="Must be a 10-digit phone number" placeholder="e.g., 0712345678">
-        </div>
-    `.trim()
-};
-
-// --- WRAP MAIN PAGE LOGIC IN DOMContentLoaded ---
-document.addEventListener('DOMContentLoaded', () => {
-
-    // Retrieve elements now that the DOM is ready
-    const paymentMethod = document.getElementById('paymentMethod');
-    const container = document.getElementById('paymentDetailsContainer');
-
-    // Function to handle updating the fields (Correct Logic)
-    function updatePaymentFields() {
-        const selectedMethod = paymentMethod.value;
-        const pTag = `<p class="font-semibold text-gray-700 mb-1">Payment Details:</p>`;
-
-        if (selectedMethod && fields[selectedMethod]) {
-            // This is the correct logic that generates the fields with the required IDs
-            container.innerHTML = pTag + fields[selectedMethod];
-            container.classList.remove('hidden');
-        } else {
-            container.innerHTML = '';
-            container.classList.add('hidden');
-        }
-    }
-
-    // Attach listener for when the user changes the selection
-    paymentMethod.addEventListener('change', updatePaymentFields);
-
-    // Run the logic once on page load to set the initial state
-    updatePaymentFields();  
+// 
 
     // --- Main submission handler (Your existing submission logic) ---
     document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
@@ -527,7 +478,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // --- 0. Pre-Submission and Final Confirmation Validation ---
         const confirmationTick = document.getElementById('confirmationTick');
         const digitalSignature = document.getElementById('digitalSignature').value.trim();
-        const selectedMethod = document.getElementById('paymentMethod').value;
+        const selectedMethod = 'Bank Account';
         const requestedAmountString = localStorage.getItem('requestedLoanAmount');
 
         if (!confirmationTick.checked) {
@@ -538,10 +489,7 @@ document.addEventListener('DOMContentLoaded', () => {
             await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
             return;
         }
-        if (!selectedMethod) {
-            await customAlert('Validation Error', 'Please select a preferred payment method.');
-            return;
-        }
+    
         if (!requestedAmountString) {
             await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
             goToPage('agreement.html');
@@ -556,31 +504,44 @@ document.addEventListener('DOMContentLoaded', () => {
             await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
             return;
         }
+                // --- Required Personal & Address Fields ---
+        const fullName = document.getElementById('fullName').value.trim();
+        const contactNumber = document.getElementById('contactNumber').value.trim();
+        const residentialAddress = document.getElementById('residentialAddress').value.trim();
+        
+        if (!fullName || !contactNumber || !residentialAddress) {
+            await customAlert(
+                'Validation Error',
+                'Please complete all required personal and residential address details.'
+            );
+            return;
+        }
+
 
         // --- Payment Details Validation & Data Extraction (Uses correct IDs: bankName, bankAccountNumber, etc.) ---
-        let paymentDetails = {};
-        const fullName = document.getElementById('fullName').value;
-        const contactNumber = document.getElementById('contactNumber').value;
-        const residentialAddress = document.getElementById('residentialAddress').value;
-        
+            let paymentDetails = {};
+
         try {
-            if (selectedMethod === 'Bank Account') {
-                // IMPORTANT: This uses the IDs from the 'fields' object definition
-                const bankName = document.getElementById('bankName')?.value.trim();
-                const bankAccountNumber = document.getElementById('bankAccountNumber')?.value.trim();
-                if (!bankName || !bankAccountNumber) throw new Error('Bank Account details are incomplete or missing.');
-                paymentDetails = { name: bankName, account: bankAccountNumber };
-            } else if (selectedMethod === 'Cardless Service') {  
-                // IMPORTANT: This uses the IDs from the 'fields' object definition
-                const bank = document.getElementById('cardlessBank')?.value.trim();  
-                const phone = document.getElementById('cardlessPhoneNumber')?.value.trim();  
-                if (!bank || !phone) throw new Error('Cardless Service details are incomplete or missing.');
-                paymentDetails = { bank: bank, phone: phone };
-            }  
+            const bankName = document.getElementById('bankName').value.trim();
+            const bankAccountNumber = document.getElementById('bankAccountNumber').value.trim();
+            const linkedPhone = document.getElementById('linkedPhone').value.trim();
+        
+            if (!bankName || !bankAccountNumber || !linkedPhone) {
+                await customAlert('Validation Error', 'Please complete all bank payment details.');
+                return;
+            }
+        
+            paymentDetails = {
+                bank_name: bankName,
+                account_number: bankAccountNumber,
+                linked_phone: linkedPhone
+            };
+        
         } catch (e) {
             await customAlert('Validation Error', e.message);
             return;
         }
+
         // --- END Payment Details Validation ---
 
         showLoading("Submitting application and starting file uploads...");
@@ -705,11 +666,11 @@ document.addEventListener('DOMContentLoaded', () => {
             console.error('Application Submission Error:', error);
             await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
         }
-    });
 });
 </script>
 </body>
 </html>
+
 
 
 
