@@ -175,133 +175,138 @@
     <div class="mt-8 text-center"><a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Cancel and Go to Home</a></div>
 </main>
 
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
-const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+<script>
+    // Define your constants
+    const SUPABASE_URL = 'https://kujvvupdqvtkncolhcul.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE';
 
-function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
-function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
-function customAlert(title,msg){ 
-    const modal=document.getElementById('custom-alert-modal');
-    document.getElementById('modal-title').textContent=title;
-    document.getElementById('modal-message-container').innerHTML=`<p>${msg}</p>`;
-    document.getElementById('modal-cancel-button').classList.add('hidden');
-    document.getElementById('modal-ok-button').classList.add('w-full');
-    modal.classList.remove('hidden');
-    return new Promise(res=>{
-        const ok=document.getElementById('modal-ok-button');
-        const handler=()=>{ modal.classList.add('hidden'); ok.removeEventListener('click',handler); res(); };
-        ok.addEventListener('click',handler);
+    // Create the client using the global variable 'supabase'
+    const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    // Everything below this line is the rest of your original code
+    function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
+    function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
+    function customAlert(title,msg){ 
+        const modal=document.getElementById('custom-alert-modal');
+        document.getElementById('modal-title').textContent=title;
+        document.getElementById('modal-message-container').innerHTML=`<p>${msg}</p>`;
+        document.getElementById('modal-cancel-button').classList.add('hidden');
+        document.getElementById('modal-ok-button').classList.add('w-full');
+        modal.classList.remove('hidden');
+        return new Promise(res=>{
+            const ok=document.getElementById('modal-ok-button');
+            const handler=()=>{ modal.classList.add('hidden'); ok.removeEventListener('click',handler); res(); };
+            ok.addEventListener('click',handler);
+        });
+    }
+
+    function validateSAID(id){ return /^\d{13}$/.test(id); }
+    function isSectionFilled(inputs){ return Array.from(inputs).every(i=>i.value.trim()!==''); }
+
+    async function uploadFile(file,bucket,path,isRequired=true){
+        if(!file){ if(isRequired) throw new Error("Required file missing"); return null; }
+        const { data,error } = await supabase.storage.from(bucket).upload(path,file,{ upsert:false });
+        if(error) throw new Error(error.message);
+        const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
+        return publicUrlData.publicUrl;
+    }
+
+    // FORM SUBMISSION
+    document.getElementById('loanApplicationForm').addEventListener('submit', async e=>{
+        e.preventDefault(); e.stopPropagation();
+        const submitBtn=e.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
+
+        const fullName=document.getElementById('fullName').value.trim();
+        const idNumber=document.getElementById('idNumber').value.trim();
+        const contactNumber=document.getElementById('contactNumber').value.trim();
+        const residentialAddress=document.getElementById('residentialAddress').value.trim();
+        const confirmationTick=document.getElementById('confirmationTick').checked;
+        const digitalSignature=document.getElementById('digitalSignature').value.trim();
+
+        if(!confirmationTick){ await customAlert('Validation Error','Tick the confirmation box.'); submitBtn.disabled=false; return; }
+        if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); submitBtn.disabled=false; return; }
+        if(!validateSAID(idNumber)){ await customAlert('Validation Error','Invalid SA ID number.'); submitBtn.disabled=false; return; }
+        if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); submitBtn.disabled=false; return; }
+
+        // PAYMENT METHOD
+        const bankInputs=document.querySelectorAll('#bankAccountFields input');
+        const cardlessInputs=document.querySelectorAll('#cardlessServiceFields input');
+        const isBank=isSectionFilled(bankInputs);
+        const isCardless=isSectionFilled(cardlessInputs);
+        let paymentValidation=null, selectedMethod=null, paymentDetails={};
+        if(isBank && isCardless) paymentValidation='Fill only one payment method.';
+        else if(!isBank && !isCardless) paymentValidation='Fill one payment method.';
+        else if(isBank){
+            selectedMethod='Bank Account';
+            paymentDetails={ bank_name:document.getElementById('bankName').value.trim(), account_number:document.getElementById('bankAccountNumber').value.trim(), linked_phone:document.getElementById('linkedPhone').value.trim() };
+        } else if(isCardless){
+            selectedMethod='Cardless Services';
+            const cardlessId=document.getElementById('cardlessId').value.trim();
+            if(!validateSAID(cardlessId)) paymentValidation='Invalid Cardless ID number.';
+            paymentDetails={ bank_to_receive:document.getElementById('cardlessBank').value.trim(), cardless_phone:document.getElementById('cardlessPhone').value.trim(), cardless_id_check:cardlessId };
+        }
+        if(paymentValidation){ await customAlert('Validation Error',paymentValidation); submitBtn.disabled=false; return; }
+
+        // FILE UPLOADS
+        showLoading("Uploading files...");
+        try{
+            const files={
+                idDocument: document.getElementById('idDocument').files[0],
+                bankStatement: document.getElementById('bankStatement').files[0],
+                proofOfAddress: document.getElementById('proofOfAddress').files[0],
+                selfieDocument: document.getElementById('selfieDocument').files[0]
+            };
+            const timestamp=Date.now();
+            const id_url=await uploadFile(files.idDocument,'loan_documents',`${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`,true);
+            const statement_url=files.bankStatement ? await uploadFile(files.bankStatement,'loan_documents',`${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`,false):null;
+            const address_url=await uploadFile(files.proofOfAddress,'loan_documents',`${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`,true);
+            const selfie_url=await uploadFile(files.selfieDocument,'loan_documents',`${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`,true);
+
+            // DATA INSERT
+            const requestedAmount=parseFloat(localStorage.getItem('requestedLoanAmount'))||0;
+            const submissionDate=new Date();
+            const dueDate=new Date(submissionDate.getFullYear(),submissionDate.getMonth()+1,0).toISOString().split('T')[0];
+            const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
+
+            const dataObj={
+                id:idNumber, full_name:fullName, id_number:idNumber, contact_number:contactNumber, residential_address:residentialAddress,
+                employer_name:document.getElementById('employerName').value.trim()||null,
+                employee_address:document.getElementById('employeeAddress').value.trim()||null,
+                preferred_payment_type:selectedMethod,
+                payment_details_json:JSON.stringify(paymentDetails),
+                requested_amount:requestedAmount,
+                digital_signature:digitalSignature,
+                confirmed_accurate:confirmationTick,
+                status:'Pending Review',
+                repayment_due_date:dueDate,
+                repayment_period:repaymentDays,
+                interest_rate:0.50,
+                date_submitted:submissionDate.toISOString(),
+                id_document_url:id_url,
+                bank_statement_url:statement_url,
+                proof_of_address_url:address_url,
+                selfie_document_url:selfie_url
+            };
+
+            showLoading("Inserting application data...");
+            const { error } = await supabase.from('borrowers').insert([dataObj]);
+            if(error) throw error;
+
+            hideLoading();
+            await customAlert('Success','Application submitted successfully!');
+            window.location.href='dashboard.html';
+
+
+        } catch(err){
+            hideLoading();
+            await customAlert('Submission Failed',err.message);
+            submitBtn.disabled=false;
+        }
     });
-}
-
-function validateSAID(id){ return /^\d{13}$/.test(id); }
-function isSectionFilled(inputs){ return Array.from(inputs).every(i=>i.value.trim()!==''); }
-
-async function uploadFile(file,bucket,path,isRequired=true){
-    if(!file){ if(isRequired) throw new Error("Required file missing"); return null; }
-    const { data,error } = await supabase.storage.from(bucket).upload(path,file,{ upsert:false });
-    if(error) throw new Error(error.message);
-    const { data: publicUrlData } = supabase.storage.from(bucket).getPublicUrl(data.path);
-    return publicUrlData.publicUrl;
-}
-
-// FORM SUBMISSION
-document.getElementById('loanApplicationForm').addEventListener('submit', async e=>{
-    e.preventDefault(); e.stopPropagation();
-    const submitBtn=e.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
-
-    const fullName=document.getElementById('fullName').value.trim();
-    const idNumber=document.getElementById('idNumber').value.trim();
-    const contactNumber=document.getElementById('contactNumber').value.trim();
-    const residentialAddress=document.getElementById('residentialAddress').value.trim();
-    const confirmationTick=document.getElementById('confirmationTick').checked;
-    const digitalSignature=document.getElementById('digitalSignature').value.trim();
-
-    if(!confirmationTick){ await customAlert('Validation Error','Tick the confirmation box.'); submitBtn.disabled=false; return; }
-    if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); submitBtn.disabled=false; return; }
-    if(!validateSAID(idNumber)){ await customAlert('Validation Error','Invalid SA ID number.'); submitBtn.disabled=false; return; }
-    if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); submitBtn.disabled=false; return; }
-
-    // PAYMENT METHOD
-    const bankInputs=document.querySelectorAll('#bankAccountFields input');
-    const cardlessInputs=document.querySelectorAll('#cardlessServiceFields input');
-    const isBank=isSectionFilled(bankInputs);
-    const isCardless=isSectionFilled(cardlessInputs);
-    let paymentValidation=null, selectedMethod=null, paymentDetails={};
-    if(isBank && isCardless) paymentValidation='Fill only one payment method.';
-    else if(!isBank && !isCardless) paymentValidation='Fill one payment method.';
-    else if(isBank){
-        selectedMethod='Bank Account';
-        paymentDetails={ bank_name:document.getElementById('bankName').value.trim(), account_number:document.getElementById('bankAccountNumber').value.trim(), linked_phone:document.getElementById('linkedPhone').value.trim() };
-    } else if(isCardless){
-        selectedMethod='Cardless Services';
-        const cardlessId=document.getElementById('cardlessId').value.trim();
-        if(!validateSAID(cardlessId)) paymentValidation='Invalid Cardless ID number.';
-        paymentDetails={ bank_to_receive:document.getElementById('cardlessBank').value.trim(), cardless_phone:document.getElementById('cardlessPhone').value.trim(), cardless_id_check:cardlessId };
-    }
-    if(paymentValidation){ await customAlert('Validation Error',paymentValidation); submitBtn.disabled=false; return; }
-
-    // FILE UPLOADS
-    showLoading("Uploading files...");
-    try{
-        const files={
-            idDocument: document.getElementById('idDocument').files[0],
-            bankStatement: document.getElementById('bankStatement').files[0],
-            proofOfAddress: document.getElementById('proofOfAddress').files[0],
-            selfieDocument: document.getElementById('selfieDocument').files[0]
-        };
-        const timestamp=Date.now();
-        const id_url=await uploadFile(files.idDocument,'loan_documents',`${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`,true);
-        const statement_url=files.bankStatement ? await uploadFile(files.bankStatement,'loan_documents',`${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`,false):null;
-        const address_url=await uploadFile(files.proofOfAddress,'loan_documents',`${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`,true);
-        const selfie_url=await uploadFile(files.selfieDocument,'loan_documents',`${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`,true);
-
-        // DATA INSERT
-        const requestedAmount=parseFloat(localStorage.getItem('requestedLoanAmount'))||0;
-        const submissionDate=new Date();
-        const dueDate=new Date(submissionDate.getFullYear(),submissionDate.getMonth()+1,0).toISOString().split('T')[0];
-        const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
-
-        const dataObj={
-            id:idNumber, full_name:fullName, id_number:idNumber, contact_number:contactNumber, residential_address:residentialAddress,
-            employer_name:document.getElementById('employerName').value.trim()||null,
-            employee_address:document.getElementById('employeeAddress').value.trim()||null,
-            preferred_payment_type:selectedMethod,
-            payment_details_json:JSON.stringify(paymentDetails),
-            requested_amount:requestedAmount,
-            digital_signature:digitalSignature,
-            confirmed_accurate:confirmationTick,
-            status:'Pending Review',
-            repayment_due_date:dueDate,
-            repayment_period:repaymentDays,
-            interest_rate:0.50,
-            date_submitted:submissionDate.toISOString(),
-            id_document_url:id_url,
-            bank_statement_url:statement_url,
-            proof_of_address_url:address_url,
-            selfie_document_url:selfie_url
-        };
-
-        showLoading("Inserting application data...");
-        const { error } = await supabase.from('borrowers').insert([dataObj]);
-        if(error) throw error;
-
-       hideLoading();
-       await customAlert('Success','Application submitted successfully!');
-       window.location.href='dashboard.html';
-
-
-    } catch(err){
-        hideLoading();
-        await customAlert('Submission Failed',err.message);
-        submitBtn.disabled=false;
-    }
-});
 </script>
 </body>
 </html>
+
 
