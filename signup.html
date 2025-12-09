@@ -250,6 +250,15 @@ async function uploadFile(file, bucket, path, isRequired=true){
 
 function validateSouthAfricanId(idNumber){ return /^\d{13}$/.test(idNumber); }
 function isSectionFilled(inputs){ return Array.from(inputs).every(input=>input.value.trim()!==''); }
+// 🔒 PAGE GUARD — REQUIRED STATE
+if (!localStorage.getItem('requestedLoanAmount')) {
+    customAlert(
+        'Session Expired',
+        'Please restart your loan application.'
+    ).then(() => {
+        goToPage('index.html');
+    });
+}
 
 // --- FORM SUBMISSION ---
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event){
@@ -259,14 +268,10 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     // --- Validation ---
     const confirmationTick=document.getElementById('confirmationTick');
     const digitalSignature=document.getElementById('digitalSignature').value.trim();
-    const requestedAmountString=localStorage.getItem('requestedLoanAmount');
+    
     if(!confirmationTick.checked){ await customAlert('Validation Error','Tick the confirmation box.'); return; }
     if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); return; }
-    if(!requestedAmountString){
-        const message='<p>The requested loan amount was not found. You may have skipped the previous step.</p>';
-        const result=await customConfirmationAlert('Missing Data Error',message,'Go Back','Cancel');
-        if(result==='ok') goToPage('agreement.html'); return;
-    }
+    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
 
     // --- SA ID ---
     const borrowerId=document.getElementById('idNumber').value.trim();
@@ -360,5 +365,6 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 </script>
 </body>
 </html>
+
 
 
