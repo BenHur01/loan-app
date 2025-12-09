@@ -11,20 +11,16 @@
             display: flex;
             flex-direction: column;
             justify-content: flex-start;
-            align-items: center; /* Centers the container horizontally */
+            align-items: center; 
             min-height: 100vh;
             background-color: #f7f9fb;
         }
         .container {
-            /* 🎯 FIX: Remove 'auto' horizontal margin as body is centered with flexbox. */
             max-width: 600px;
             width: 95%;
             padding: 2.5rem;
-            /* Explicitly set top margin for spacing from the top of the viewport. */
             margin-top: 2rem; 
-            /* Add extra bottom margin for a better footer gap */
             margin-bottom: 4rem; 
-            /* Removed horizontal auto margins for clean flex centering */
             background-color: #fff;
             border-radius: 0.75rem;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -39,17 +35,11 @@
             color: #1f2937;
             text-align: left;
         }
-        /* New Style to ensure file labels align consistently */
         .file-label-text {
             display: flex;
             justify-content: space-between;
             align-items: center;
             width: 100%;
-        }
-        input[type="file"] {
-            /* Adjust padding for file inputs to better match others */
-            padding-top: 0.5rem;
-            padding-bottom: 0.5rem;
         }
         input[type="text"],
         input[type="number"],
@@ -71,7 +61,7 @@
             outline: 0;
             box-shadow: 0 0 0 3px rgba(79, 70, 229, 0.1);
         }
-        /* Custom Modal Styles (MUST be used instead of alert()) */
+        /* Custom Modal Styles */
         .custom-modal {
             position: fixed;
             top: 0;
@@ -122,24 +112,46 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* New styles for payment selection boxes */
-        .payment-option-box {
-            border: 2px solid #e5e7eb;
+        /* New styles for stacked payment sections */
+        .payment-section-header {
+            border: 2px solid transparent;
             border-radius: 0.5rem;
-            padding: 1rem;
+            padding: 0.75rem 1rem;
+            margin-top: 1.5rem;
             margin-bottom: 1rem;
             cursor: pointer;
             transition: all 0.2s;
-            background-color: #f9fafb;
-        }
-        .payment-option-box.active {
-            border-color: #4f46e5; /* Indigo */
             background-color: #f0f4ff; /* Light indigo background */
-            box-shadow: 0 0 0 2px rgba(79, 70, 229, 0.2);
+            display: flex;
+            align-items: center;
         }
-        /* IMPORTANT: Radio input must be hidden but still functional */
-        .payment-option-box input[type="radio"] {
+        .payment-section-header.active {
+            border-color: #4f46e5; /* Indigo border for active */
+            background-color: #e0e9ff; /* Slightly darker background for active */
+        }
+        /* Hide the actual radio buttons */
+        .payment-section-header input[type="radio"] {
             display: none;
+        }
+        .payment-section-header .radio-visual {
+            height: 1.25rem;
+            width: 1.25rem;
+            border: 2px solid #4f46e5;
+            border-radius: 50%;
+            display: inline-block;
+            margin-right: 0.75rem;
+            position: relative;
+        }
+        .payment-section-header.active .radio-visual::after {
+            content: '';
+            height: 0.625rem;
+            width: 0.625rem;
+            background-color: #4f46e5;
+            border-radius: 50%;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
         }
     </style>
 </head>
@@ -210,23 +222,15 @@
             
             <fieldset class="border p-4 rounded-lg shadow-sm">
                 <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
+                <p class="text-sm text-gray-600 mb-2">Please select and fill out only ONE of the payment methods below.</p>
                 
-                <div class="flex space-x-4 mb-6">
-                    <label for="radioBank" id="labelBank" class="payment-option-box flex-1 active">
-                        <input type="radio" id="radioBank" name="paymentType" value="Bank Account" checked required>
-                        <h3 class="text-md font-bold text-gray-800">🏦 Bank Account Transfer</h3>
-                        <p class="text-xs text-gray-500 mt-1">Receive funds directly into your nominated bank account.</p>
-                    </label>
+                <label for="radioBank" id="labelBank" class="payment-section-header active">
+                    <input type="radio" id="radioBank" name="paymentType" value="Bank Account" checked required>
+                    <span class="radio-visual"></span>
+                    <h3 class="text-md font-bold text-gray-800">🏦 Bank Account Transfer</h3>
+                </label>
 
-                    <label for="radioCardless" id="labelCardless" class="payment-option-box flex-1">
-                        <input type="radio" id="radioCardless" name="paymentType" value="Cardless Services">
-                        <h3 class="text-md font-bold text-gray-800">📲 Cardless Services</h3>
-                        <p class="text-xs text-gray-500 mt-1">Receive funds instantly via Cardless Cash or eWallet PIN.</p>
-                    </label>
-                </div>
-
-                <div id="bankAccountFields">
-                    <h3 class="text-md font-semibold text-gray-700 mt-4 mb-2">Bank Account Details</h3>
+                <div id="bankAccountFields" class="p-3 border border-indigo-200 rounded-b-lg mb-4">
                     <div class="form-group">
                         <label for="bankName">Bank Name</label>
                         <input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc." required>
@@ -243,8 +247,15 @@
                     </div>
                 </div>
 
-                <div id="cardlessServiceFields" class="hidden">
-                    <h3 class="text-md font-semibold text-gray-700 mt-4 mb-2">Cardless Services Details</h3>
+                <div class="my-6 border-t border-gray-300"></div>
+
+                <label for="radioCardless" id="labelCardless" class="payment-section-header">
+                    <input type="radio" id="radioCardless" name="paymentType" value="Cardless Services">
+                    <span class="radio-visual"></span>
+                    <h3 class="text-md font-bold text-gray-800">📲 Cardless Services</h3>
+                </label>
+                
+                <div id="cardlessServiceFields" class="p-3 border border-gray-300 rounded-b-lg hidden">
                     <div class="form-group">
                         <label for="cardlessPhone">Phone Number for Cardless Service</label>
                         <input type="tel" id="cardlessPhone" placeholder="10-digit phone number">
@@ -299,6 +310,7 @@
                         <span class="file-label-text">
                             Proof of Residence (e.g., Utility Bill) <span class="text-red-500 font-bold">(Compulsory)</span>
                         </span>
+                        
                     </label>
                     <input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required>
                 </div>
@@ -385,22 +397,11 @@ function goToPage(page) {
 // END OF REQUIRED FIREBASE & SUPABASE SETUP
 
 // --- UTILITY FUNCTIONS ---
-
-/**
- * Custom modal replacement for alert() and confirmation.
- * @param {string} title
- * @param {string} messageHtml
- * @param {string} okText
- * @param {string | null} cancelText
- * @returns {Promise<string>} 'ok' or 'cancel'
- */
 function customConfirmationAlert(title, messageHtml, okText = 'OK', cancelText = null) {
     const modal = document.getElementById('custom-alert-modal');
     document.getElementById('modal-title').textContent = title;
-    
     const messageContainer = document.getElementById('modal-message-container');
     messageContainer.innerHTML = messageHtml; 
-
     const okButton = document.getElementById('modal-ok-button');
     const cancelButton = document.getElementById('modal-cancel-button');
     
@@ -468,7 +469,6 @@ function calculateDueDate(submitDate) {
     return `${yyyy}-${mm}-${dd}`;
 }
 
-
 async function uploadFile(file, bucket, path, isRequired = true) {
     if (!file) {
         if (isRequired) {
@@ -500,24 +500,15 @@ async function uploadFile(file, bucket, path, isRequired = true) {
     return publicUrlData.publicUrl;
 }
 
-// --- SA ID VALIDATION FUNCTION (SIMPLIFIED FOR TESTING) ---
-/**
- * Temporarily validates a South African ID number only by checking the length.
- * IMPORTANT: REPLACE WITH FULL VALIDATION BEFORE DEPLOYMENT.
- * @param {string} idNumber 
- * @returns {boolean} true if 13 digits, false otherwise.
- */
 function validateSouthAfricanId(idNumber) {
-    // We only check for the 13-digit length and return true to bypass Luhn/date checks.
     if (!/^\d{13}$/.test(idNumber)) {
         return false;
     }
-    // All other complex checks are bypassed for testing.
     return true; 
 }
 // --- END UTILITY FUNCTIONS ---
 
-// --- New Interactivity for Payment Method Boxes (FIXED) ---
+// --- Interactivity for Stacked Payment Method Sections ---
 document.addEventListener('DOMContentLoaded', () => {
     const radioBank = document.getElementById('radioBank');
     const radioCardless = document.getElementById('radioCardless');
@@ -527,46 +518,54 @@ document.addEventListener('DOMContentLoaded', () => {
     const bankFieldsContainer = document.getElementById('bankAccountFields');
     const cardlessFieldsContainer = document.getElementById('cardlessServiceFields');
     
-    // Get all required inputs within the containers
-    const bankInputs = bankFieldsContainer.querySelectorAll('input[required]');
-    const cardlessInputs = cardlessFieldsContainer.querySelectorAll('input[required]');
+    // Get all input elements within the containers
+    const bankInputs = bankFieldsContainer.querySelectorAll('input, textarea');
+    const cardlessInputs = cardlessFieldsContainer.querySelectorAll('input, textarea');
 
     // Function to handle the state change
     function togglePaymentFields(selectedMethod) {
-        // Handle visibility and required attributes
         if (selectedMethod === 'Bank Account') {
+            // Activate Bank, Deactivate Cardless
             labelBank.classList.add('active');
             labelCardless.classList.remove('active');
             
             bankFieldsContainer.classList.remove('hidden');
             cardlessFieldsContainer.classList.add('hidden');
+            cardlessFieldsContainer.style.borderColor = '#d1d5db'; // Reset border color
 
             // Set Bank inputs to required, Cardless inputs to optional
             bankInputs.forEach(input => input.required = true);
-            cardlessInputs.forEach(input => input.required = false);
-            
+            cardlessInputs.forEach(input => {
+                input.required = false;
+                input.value = ''; // Clear fields when switching away
+            });
+            bankFieldsContainer.style.borderColor = '#c0c9e6'; // Highlight container
+
         } else if (selectedMethod === 'Cardless Services') {
+            // Activate Cardless, Deactivate Bank
             labelCardless.classList.add('active');
             labelBank.classList.remove('active');
 
             cardlessFieldsContainer.classList.remove('hidden');
             bankFieldsContainer.classList.add('hidden');
+            bankFieldsContainer.style.borderColor = '#d1d5db'; // Reset border color
 
             // Set Cardless inputs to required, Bank inputs to optional
             cardlessInputs.forEach(input => input.required = true);
-            bankInputs.forEach(input => input.required = false);
+            bankInputs.forEach(input => {
+                input.required = false;
+                input.value = ''; // Clear fields when switching away
+            });
+            cardlessFieldsContainer.style.borderColor = '#c0c9e6'; // Highlight container
         }
     }
 
-    // Initial check (Bank is checked by default in HTML)
+    // Initial state setup
     togglePaymentFields(radioBank.checked ? 'Bank Account' : 'Cardless Services');
 
-    // Event listeners for radio button changes
-    // This is the *only* necessary JS listener. The native <label for> handles the click.
+    // Event listeners for radio button changes (triggered by clicking the custom header/label)
     radioBank.addEventListener('change', () => togglePaymentFields('Bank Account'));
     radioCardless.addEventListener('change', () => togglePaymentFields('Cardless Services'));
-    
-    // REDUNDANT/CONFLICTING CLICK HANDLERS REMOVED
 });
 
 
