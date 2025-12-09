@@ -503,11 +503,22 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
         return;
     }
 
+    // *** FIX APPLIED HERE: Added a confirmation/cancel option for missing requestedLoanAmount ***
     if (!requestedAmountString) {
-        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
-        goToPage('agreement.html');
-        return;
+        const message = '<p>The **requested loan amount** was not found in your session storage. This often means you accessed the form directly or skipped the previous step (agreement.html).</p><p class="mt-2 font-bold">Please select an option below:</p>';
+        const result = await customConfirmationAlert(
+            'Missing Data Error', 
+            message, 
+            'Go Back to Agreement', 
+            'Cancel Submission'
+        );
+        
+        if (result === 'ok') {
+            goToPage('agreement.html'); // Redirect to previous step to set loan amount
+        } 
+        return; // Stop submission and stay on the current page if cancelled
     }
+    // ------------------------------------------------------------------------------------------
     
     // --- SA ID Validation ---
     const idNumberInput = document.getElementById('idNumber');
