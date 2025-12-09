@@ -112,46 +112,14 @@
             100% { transform: rotate(360deg); }
         }
         
-        /* New styles for stacked payment sections */
+        /* Removed all custom payment section styling for pure display */
         .payment-section-header {
-            border: 2px solid transparent;
-            border-radius: 0.5rem;
-            padding: 0.75rem 1rem;
+            padding: 0.75rem 0;
             margin-top: 1.5rem;
-            margin-bottom: 1rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            background-color: #f0f4ff; /* Light indigo background */
-            display: flex;
-            align-items: center;
-        }
-        .payment-section-header.active {
-            border-color: #4f46e5; /* Indigo border for active */
-            background-color: #e0e9ff; /* Slightly darker background for active */
-        }
-        /* Hide the actual radio buttons */
-        .payment-section-header input[type="radio"] {
-            display: none;
-        }
-        .payment-section-header .radio-visual {
-            height: 1.25rem;
-            width: 1.25rem;
-            border: 2px solid #4f46e5;
-            border-radius: 50%;
-            display: inline-block;
-            margin-right: 0.75rem;
-            position: relative;
-        }
-        .payment-section-header.active .radio-visual::after {
-            content: '';
-            height: 0.625rem;
-            width: 0.625rem;
-            background-color: #4f46e5;
-            border-radius: 50%;
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            margin-bottom: 0.5rem;
+            font-size: 1.125rem;
+            font-weight: 600;
+            color: #1f2937;
         }
     </style>
 </head>
@@ -222,51 +190,45 @@
             
             <fieldset class="border p-4 rounded-lg shadow-sm">
                 <legend class="text-lg font-semibold text-indigo-600 px-2">4. Payment Preference</legend>
-                <p class="text-sm text-gray-600 mb-2">Please select and fill out only ONE of the payment methods below.</p>
+                <p class="text-sm text-gray-600 mb-4">Please fill out **only one** of the payment sections below.</p>
                 
-                <label for="radioBank" id="labelBank" class="payment-section-header active">
-                    <input type="radio" id="radioBank" name="paymentType" value="Bank Account" checked required>
-                    <span class="radio-visual"></span>
-                    <h3 class="text-md font-bold text-gray-800">🏦 Bank Account Transfer</h3>
-                </label>
-
-                <div id="bankAccountFields" class="p-3 border border-indigo-200 rounded-b-lg mb-4">
-                    <div class="form-group">
-                        <label for="bankName">Bank Name</label>
-                        <input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc." required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="bankAccountNumber">Bank Account Number</label>
-                        <input type="text" id="bankAccountNumber" placeholder="Account Number" required>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="linkedPhone">Phone Number Linked to Bank Account</label>
-                        <input type="tel" id="linkedPhone" placeholder="10-digit phone number" required>
+                <div id="bankAccountFields">
+                    <h3 class="payment-section-header text-gray-800">🏦 Bank Account Transfer</h3>
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <div class="form-group">
+                            <label for="bankName">Bank Name</label>
+                            <input type="text" id="bankName" placeholder="e.g., FNB, Capitec, etc.">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="bankAccountNumber">Bank Account Number</label>
+                            <input type="text" id="bankAccountNumber" placeholder="Account Number">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="linkedPhone">Phone Number Linked to Bank Account</label>
+                            <input type="tel" id="linkedPhone" placeholder="10-digit phone number">
+                        </div>
                     </div>
                 </div>
 
                 <div class="my-6 border-t border-gray-300"></div>
 
-                <label for="radioCardless" id="labelCardless" class="payment-section-header">
-                    <input type="radio" id="radioCardless" name="paymentType" value="Cardless Services">
-                    <span class="radio-visual"></span>
-                    <h3 class="text-md font-bold text-gray-800">📲 Cardless Services</h3>
-                </label>
-                
-                <div id="cardlessServiceFields" class="p-3 border border-gray-300 rounded-b-lg hidden">
-                    <div class="form-group">
-                        <label for="cardlessPhone">Phone Number for Cardless Service</label>
-                        <input type="tel" id="cardlessPhone" placeholder="10-digit phone number">
-                    </div>
-                    <div class="form-group">
-                        <label for="cardlessId">Your ID Number (for Security)</label>
-                        <input type="text" id="cardlessId" placeholder="Your 13-digit ID">
-                    </div>
-                    <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
-                        <p class="font-bold text-yellow-800">Note:</p>
-                        <p>We will use this phone number to send the **Cardless Cash PIN** if your application is approved.</p>
+                <div id="cardlessServiceFields">
+                    <h3 class="payment-section-header text-gray-800">📲 Cardless Services</h3>
+                    <div class="p-3 border border-gray-300 rounded-lg">
+                        <div class="form-group">
+                            <label for="cardlessPhone">Phone Number for Cardless Service</label>
+                            <input type="tel" id="cardlessPhone" placeholder="10-digit phone number">
+                        </div>
+                        <div class="form-group">
+                            <label for="cardlessId">Your ID Number (for Security)</label>
+                            <input type="text" id="cardlessId" placeholder="Your 13-digit ID">
+                        </div>
+                        <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
+                            <p class="font-bold text-yellow-800">Note:</p>
+                            <p>We will use this phone number to send the **Cardless Cash PIN** if your application is approved.</p>
+                        </div>
                     </div>
                 </div>
                 
@@ -506,297 +468,234 @@ function validateSouthAfricanId(idNumber) {
     }
     return true; 
 }
+
+// --- NEW FUNCTIONALITY: CHECK IF A SECTION IS FILLED ---
+function isSectionFilled(inputElements) {
+    // Check if ALL fields in the provided list have non-empty values
+    let isFilled = true;
+    inputElements.forEach(input => {
+        // Trim the value and check if it's empty
+        if (input.value.trim() === '') {
+            isFilled = false;
+        }
+    });
+    return isFilled;
+}
 // --- END UTILITY FUNCTIONS ---
 
-// --- Interactivity for Stacked Payment Method Sections ---
-document.addEventListener('DOMContentLoaded', () => {
-    const radioBank = document.getElementById('radioBank');
-    const radioCardless = document.getElementById('radioCardless');
-    const labelBank = document.getElementById('labelBank');
-    const labelCardless = document.getElementById('labelCardless');
+
+// --- Main submission handler (Updated Validation Logic) ---
+document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
+    event.preventDefault();
     
-    const bankFieldsContainer = document.getElementById('bankAccountFields');
-    const cardlessFieldsContainer = document.getElementById('cardlessServiceFields');
-    
-    // Get all input elements within the containers
-    const bankInputs = bankFieldsContainer.querySelectorAll('input, textarea');
-    const cardlessInputs = cardlessFieldsContainer.querySelectorAll('input, textarea');
+    // --- 0. Pre-Submission and Final Confirmation Validation ---
+    const confirmationTick = document.getElementById('confirmationTick');
+    const digitalSignature = document.getElementById('digitalSignature').value.trim();
+    const requestedAmountString = localStorage.getItem('requestedLoanAmount');
 
-    // Function to handle the state change
-    function togglePaymentFields(selectedMethod) {
-        if (selectedMethod === 'Bank Account') {
-            // Activate Bank, Deactivate Cardless
-            labelBank.classList.add('active');
-            labelCardless.classList.remove('active');
-            
-            bankFieldsContainer.classList.remove('hidden');
-            cardlessFieldsContainer.classList.add('hidden');
-            cardlessFieldsContainer.style.borderColor = '#d1d5db'; // Reset border color
-
-            // Set Bank inputs to required, Cardless inputs to optional
-            bankInputs.forEach(input => input.required = true);
-            cardlessInputs.forEach(input => {
-                input.required = false;
-                input.value = ''; // Clear fields when switching away
-            });
-            bankFieldsContainer.style.borderColor = '#c0c9e6'; // Highlight container
-
-        } else if (selectedMethod === 'Cardless Services') {
-            // Activate Cardless, Deactivate Bank
-            labelCardless.classList.add('active');
-            labelBank.classList.remove('active');
-
-            cardlessFieldsContainer.classList.remove('hidden');
-            bankFieldsContainer.classList.add('hidden');
-            bankFieldsContainer.style.borderColor = '#d1d5db'; // Reset border color
-
-            // Set Cardless inputs to required, Bank inputs to optional
-            cardlessInputs.forEach(input => input.required = true);
-            bankInputs.forEach(input => {
-                input.required = false;
-                input.value = ''; // Clear fields when switching away
-            });
-            cardlessFieldsContainer.style.borderColor = '#c0c9e6'; // Highlight container
-        }
+    if (!confirmationTick.checked) {
+        await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
+        return;
+    }
+    if (digitalSignature !== 'YES') {
+        await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
+        return;
     }
 
-    // Initial state setup
-    togglePaymentFields(radioBank.checked ? 'Bank Account' : 'Cardless Services');
-
-    // Event listeners for radio button changes (triggered by clicking the custom header/label)
-    radioBank.addEventListener('change', () => togglePaymentFields('Bank Account'));
-    radioCardless.addEventListener('change', () => togglePaymentFields('Cardless Services'));
-});
-
-
-    // --- Main submission handler (Your existing submission logic) ---
-    document.getElementById('loanApplicationForm').addEventListener('submit', async function(event) {
-        event.preventDefault();
-        
-        // --- 0. Pre-Submission and Final Confirmation Validation ---
-        const confirmationTick = document.getElementById('confirmationTick');
-        const digitalSignature = document.getElementById('digitalSignature').value.trim();
-        
-        // Get the selected payment method from the radio group
-        const selectedMethod = document.querySelector('input[name="paymentType"]:checked')?.value; 
-        
-        const requestedAmountString = localStorage.getItem('requestedLoanAmount');
-
-        if (!confirmationTick.checked) {
-            await customAlert('Validation Error', 'You must tick the confirmation box to confirm all details are true and accurate.');
-            return;
-        }
-        if (digitalSignature !== 'YES') {
-            await customAlert('Validation Error', 'You must digitally sign the application by typing "YES" in capital letters.');
-            return;
-        }
+    if (!requestedAmountString) {
+        await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
+        goToPage('agreement.html');
+        return;
+    }
     
-        if (!requestedAmountString) {
-            await customAlert('Error', 'Requested loan amount not found. Please restart the process.');
-            goToPage('agreement.html');
-            return;
+    // --- SA ID Validation ---
+    const idNumberInput = document.getElementById('idNumber');
+    const borrowerId = idNumberInput.value.trim();  
+    
+    if (!validateSouthAfricanId(borrowerId)) {
+        await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
+        return;
+    }
+
+    // --- Required Personal & Address Fields ---
+    const fullName = document.getElementById('fullName').value.trim();
+    const contactNumber = document.getElementById('contactNumber').value.trim();
+    const residentialAddress = document.getElementById('residentialAddress').value.trim();
+    
+    if (!fullName || !contactNumber || !residentialAddress) {
+        await customAlert(
+            'Validation Error',
+            'Please complete all required personal and residential address details.'
+        );
+        return;
+    }
+
+
+    // --- 1. Payment Method Detection & Validation (New Logic) ---
+    const bankInputs = document.querySelectorAll('#bankAccountFields input');
+    const cardlessInputs = document.querySelectorAll('#cardlessServiceFields input');
+    
+    const isBankFilled = isSectionFilled(bankInputs);
+    const isCardlessFilled = isSectionFilled(cardlessInputs);
+
+    let selectedMethod = null;
+    let paymentDetails = {};
+    let paymentValidationError = null;
+
+    if (isBankFilled && isCardlessFilled) {
+        paymentValidationError = 'Please fill out **only one** payment method section (Bank Account OR Cardless Services), not both.';
+    } else if (!isBankFilled && !isCardlessFilled) {
+        paymentValidationError = 'Please fill out **one** payment method section completely.';
+    } else if (isBankFilled) {
+        // Bank Account Selected
+        selectedMethod = 'Bank Account';
+        paymentDetails = {
+            bank_name: document.getElementById('bankName').value.trim(),
+            account_number: document.getElementById('bankAccountNumber').value.trim(),
+            linked_phone: document.getElementById('linkedPhone').value.trim()
+        };
+    } else if (isCardlessFilled) {
+        // Cardless Services Selected
+        selectedMethod = 'Cardless Services';
+        const cardlessId = document.getElementById('cardlessId').value.trim();
+
+        if (!validateSouthAfricanId(cardlessId)) {
+            paymentValidationError = 'The ID number for Cardless Services is invalid. Please check the 13 digits.';
         }
         
-        // --- SA ID Validation ---
-        const idNumberInput = document.getElementById('idNumber');
-        const borrowerId = idNumberInput.value.trim();  
+        paymentDetails = {
+            cardless_phone: document.getElementById('cardlessPhone').value.trim(),
+            cardless_id_check: cardlessId,
+            note: "Funds will be sent via Cardless Cash (e.g., eWallet) to the cardless_phone number."
+        };
+    }
+
+    if (paymentValidationError) {
+        await customAlert('Validation Error', paymentValidationError);
+        return;
+    }
+    // --- END Payment Method Detection & Validation ---
+
+
+    showLoading("Submitting application and starting file uploads...");
+
+    try {
+        // --- Date Calculation ---
+        const submissionDate = new Date();
+        const dueDate = calculateDueDate(submissionDate);
+        const repaymentDays = Math.ceil((new Date(dueDate).getTime() - submissionDate.getTime()) / (1000 * 60 * 60 * 24));
         
-        if (!validateSouthAfricanId(borrowerId)) {
-            await customAlert('Validation Error', 'The South African ID number provided is not valid. Please check the 13 digits for accuracy.');
-            return;
-        }
-              // --- Required Personal & Address Fields ---
-        const fullName = document.getElementById('fullName').value.trim();
-        const contactNumber = document.getElementById('contactNumber').value.trim();
-        const residentialAddress = document.getElementById('residentialAddress').value.trim();
+        // --- Get Optional Employment Values ---
+        const employerName = document.getElementById('employerName').value.trim();
+        const employeeAddress = document.getElementById('employeeAddress').value.trim();
         
-        if (!fullName || !contactNumber || !residentialAddress) {
-            await customAlert(
-                'Validation Error',
-                'Please complete all required personal and residential address details.'
-            );
-            return;
-        }
-
-
-        // --- Payment Details Validation & Data Extraction (Handle both methods) ---
-        let paymentDetails = {};
+        // 2. Initial data object setup
+        const data = {
+            id: borrowerId,  
+            full_name: fullName,
+            id_number: borrowerId,  
+            contact_number: contactNumber,
+            residential_address: residentialAddress,
+            
+            employer_name: employerName || null,  
+            employee_address: employeeAddress || null,  
+            
+            preferred_payment_type: selectedMethod, // Uses the dynamically detected method
+            payment_details_json: JSON.stringify(paymentDetails),  
+            
+            requested_amount: parseFloat(requestedAmountString),
+            digital_signature: digitalSignature,
+            confirmed_accurate: confirmationTick.checked,
+            
+            status: 'Pending Review',
+            repayment_due_date: dueDate,
+            repayment_period: repaymentDays,
+            interest_rate: 0.50,
+            date_submitted: submissionDate.toISOString()
+        };
         
-        if (!selectedMethod) {
-            await customAlert('Validation Error', 'Please select a preferred payment method.');
-            return;
-        }
+        // 3. Prepare files for upload
+        const files = {
+            idDocument: document.getElementById('idDocument').files[0],
+            bankStatement: document.getElementById('bankStatement').files[0],
+            proofOfAddress: document.getElementById('proofOfAddress').files[0],
+            selfieDocument: document.getElementById('selfieDocument').files[0]
+        };
 
-        try {
-            if (selectedMethod === 'Bank Account') {
-                const bankName = document.getElementById('bankName').value.trim();
-                const bankAccountNumber = document.getElementById('bankAccountNumber').value.trim();
-                const linkedPhone = document.getElementById('linkedPhone').value.trim();
-                
-                // Final check (form validation should handle this, but for safety)
-                if (!bankName || !bankAccountNumber || !linkedPhone) {
-                    await customAlert('Validation Error', 'Please complete all required Bank Account payment details.');
-                    return;
-                }
-                
-                paymentDetails = {
-                    bank_name: bankName,
-                    account_number: bankAccountNumber,
-                    linked_phone: linkedPhone
-                };
-                
-            } else if (selectedMethod === 'Cardless Services') {
-                const cardlessPhone = document.getElementById('cardlessPhone').value.trim();
-                const cardlessId = document.getElementById('cardlessId').value.trim();
-                
-                // Final check (form validation should handle this, but for safety)
-                if (!cardlessPhone || !cardlessId) {
-                    await customAlert('Validation Error', 'Please complete all required Cardless Service details.');
-                    return;
-                }
+        // 4. Upload all files and collect URLs
+        showLoading("Uploading documents (This may take up to 30 seconds)...");
+        
+        const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
+            uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}.${files.idDocument.name.split('.').pop()}`, true),
+            uploadFile(files.bankStatement, 'loan_documents', files.bankStatement ? `${borrowerId}/bank-statement-${Date.now()}.${files.bankStatement.name.split('.').pop()}` : null, false),
+            uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}.${files.proofOfAddress.name.split('.').pop()}`, true),
+            uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}.${files.selfieDocument.name.split('.').pop()}`, true)
+        ]);
 
-                if (!validateSouthAfricanId(cardlessId)) {
-                    await customAlert('Validation Error', 'The ID number for Cardless Services is invalid. Please check the 13 digits.');
-                    return;
-                }
-                
-                paymentDetails = {
-                    cardless_phone: cardlessPhone,
-                    cardless_id_check: cardlessId,
-                    note: "Funds will be sent via Cardless Cash (e.g., eWallet) to the cardless_phone number."
-                };
-            } else {
-                throw new Error("Invalid payment method selected.");
-            }
-        } catch (e) {
-            await customAlert('Validation Error', e.message);
-            return;
-        }
+        // 5. Update data object with document URLs
+        data.id_document_url = id_url;
+        data.bank_statement_url = statement_url;
+        data.proof_of_address_url = address_url;
+        data.selfie_document_url = selfie_url;
 
-        // --- END Payment Details Validation ---
-
-        showLoading("Submitting application and starting file uploads...");
-
-        try {
-            // --- Date Calculation ---
-            const submissionDate = new Date();
-            const dueDate = calculateDueDate(submissionDate);
-            const repaymentDays = Math.ceil((new Date(dueDate).getTime() - submissionDate.getTime()) / (1000 * 60 * 60 * 24));
-            
-            // --- Get Optional Employment Values ---
-            const employerName = document.getElementById('employerName').value.trim();
-            const employeeAddress = document.getElementById('employeeAddress').value.trim();
-            
-            // 1. Initial data object setup
-            const data = {
-                id: borrowerId,  
-                full_name: fullName,
-                id_number: borrowerId,  
-                contact_number: contactNumber,
-                residential_address: residentialAddress,
-                
-                employer_name: employerName || null,  
-                employee_address: employeeAddress || null,  
-                
-                preferred_payment_type: selectedMethod, // Uses the dynamically selected method
-                payment_details_json: JSON.stringify(paymentDetails),  
-                
-                requested_amount: parseFloat(requestedAmountString),
-                digital_signature: digitalSignature,
-                confirmed_accurate: confirmationTick.checked,
-                
-                status: 'Pending Review',
-                repayment_due_date: dueDate,
-                repayment_period: repaymentDays,
-                interest_rate: 0.50,
-                date_submitted: submissionDate.toISOString()
-            };
-            
-            // 2. Prepare files for upload
-            const files = {
-                idDocument: document.getElementById('idDocument').files[0],
-                bankStatement: document.getElementById('bankStatement').files[0],
-                proofOfAddress: document.getElementById('proofOfAddress').files[0],
-                selfieDocument: document.getElementById('selfieDocument').files[0]
-            };
-
-            // 3. Upload all files and collect URLs
-            showLoading("Uploading documents (This may take up to 30 seconds)...");
-            
-            const [id_url, statement_url, address_url, selfie_url] = await Promise.all([
-                uploadFile(files.idDocument, 'loan_documents', `${borrowerId}/id-document-${Date.now()}.${files.idDocument.name.split('.').pop()}`, true),
-                uploadFile(files.bankStatement, 'loan_documents', files.bankStatement ? `${borrowerId}/bank-statement-${Date.now()}.${files.bankStatement.name.split('.').pop()}` : null, false),
-                uploadFile(files.proofOfAddress, 'loan_documents', `${borrowerId}/proof-of-address-${Date.now()}.${files.proofOfAddress.name.split('.').pop()}`, true),
-                uploadFile(files.selfieDocument, 'loan_documents', `${borrowerId}/document-selfie-${Date.now()}.${files.selfieDocument.name.split('.').pop()}`, true)
+        showLoading("Inserting application data into the database...");
+        
+        // 6. Insert data into the 'borrowers' table
+        const { error: insertError } = await supabase
+            .from('borrowers')
+            .insert([
+                { ...data }
             ]);
 
-            // 4. Update data object with document URLs
-            data.id_document_url = id_url;
-            data.bank_statement_url = statement_url;
-            data.proof_of_address_url = address_url;
-            data.selfie_document_url = selfie_url;
-
-            showLoading("Inserting application data into the database...");
-            
-            // 5. Insert data into the 'borrowers' table
-            const { error: insertError } = await supabase
-                .from('borrowers')
-                .insert([
-                    { ...data }
-                ]);
-
-            if (insertError) {
-                console.error('Supabase Insert Error:', insertError);
-                throw new Error('Database submission failed: ' + insertError.message);
-            }
-
-            // 6. Success: Save the new ID and display the Review Modal
-            localStorage.setItem('currentUserId', borrowerId);
-            
-            hideLoading(); // Hide loading before showing the final review modal
-
-            // A. Construct the Review Message (Formatted HTML)
-            // Use the JSON.stringify of paymentDetails which will be specific to the chosen method
-            const paymentDetailStr = JSON.stringify(paymentDetails)
-                .replace(/[{}"\\]/g, '')
-                .replace(/,/g, ', ');
-
-            let reviewMessage = `
-                <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
-                <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
-                    <li>Full Name: ${fullName}</li>
-                    <li>Contact: ${contactNumber}</li>
-                    <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
-                    <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
-                    <li>Payment Type: <span class="font-bold text-indigo-600">${selectedMethod}</span></li> <li class="break-all">Payment Details: ${paymentDetailStr}</li>
-                </ul>
-                <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
-            `;
-
-            // B. Show the custom confirmation modal
-            const result = await customConfirmationAlert(
-                'Final Review Required',  
-                reviewMessage,  
-                'Confirm & Go to Dashboard',  
-                'Go Back to Agreement'
-            );
-            
-            // C. Act based on the user's choice
-            if (result === 'ok') {
-                // User Confirmed -> Redirect to Dashboard
-                localStorage.removeItem('requestedLoanAmount'); // Clear the temporary amount only upon final confirmation
-                goToPage('dashboard.html');
-            } else {
-                // User Canceled/Went Back -> Redirect to Agreement page
-                goToPage('agreement.html');
-            }
-
-
-        } catch (error) {
-            hideLoading();
-            console.error('Application Submission Error:', error);
-            await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
+        if (insertError) {
+            console.error('Supabase Insert Error:', insertError);
+            throw new Error('Database submission failed: ' + insertError.message);
         }
+
+        // 7. Success: Save the new ID and display the Review Modal
+        localStorage.setItem('currentUserId', borrowerId);
+        
+        hideLoading(); // Hide loading before showing the final review modal
+
+        // A. Construct the Review Message (Formatted HTML)
+        const paymentDetailStr = JSON.stringify(paymentDetails)
+            .replace(/[{}"\\]/g, '')
+            .replace(/,/g, ', ');
+
+        let reviewMessage = `
+            <p class="font-bold text-lg mb-4 text-indigo-700">Application Summary (ID: ${borrowerId})</p>
+            <ul class="list-disc list-inside space-y-2 text-sm text-gray-700 p-2 border rounded-lg bg-white">
+                <li>Full Name: ${fullName}</li>
+                <li>Contact: ${contactNumber}</li>
+                <li>Loan Amount: R ${parseFloat(requestedAmountString).toFixed(2)}</li>
+                <li>Due Date: <span class="font-bold text-green-600">${dueDate}</span> (${repaymentDays} days)</li>
+                <li>Payment Type: <span class="font-bold text-indigo-600">${selectedMethod}</span></li> <li class="break-all">Payment Details: ${paymentDetailStr}</li>
+            </ul>
+            <p class="mt-4 font-semibold text-red-600">Please confirm these details are correct before proceeding to your Dashboard.</p>
+        `;
+
+        // B. Show the custom confirmation modal
+        const result = await customConfirmationAlert(
+            'Final Review Required',  
+            reviewMessage,  
+            'Confirm & Go to Dashboard',  
+            'Go Back to Agreement'
+        );
+        
+        // C. Act based on the user's choice
+        if (result === 'ok') {
+            localStorage.removeItem('requestedLoanAmount');
+            goToPage('dashboard.html');
+        } else {
+            goToPage('agreement.html');
+        }
+
+
+    } catch (error) {
+        hideLoading();
+        console.error('Application Submission Error:', error);
+        await customAlert('Submission Failed', `An error occurred during submission. Details: ${error.message}`);
+    }
 });
 </script>
 </body>
