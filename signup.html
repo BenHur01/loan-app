@@ -254,7 +254,8 @@ function isSectionFilled(inputs){ return Array.from(inputs).every(input=>input.v
 // --- FORM SUBMISSION ---
 document.getElementById('loanApplicationForm').addEventListener('submit', async function(event){
     event.preventDefault(); event.stopPropagation();
-    const submitBtn=event.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
+    const submitBtn=event.target.querySelector('button[type="submit"]'); 
+    submitBtn.disabled=true;
 
     // --- Validation ---
     const confirmationTick=document.getElementById('confirmationTick');
@@ -359,3 +360,4 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
 </script>
 </body>
 </html>
+
