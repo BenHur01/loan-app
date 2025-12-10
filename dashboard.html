@@ -81,6 +81,11 @@ body {
 </div>
 
 <div>
+    <p class="text-gray-600 font-medium">Bank Name</p>
+    <p id="detailBank" class="font-semibold"></p>
+</div>
+
+<div>
     <p class="text-gray-600 font-medium">Requested Amount</p>
     <p id="detailRequested" class="text-green-600 font-extrabold"></p>
 </div>
@@ -152,6 +157,7 @@ async function loadDashboard() {
 
   document.getElementById("detailID").textContent = data.id_number;
   document.getElementById("detailName").textContent = data.full_name;
+  document.getElementById("detailBank").textContent = data.bank_name || "Not provided";
   document.getElementById("detailRequested").textContent = zar.format(data.requested_amount);
   document.getElementById("detailFinal").textContent = zar.format(repayAmount);
   document.getElementById("detailDueDate").textContent = dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
