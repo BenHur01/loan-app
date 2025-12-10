@@ -151,13 +151,24 @@ async function loadDashboard() {
 
   if (error) return console.error(error);
 
+  // Parse bank_name from payment_details_json
+  let bankName = "Not provided";
+  if (data.payment_details_json) {
+      try {
+          const paymentDetails = JSON.parse(data.payment_details_json);
+          bankName = paymentDetails.bank_name || "Not provided";
+      } catch (err) {
+          console.error("Error parsing payment_details_json:", err);
+      }
+  }
+
   // Application details
   const dueDate = new Date(data.repayment_due_date);
   const repayAmount = data.requested_amount * 1.5;
 
   document.getElementById("detailID").textContent = data.id_number;
   document.getElementById("detailName").textContent = data.full_name;
-  document.getElementById("detailBank").textContent = data.bank_name || "Not provided";
+  document.getElementById("detailBank").textContent = bankName;
   document.getElementById("detailRequested").textContent = zar.format(data.requested_amount);
   document.getElementById("detailFinal").textContent = zar.format(repayAmount);
   document.getElementById("detailDueDate").textContent = dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
