@@ -262,114 +262,147 @@
     }
 
     // FORM SUBMISSION
-    document.getElementById('loanApplicationForm').addEventListener('submit', async e=>{
-        e.preventDefault(); e.stopPropagation();
-        const submitBtn=e.target.querySelector('button[type="submit"]'); submitBtn.disabled=true;
+   document.getElementById('loanApplicationForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    e.stopPropagation();
 
-        const fullName=document.getElementById('fullName').value.trim();
-        const idNumber=document.getElementById('idNumber').value.trim();
-        const contactNumber=document.getElementById('contactNumber').value.trim();
-        const residentialAddress=document.getElementById('residentialAddress').value.trim();
-        const confirmationTick=document.getElementById('confirmationTick').checked;
-        const digitalSignature=document.getElementById('digitalSignature').value.trim();
+    const submitBtn = e.target.querySelector('button[type="submit"]');
+    submitBtn.disabled = true;
 
-        if(!confirmationTick){ await customAlert('Validation Error','Tick the confirmation box.'); submitBtn.disabled=false; return; }
-        if(digitalSignature!=='YES'){ await customAlert('Validation Error','Type "YES" to sign digitally.'); submitBtn.disabled=false; return; }
-        if(!validateSAID(idNumber)){ await customAlert('Validation Error','Invalid SA ID number.'); submitBtn.disabled=false; return; }
-        if(!fullName || !contactNumber || !residentialAddress){ await customAlert('Validation Error','Complete all required fields.'); submitBtn.disabled=false; return; }
+    // Collect form data
+    const fullName = document.getElementById('fullName').value.trim();
+    const idNumber = document.getElementById('idNumber').value.trim();
+    const contactNumber = document.getElementById('contactNumber').value.trim();
+    const residentialAddress = document.getElementById('residentialAddress').value.trim();
+    const employerName = document.getElementById('employerName').value.trim() || null;
+    const employeeAddress = document.getElementById('employeeAddress').value.trim() || null;
+    const confirmationTick = document.getElementById('confirmationTick').checked;
+    const digitalSignature = document.getElementById('digitalSignature').value.trim();
 
-        // PAYMENT METHOD
-        const bankInputs=document.querySelectorAll('#bankAccountFields input');
-        const cardlessInputs = document.querySelectorAll('#cardlessServiceFields input');
-const isCardless = isSectionFilled(cardlessInputs);
+    // Basic validations
+    if (!confirmationTick) { await customAlert('Validation Error', 'Tick the confirmation box.'); submitBtn.disabled = false; return; }
+    if (digitalSignature !== 'YES') { await customAlert('Validation Error', 'Type "YES" to sign digitally.'); submitBtn.disabled = false; return; }
+    if (!validateSAID(idNumber)) { await customAlert('Validation Error', 'Invalid SA ID number.'); submitBtn.disabled = false; return; }
+    if (!fullName || !contactNumber || !residentialAddress) { await customAlert('Validation Error', 'Complete all required fields.'); submitBtn.disabled = false; return; }
 
-let paymentValidation = null, selectedMethod = null, paymentDetails = {};
+    // Payment method
+    const bankInputs = document.querySelectorAll('#bankAccountFields input');
+    const cardlessInputs = document.querySelectorAll('#cardlessServiceFields input');
 
-if (isBank && isCardless) paymentValidation = 'Fill only one payment method.';
-else if (!isBank && !isCardless) paymentValidation = 'Fill one payment method.';
-else if (isBank) {
-    selectedMethod = 'Bank Account';
-    paymentDetails = {
-        bank_name: document.getElementById('bankName').value.trim(),
-        account_number: document.getElementById('bankAccountNumber').value.trim(),
-        linked_phone: document.getElementById('linkedPhone').value.trim()
-    };
-} else if (isCardless) {
-    selectedMethod = 'Cardless Services';
-    paymentDetails = {
-        bank_to_receive: document.getElementById('cardlessBank').value.trim(),
-        cardless_phone: document.getElementById('cardlessPhone').value.trim()
-    };
-}
+    const isBank = Array.from(bankInputs).every(i => i.value.trim() !== '');
+    const isCardless = Array.from(cardlessInputs).every(i => i.value.trim() !== '');
 
-if (paymentValidation) {
-    await customAlert('Validation Error', paymentValidation);
-    submitBtn.disabled = false;
-    return;
-}
+    let selectedMethod = null;
+    let paymentDetails = {};
+    let paymentValidation = null;
 
+    if (isBank && isCardless) paymentValidation = 'Fill only one payment method.';
+    else if (!isBank && !isCardless) paymentValidation = 'Fill one payment method.';
+    else if (isBank) {
+        selectedMethod = 'Bank Account';
+        paymentDetails = {
+            bank_name: document.getElementById('bankName').value.trim(),
+            account_number: document.getElementById('bankAccountNumber').value.trim(),
+            linked_phone: document.getElementById('linkedPhone').value.trim()
+        };
+    } else if (isCardless) {
+        selectedMethod = 'Cardless Services';
+        paymentDetails = {
+            bank_to_receive: document.getElementById('cardlessBank').value.trim(),
+            cardless_phone: document.getElementById('cardlessPhone').value.trim()
+        };
+    }
 
-        // FILE UPLOADS
-        showLoading("Uploading files...");
-        try{
-            const files={
-                idDocument: document.getElementById('idDocument').files[0],
-                bankStatement: document.getElementById('bankStatement').files[0],
-                proofOfAddress: document.getElementById('proofOfAddress').files[0],
-                selfieDocument: document.getElementById('selfieDocument').files[0]
-            };
-            const timestamp=Date.now();
-            const id_url=await uploadFile(files.idDocument,'loan_documents',`${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`,true);
-            const statement_url=files.bankStatement ? await uploadFile(files.bankStatement,'loan_documents',`${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`,false):null;
-            const address_url=await uploadFile(files.proofOfAddress,'loan_documents',`${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`,true);
-            const selfie_url=await uploadFile(files.selfieDocument,'loan_documents',`${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`,true);
+    if (paymentValidation) { await customAlert('Validation Error', paymentValidation); submitBtn.disabled = false; return; }
 
-            // DATA INSERT
-            const requestedAmount=parseFloat(localStorage.getItem('requestedLoanAmount'))||0;
-            const submissionDate=new Date();
-            const dueDate=new Date(submissionDate.getFullYear(),submissionDate.getMonth()+1,0).toISOString().split('T')[0];
-            const repaymentDays=Math.ceil((new Date(dueDate).getTime()-submissionDate.getTime())/(1000*60*60*24));
+    // Prepare summary for confirmation popup
+    const summary = `
+Full Name: ${fullName}
+ID Number: ${idNumber}
+Contact Number: ${contactNumber}
+Residential Address: ${residentialAddress}
+Employer Name: ${employerName || 'N/A'}
+Employee Address: ${employeeAddress || 'N/A'}
+Payment Method: ${selectedMethod || 'N/A'}
+    `;
 
-            const dataObj={
-                id:idNumber, full_name:fullName, id_number:idNumber, contact_number:contactNumber, residential_address:residentialAddress,
-                employer_name:document.getElementById('employerName').value.trim()||null,
-                employee_address:document.getElementById('employeeAddress').value.trim()||null,
-                preferred_payment_type:selectedMethod,
-                payment_details_json:JSON.stringify(paymentDetails),
-                requested_amount:requestedAmount,
-                digital_signature:digitalSignature,
-                confirmed_accurate:confirmationTick,
-                status:'Pending Review',
-                repayment_due_date:dueDate,
-                repayment_period:repaymentDays,
-                interest_rate:0.50,
-                date_submitted:submissionDate.toISOString(),
-                id_document_url:id_url,
-                bank_statement_url:statement_url,
-                proof_of_address_url:address_url,
-                selfie_document_url:selfie_url
-            };
+    // Show confirmation popup with Cancel option
+    const confirmSubmission = await customAlert(
+        'Please Confirm Your Details',
+        summary,
+        true // show Cancel button
+    );
 
-            showLoading("Inserting application data...");
-            const { error } = await supabaseClient.from('borrowers').insert([dataObj]);
-            if(error) throw error;
-            
-            localStorage.setItem("currentUserId", idNumber); // <-- THIS IS THE FIX
-            
-            hideLoading();
-            await customAlert('Success','Application submitted successfully!');
-            window.location.href='dashboard.html';
+    if (!confirmSubmission) { // user clicked Cancel
+        submitBtn.disabled = false;
+        return;
+    }
 
+    // File uploads
+    showLoading("Uploading files...");
+    try {
+        const files = {
+            idDocument: document.getElementById('idDocument').files[0],
+            bankStatement: document.getElementById('bankStatement').files[0],
+            proofOfAddress: document.getElementById('proofOfAddress').files[0],
+            selfieDocument: document.getElementById('selfieDocument').files[0]
+        };
 
-        } catch(err){
-            hideLoading();
-            await customAlert('Submission Failed',err.message);
-            submitBtn.disabled=false;
-        }
-    });
+        const timestamp = Date.now();
+        const id_url = await uploadFile(files.idDocument, 'loan_documents', `${idNumber}/id-${timestamp}.${files.idDocument.name.split('.').pop()}`, true);
+        const statement_url = files.bankStatement ? await uploadFile(files.bankStatement, 'loan_documents', `${idNumber}/bank-${timestamp}.${files.bankStatement.name.split('.').pop()}`, false) : null;
+        const address_url = await uploadFile(files.proofOfAddress, 'loan_documents', `${idNumber}/address-${timestamp}.${files.proofOfAddress.name.split('.').pop()}`, true);
+        const selfie_url = await uploadFile(files.selfieDocument, 'loan_documents', `${idNumber}/selfie-${timestamp}.${files.selfieDocument.name.split('.').pop()}`, true);
+
+        // Data insert
+        const requestedAmount = parseFloat(localStorage.getItem('requestedLoanAmount')) || 0;
+        const submissionDate = new Date();
+        const dueDate = new Date(submissionDate.getFullYear(), submissionDate.getMonth() + 1, 0).toISOString().split('T')[0];
+        const repaymentDays = Math.ceil((new Date(dueDate).getTime() - submissionDate.getTime()) / (1000 * 60 * 60 * 24));
+
+        const dataObj = {
+            id: idNumber,
+            full_name: fullName,
+            id_number: idNumber,
+            contact_number: contactNumber,
+            residential_address: residentialAddress,
+            employer_name: employerName,
+            employee_address: employeeAddress,
+            preferred_payment_type: selectedMethod,
+            payment_details_json: JSON.stringify(paymentDetails),
+            requested_amount: requestedAmount,
+            digital_signature: digitalSignature,
+            confirmed_accurate: confirmationTick,
+            status: 'Pending Review',
+            repayment_due_date: dueDate,
+            repayment_period: repaymentDays,
+            interest_rate: 0.50,
+            date_submitted: submissionDate.toISOString(),
+            id_document_url: id_url,
+            bank_statement_url: statement_url,
+            proof_of_address_url: address_url,
+            selfie_document_url: selfie_url
+        };
+
+        showLoading("Submitting application...");
+        const { error } = await supabaseClient.from('borrowers').insert([dataObj]);
+        if (error) throw error;
+
+        localStorage.setItem("currentUserId", idNumber);
+        hideLoading();
+        await customAlert('Success', 'Application submitted successfully!');
+        window.location.href = 'dashboard.html';
+
+    } catch (err) {
+        hideLoading();
+        await customAlert('Submission Failed', err.message);
+        submitBtn.disabled = false;
+    }
+});
 </script>
 </body>
 </html>
+
 
 
 
