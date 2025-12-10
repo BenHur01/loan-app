@@ -36,33 +36,33 @@
 </head>
 <body>
     
-    <main class="container">
-        <header class="text-center mb-8">
-            <h1 class="text-3xl font-bold text-gray-900">Loan Agreement and Terms</h1>
-            <p class="text-gray-500 mt-2">Please read carefully before proceeding.</p>
-        </header>
+<main class="container">
+    <header class="text-center mb-8">
+        <h1 class="text-3xl font-bold text-gray-900">Loan Agreement and Terms</h1>
+        <p class="text-gray-500 mt-2">Please read carefully before proceeding.</p>
+    </header>
 
-        <!-- Loan Amount Input -->
-        <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
-            <label for="loanAmount" class="block text-lg font-medium text-indigo-700 mb-2">Enter Requested Loan Amount (R200 - R2000):</label>
-            <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
-        </div>
+    <!-- Loan Amount Input -->
+    <div class="mb-6 p-4 bg-indigo-50 border border-indigo-200 rounded-lg">
+        <label for="loanAmount" class="block text-lg font-medium text-indigo-700 mb-2">Enter Requested Loan Amount (R200 - R2000):</label>
+        <input type="number" id="loanAmount" min="200" max="2000" step="50" placeholder="e.g., 500" class="w-full p-3 border border-indigo-300 rounded-lg focus:ring-indigo-500 focus:border-indigo-500">
+    </div>
 
-        <div class="scroll-box text-sm text-gray-700 leading-relaxed">
-            <h2 class="text-lg font-semibold mb-3 text-gray-800">Terms and Conditions</h2>
-            <p class="mb-4"><strong>1. Loan Contract</strong>: This agreement constitutes a legally binding contract between the Borrower (you) and the Lender (Sylvester). By agreeing to these terms, you confirm your intent and ability to repay the borrowed funds.</p>
+    <div class="scroll-box text-sm text-gray-700 leading-relaxed">
+        <h2 class="text-lg font-semibold mb-3 text-gray-800">Terms and Conditions</h2>
+        <p class="mb-4"><strong>1. Loan Contract</strong>: This agreement constitutes a legally binding contract between the Borrower (you) and the Lender (Sylvester). By agreeing to these terms, you confirm your intent and ability to repay the borrowed funds.</p>
 
-            <p class="mb-4"><strong>2. Interest Rate</strong>: All loans issued through this platform carry a fixed interest rate of 50% (fifty percent) simple interest over the repayment period. This rate is non-negotiable.</p>
+        <p class="mb-4"><strong>2. Interest Rate</strong>: All loans issued through this platform carry a fixed interest rate of 50% (fifty percent) simple interest over the repayment period. This rate is non-negotiable.</p>
 
-            <p class="mb-4"><strong>3. Repayment Due Date</strong>: The full repayment (Principal + Interest) for all approved loans is <mark>due on the 31st of December 2025.</mark> </p>
+        <p class="mb-4" id="repaymentParagraph"><strong>3. Repayment Due Date</strong>: The full repayment (Principal + Interest) is <mark>calculated automatically based on the amount you enter above and is due at the end of the month you take the loan.</mark></p>
 
-            <p class="mb-4"><span style="color: red;">4. Default</span>: Failure to repay the full amount (principal + interest) on or before the due date stated above will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a <strong>third party</strong>. You are responsible for any legal fees incurred during the collection process.</p>
+        <p class="mb-4"><span style="color: red;">4. Default</span>: Failure to repay the full amount (principal + interest) on or before the due date stated above will result in penalties and late fees as per South African financial regulations, and your account may be handed over to a <strong>third party</strong>. You are responsible for any legal fees incurred during the collection process.</p>
 
-            <p class="mb-4"><strong>5. Data Privacy</strong>: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely using and will only be used for the purpose of loan verification and fraud prevention.</p>
+        <p class="mb-4"><strong>5. Data Privacy</strong>: We commit to protecting your personal information. Your uploaded documents (ID, Proof of Address, Bank Statement, and Live Selfie) will be stored securely and only used for loan verification and fraud prevention.</p>
 
-            <p class="mb-4"><strong>6. Verification</strong>: By proceeding, you consent to background checks and verification of the documents and personal details you provide in the subsequent application form.</p>
-            
-            <p class="mb-4"><strong>7. Eligibility</strong>: You must be a South African citizen or permanent resident, over the age of 18, and currently employed to be eligible for a loan.</p>
+        <p class="mb-4"><strong>6. Verification</strong>: By proceeding, you consent to background checks and verification of the documents and personal details you provide in the subsequent application form.</p>
+        
+        <p class="mb-4"><strong>7. Eligibility</strong>: You must be a South African citizen or permanent resident, over the age of 18, and currently employed to be eligible for a loan.</p>
 
         <p class="mb-4">
             <strong class="text-indigo-600">8. Special Requests, Issues, and Repayment Difficulties:</strong> 
@@ -70,63 +70,65 @@
             Communication for these matters must be initiated via WhatsApp at the number provided on the dashboard: <a href="https://wa.me/27832004918" target="_blank" class="text-green-600 font-bold underline">083 200 4918</a>. 
             It is understood that all such requests, including extensions or adjustments, are subject to review and final approval by the Lender. Failure to communicate payment issues *before* the due date may lead to default penalties and fees outlined elsewhere in this agreement.
         </p>
+    </div>
+    
+    <form id="agreementForm" class="space-y-4">
+        <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
+            <input type="checkbox" id="termsCheck" required class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
+            <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and 30-day repayment period.</label>
         </div>
         
-        <form id="agreementForm" class="space-y-4">
-            <div class="flex items-start space-x-3 p-3 bg-red-50 border border-red-200 rounded-lg">
-                <input type="checkbox" id="termsCheck" required class="mt-1 w-5 h-5 text-indigo-600 border-gray-300 rounded focus:ring-indigo-500">
-                <label for="termsCheck" class="font-medium text-gray-700 text-sm">I confirm that I have read and agree to all the Terms and Conditions above, including the 50% interest rate and 30-day repayment period.</label>
-            </div>
-            
-            <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
-                Agree & Proceed to Application Form
-            </button>
-        </form>
+        <button type="submit" id="proceedBtn" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 rounded-lg transition duration-150 shadow-lg">
+            Agree & Proceed to Application Form
+        </button>
+    </form>
 
-        <div class="mt-8 text-center">
-            <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Go back to Home</a>
-        </div>
-    </main>
+    <div class="mt-8 text-center">
+        <a href="index.html" class="text-indigo-600 hover:text-indigo-800 font-medium">Go back to Home</a>
+    </div>
+</main>
 
-    <!-- CRITICAL FIX: ALL JS CODE IS NOW INLINE -->
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const form = document.getElementById("agreementForm");
+    const repaymentParagraph = document.getElementById("repaymentParagraph");
+
+    function updateRepaymentInfo() {
+        const amountInput = document.getElementById("loanAmount");
+        const amount = parseFloat(amountInput.value.trim());
+        if (!isNaN(amount) && amount >= 200 && amount <= 2000) {
+            const repayAmount = amount * 1.5; // Principal + 50% interest
+            const today = new Date();
+            const endOfMonth = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+            const formattedDate = endOfMonth.toLocaleDateString('en-GB', { day:'numeric', month:'long', year:'numeric' });
+            
+            repaymentParagraph.innerHTML = `<strong>3. Repayment Due Date</strong>: Dear Borrower, your total repayment of <mark>R${repayAmount.toFixed(2)}</mark> is due on <mark>${formattedDate}</mark>. Please ensure payment is made on or before this date.`;
+        }
+    }
+
+    document.getElementById("loanAmount").addEventListener("input", updateRepaymentInfo);
 
     form.addEventListener("submit", (event) => {
-        event.preventDefault(); // Stop the default form submission (page reload)
+        event.preventDefault();
 
         const amountInput = document.getElementById("loanAmount");
         const termsChecked = document.getElementById("termsCheck").checked;
         const amount = parseFloat(amountInput.value.trim());
 
-        // 1. Validation for Amount
         if (isNaN(amount) || amount < 200 || amount > 2000) {
             alert("Please enter a valid loan amount between R200 and R2000.");
-            return; // Stop execution if invalid
+            return;
         }
         
-        // 2. Validation for Checkbox (redundant since HTML required is used, but good for safety)
         if (!termsChecked) {
             alert("You must agree to the Terms and Conditions to proceed.");
-            return; // Stop execution if not checked
+            return;
         }
 
-        // 3. Save amount to Local Storage
         localStorage.setItem("requestedLoanAmount", amount.toFixed(2));
-
-        // 4. Redirect to the application page
-        console.log("Redirecting to signup.html...");
         window.location.href = "signup.html";
     });
 });
 </script>
 </body>
 </html>
-
-
-
-
-
-
-
