@@ -93,11 +93,22 @@
         </fieldset>
 
         <!-- EMPLOYMENT DETAILS -->
-        <fieldset class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details <span class="text-gray-500 text-sm">(Optional)</span></legend>
-            <div class="form-group"><label for="employerName">Employer Name</label><input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd"></div>
-            <div class="form-group"><label for="employeeAddress">Employee Address</label><textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea></div>
-        </fieldset>
+       <!-- EMPLOYMENT DETAILS -->
+<fieldset class="border p-4 rounded-lg shadow-sm">
+    <legend class="text-lg font-semibold text-indigo-600 px-2">3. Employment Details</legend>
+    <p class="text-sm text-gray-600 mb-4">Please complete if employed.</p>
+
+    <div class="form-group">
+        <label for="employerName">Employer Name</label>
+        <input type="text" id="employerName" placeholder="e.g., ABC Pty Ltd">
+    </div>
+
+    <div class="form-group">
+        <label for="employeeAddress">Employee Address</label>
+        <textarea id="employeeAddress" rows="2" placeholder="e.g., 123 Main Street, Sandton"></textarea>
+    </div>
+</fieldset>
+
 
         <!-- PAYMENT PREFERENCE -->
         <fieldset class="border p-4 rounded-lg shadow-sm">
@@ -143,14 +154,52 @@
         </fieldset>
 
         <!-- DOCUMENTS -->
-        <fieldset class="border p-4 rounded-lg shadow-sm">
-            <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
-            <p class="text-sm text-gray-600 mb-4">Upload clear copies (PDF/JPG).</p>
-            <div class="form-group"><label for="idDocument"><span class="file-label-text">Copy of ID Document <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required></div>
-            <div class="form-group"><label for="bankStatement"><span class="file-label-text">Latest Bank Statement </span></label><input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg"></div>
-            <div class="form-group"><label for="proofOfAddress"><span class="file-label-text">Proof of Residence <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required></div>
-            <div class="form-group"><label for="selfieDocument"><span class="file-label-text">Your Live Selfie <span class="text-red-500 font-bold">(Compulsory)</span></span></label><input type="file" id="selfieDocument" accept="image/*" required capture="user"></div>
-        </fieldset>
+       <!-- DOCUMENTS -->
+<fieldset class="border p-4 rounded-lg shadow-sm">
+    <legend class="text-lg font-semibold text-indigo-600 px-2">5. Required Documents</legend>
+    <p class="text-sm text-gray-600 mb-4">Upload clear copies (PDF/JPG).</p>
+
+    <!-- Copy of ID Document -->
+    <div class="form-group">
+        <label for="idDocument">
+            <span class="file-label-text">
+                Copy of ID Document <span class="text-red-500 font-bold">(Compulsory)</span>
+            </span>
+        </label>
+        <input type="file" id="idDocument" accept=".pdf,.jpg,.jpeg" required>
+    </div>
+
+    <!-- Latest Bank Statement -->
+    <div class="form-group">
+        <label for="bankStatement">
+            <span class="file-label-text">
+                Latest Bank Statement
+            </span>
+        </label>
+        <input type="file" id="bankStatement" accept=".pdf,.jpg,.jpeg">
+    </div>
+
+    <!-- Proof of Residence -->
+    <div class="form-group">
+        <label for="proofOfAddress">
+            <span class="file-label-text">
+                Proof of Residence <span class="text-red-500 font-bold">(Compulsory)</span>
+            </span>
+        </label>
+        <input type="file" id="proofOfAddress" accept=".pdf,.jpg,.jpeg" required>
+    </div>
+
+    <!-- Live Selfie -->
+    <div class="form-group">
+        <label for="selfieDocument">
+            <span class="file-label-text">
+                Your Live Selfie <span class="text-red-500 font-bold">(Compulsory)</span>
+            </span>
+        </label>
+        <input type="file" id="selfieDocument" accept="image/*" required capture="user">
+    </div>
+</fieldset>
+
 
         <!-- FINAL CONFIRMATION -->
         <fieldset class="border p-4 rounded-lg shadow-sm bg-indigo-50">
@@ -310,6 +359,7 @@
 </script>
 </body>
 </html>
+
 
 
 
