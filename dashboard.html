@@ -122,7 +122,7 @@ body {
 </main>
 
 <script>
-const supabase = supabase.createClient(
+const supabaseClient = supabase.createClient(
   "https://kujvvupdqvtkncolhcul.supabase.co",
   "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE"
 );
@@ -135,15 +135,23 @@ const zar = new Intl.NumberFormat("en-ZA", {
 });
 
 async function loadDashboard() {
-  if (!userId) return;
+  if (!userId) {
+    console.log("❌ No userId in localStorage");
+    return;
+  }
 
-  const { data, error } = await supabase
+  const { data, error } = await supabaseClient
     .from("borrowers")
     .select("*")
     .eq("id_number", userId)
     .single();
 
-  if (error || !data) return;
+  if (error) {
+    console.error("❌ Supabase error:", error.message);
+    return;
+  }
+
+  console.log("✅ Borrower data:", data);
 
   const dueDate = new Date(data.repayment_due_date);
   const repayAmount = data.requested_amount * 1.5;
@@ -178,3 +186,4 @@ loadDashboard();
 </script>
 </body>
 </html>
+
