@@ -56,10 +56,11 @@
     <div class="custom-modal-content">
         <h3 id="modal-title" class="text-xl font-bold mb-4 text-gray-800">Alert</h3>
         <div id="modal-message-container" class="text-gray-600 mb-6"><p id="modal-message"></p></div>
-        <div class="flex space-x-3 mt-4">
-            <button id="modal-cancel-button" class="w-1/2 bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-4 rounded-lg focus:outline-none hidden">Cancel</button>
-            <button id="modal-ok-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg focus:outline-none">OK</button>
+        <div id="modal-buttons" class="flex space-x-3 mt-4 justify-end">
+            <button id="modal-cancel-button" class="hidden bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-lg focus:outline-none">Cancel</button>
+            <button id="modal-ok-button" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-6 rounded-lg focus:outline-none">OK</button>
         </div>
+
     </div>
 </div>
 
@@ -234,35 +235,71 @@
     const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     // Everything below this line is the rest of your original code
-    function showLoading(msg){ document.getElementById('loading-message').textContent=msg; document.getElementById('loadingOverlay').classList.remove('hidden'); document.body.style.overflow='hidden'; }
-    function hideLoading(){ document.getElementById('loadingOverlay').classList.add('hidden'); document.body.style.overflow='auto'; }
-    function customAlert(title,msg){ 
-        const modal=document.getElementById('custom-alert-modal');
-        document.getElementById('modal-title').textContent=title;
-        document.getElementById('modal-message-container').innerHTML=`<p>${msg}</p>`;
-        document.getElementById('modal-cancel-button').classList.add('hidden');
-        document.getElementById('modal-ok-button').classList.add('w-full');
-        modal.classList.remove('hidden');
-        return new Promise(res=>{
-            const ok=document.getElementById('modal-ok-button');
-            const handler=()=>{ modal.classList.add('hidden'); ok.removeEventListener('click',handler); res(); };
-            ok.addEventListener('click',handler);
-        });
+   function showLoading(msg) {
+    document.getElementById('loading-message').textContent = msg;
+    document.getElementById('loadingOverlay').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+}
+
+function hideLoading() {
+    document.getElementById('loadingOverlay').classList.add('hidden');
+    document.body.style.overflow = 'auto';
+}
+
+// Custom alert with optional Cancel button
+function customAlert(title, msg, showCancel = false) {
+    const modal = document.getElementById('custom-alert-modal');
+    const okBtn = document.getElementById('modal-ok-button');
+    const cancelBtn = document.getElementById('modal-cancel-button');
+
+    document.getElementById('modal-title').textContent = title;
+    document.getElementById('modal-message-container').innerHTML = `<p>${msg}</p>`;
+
+    if (showCancel) {
+        cancelBtn.classList.remove('hidden');
+        okBtn.classList.remove('w-full');
+    } else {
+        cancelBtn.classList.add('hidden');
+        okBtn.classList.add('w-full');
     }
 
-    function validateSAID(id){ return /^\d{13}$/.test(id); }
-    function isSectionFilled(inputs){ return Array.from(inputs).every(i=>i.value.trim()!==''); }
+    modal.classList.remove('hidden');
 
-    async function uploadFile(file,bucket,path,isRequired=true){
-        if(!file){ if(isRequired) throw new Error("Required file missing"); return null; }
-        const { data,error } = await supabaseClient.storage.from(bucket).upload(path,file,{ upsert:false });
-        if(error) throw new Error(error.message);
-        const { data: publicUrlData } = supabaseClient.storage.from(bucket).getPublicUrl(data.path);
-        return publicUrlData.publicUrl;
+    return new Promise((resolve) => {
+        const okHandler = () => {
+            modal.classList.add('hidden');
+            okBtn.removeEventListener('click', okHandler);
+            cancelBtn.removeEventListener('click', cancelHandler);
+            resolve(true); // OK clicked
+        };
+        const cancelHandler = () => {
+            modal.classList.add('hidden');
+            okBtn.removeEventListener('click', okHandler);
+            cancelBtn.removeEventListener('click', cancelHandler);
+            resolve(false); // Cancel clicked
+        };
+
+        okBtn.addEventListener('click', okHandler);
+        cancelBtn.addEventListener('click', cancelHandler);
+    });
+}
+
+function validateSAID(id) { return /^\d{13}$/.test(id); }
+function isSectionFilled(inputs) { return Array.from(inputs).every(i => i.value.trim() !== ''); }
+
+async function uploadFile(file, bucket, path, isRequired = true) {
+    if (!file) {
+        if (isRequired) throw new Error("Required file missing");
+        return null;
     }
+    const { data, error } = await supabaseClient.storage.from(bucket).upload(path, file, { upsert: false });
+    if (error) throw new Error(error.message);
+    const { data: publicUrlData } = supabaseClient.storage.from(bucket).getPublicUrl(data.path);
+    return publicUrlData.publicUrl;
+}
 
-    // FORM SUBMISSION
-   document.getElementById('loanApplicationForm').addEventListener('submit', async e => {
+// FORM SUBMISSION
+document.getElementById('loanApplicationForm').addEventListener('submit', async e => {
     e.preventDefault();
     e.stopPropagation();
 
@@ -327,18 +364,14 @@ Payment Method: ${selectedMethod || 'N/A'}
     `;
 
     // Show confirmation popup with Cancel option
-    const confirmSubmission = await customAlert(
-        'Please Confirm Your Details',
-        summary,
-        true // show Cancel button
-    );
+    const confirmSubmission = await customAlert('Please Confirm Your Details', summary, true);
 
     if (!confirmSubmission) { // user clicked Cancel
         submitBtn.disabled = false;
         return;
     }
 
-    // File uploads
+    // File uploads and submission
     showLoading("Uploading files...");
     try {
         const files = {
@@ -402,6 +435,7 @@ Payment Method: ${selectedMethod || 'N/A'}
 </script>
 </body>
 </html>
+
 
 
 
