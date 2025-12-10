@@ -424,7 +424,16 @@ const summary = `
 
         localStorage.setItem("currentUserId", idNumber);
         hideLoading();
-        await customAlert('Success', 'Application submitted successfully!');
+       await customAlert(
+          'Success',
+          `
+          <p>Application submitted successfully!</p>
+          <p class="text-sm text-gray-500 mt-2">
+            Click OK to continue to dashboard
+          </p>
+          `
+        );
+
         window.location.href = 'dashboard.html';
 
     } catch (err) {
@@ -436,6 +445,7 @@ const summary = `
 </script>
 </body>
 </html>
+
 
 
 
