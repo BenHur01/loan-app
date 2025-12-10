@@ -253,7 +253,7 @@ function customAlert(title, msg, showCancel = false) {
     const cancelBtn = document.getElementById('modal-cancel-button');
 
     document.getElementById('modal-title').textContent = title;
-    document.getElementById('modal-message-container').innerHTML = `<p>${msg}</p>`;
+    document.getElementById('modal-message-container').innerHTML = msg;
 
     if (showCancel) {
         cancelBtn.classList.remove('hidden');
@@ -353,15 +353,16 @@ document.getElementById('loanApplicationForm').addEventListener('submit', async 
     if (paymentValidation) { await customAlert('Validation Error', paymentValidation); submitBtn.disabled = false; return; }
 
     // Prepare summary for confirmation popup
-    const summary = `
-Full Name: ${fullName}
-ID Number: ${idNumber}
-Contact Number: ${contactNumber}
-Residential Address: ${residentialAddress}
-Employer Name: ${employerName || 'N/A'}
-Employee Address: ${employeeAddress || 'N/A'}
-Payment Method: ${selectedMethod || 'N/A'}
-    `;
+const summary = `
+<p>Full Name: ${fullName}</p>
+<p>ID Number: ${idNumber}</p>
+<p>Contact Number: ${contactNumber}</p>
+<p>Residential Address: ${residentialAddress}</p>
+<p>Employer Name: ${employerName || 'N/A'}</p>
+<p>Employee Address: ${employeeAddress || 'N/A'}</p>
+<p>Payment Method: ${selectedMethod || 'N/A'}</p>
+`;
+
 
     // Show confirmation popup with Cancel option
     const confirmSubmission = await customAlert('Please Confirm Your Details', summary, true);
@@ -435,6 +436,7 @@ Payment Method: ${selectedMethod || 'N/A'}
 </script>
 </body>
 </html>
+
 
 
 
