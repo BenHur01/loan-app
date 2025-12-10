@@ -133,7 +133,6 @@
                 <div class="p-3 border border-gray-300 rounded-lg">
                     <div class="form-group"><label for="cardlessBank">Bank Name to receive Cardless Funds</label><input type="text" id="cardlessBank" placeholder="e.g., FNB, Capitec, etc."></div>
                     <div class="form-group"><label for="cardlessPhone">Phone Number for Cardless Service</label><input type="tel" id="cardlessPhone" placeholder="10-digit phone number"></div>
-                    <div class="form-group"><label for="cardlessId">Your ID Number (for Security)</label><input type="text" id="cardlessId" placeholder="Your 13-digit ID"></div>
                     <div class="mt-4 p-3 border border-yellow-400 bg-yellow-50 rounded-lg text-sm text-gray-700">
                         <p class="font-bold text-yellow-800">Note:</p>
                         <p>We will use this phone number to send the Cardless Cash PIN if your application is approved.</p>
@@ -281,22 +280,34 @@
 
         // PAYMENT METHOD
         const bankInputs=document.querySelectorAll('#bankAccountFields input');
-        const cardlessInputs=document.querySelectorAll('#cardlessServiceFields input');
-        const isBank=isSectionFilled(bankInputs);
-        const isCardless=isSectionFilled(cardlessInputs);
-        let paymentValidation=null, selectedMethod=null, paymentDetails={};
-        if(isBank && isCardless) paymentValidation='Fill only one payment method.';
-        else if(!isBank && !isCardless) paymentValidation='Fill one payment method.';
-        else if(isBank){
-            selectedMethod='Bank Account';
-            paymentDetails={ bank_name:document.getElementById('bankName').value.trim(), account_number:document.getElementById('bankAccountNumber').value.trim(), linked_phone:document.getElementById('linkedPhone').value.trim() };
-        } else if(isCardless){
-            selectedMethod='Cardless Services';
-            const cardlessId=document.getElementById('cardlessId').value.trim();
-            if(!validateSAID(cardlessId)) paymentValidation='Invalid Cardless ID number.';
-            paymentDetails={ bank_to_receive:document.getElementById('cardlessBank').value.trim(), cardless_phone:document.getElementById('cardlessPhone').value.trim(), cardless_id_check:cardlessId };
-        }
-        if(paymentValidation){ await customAlert('Validation Error',paymentValidation); submitBtn.disabled=false; return; }
+        const cardlessInputs = document.querySelectorAll('#cardlessServiceFields input');
+const isCardless = isSectionFilled(cardlessInputs);
+
+let paymentValidation = null, selectedMethod = null, paymentDetails = {};
+
+if (isBank && isCardless) paymentValidation = 'Fill only one payment method.';
+else if (!isBank && !isCardless) paymentValidation = 'Fill one payment method.';
+else if (isBank) {
+    selectedMethod = 'Bank Account';
+    paymentDetails = {
+        bank_name: document.getElementById('bankName').value.trim(),
+        account_number: document.getElementById('bankAccountNumber').value.trim(),
+        linked_phone: document.getElementById('linkedPhone').value.trim()
+    };
+} else if (isCardless) {
+    selectedMethod = 'Cardless Services';
+    paymentDetails = {
+        bank_to_receive: document.getElementById('cardlessBank').value.trim(),
+        cardless_phone: document.getElementById('cardlessPhone').value.trim()
+    };
+}
+
+if (paymentValidation) {
+    await customAlert('Validation Error', paymentValidation);
+    submitBtn.disabled = false;
+    return;
+}
+
 
         // FILE UPLOADS
         showLoading("Uploading files...");
@@ -359,6 +370,7 @@
 </script>
 </body>
 </html>
+
 
 
 
