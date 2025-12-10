@@ -7,10 +7,7 @@
 
 <script src="https://cdn.tailwindcss.com"></script>
 
-<script id="supabase-config"
-  data-url="https://kujvvupdqvtkncolhcul.supabase.co"
-  data-anon-key="YOUR_ANON_KEY">
-</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
 body {
@@ -38,7 +35,7 @@ body {
 }
 .status-pending { background:#fde68a; color:#78350f }
 .status-approved { background:#bbf7d0; color:#065f46 }
-.status-rejected { background:#fecaca; color:#991b1b }
+.status-denied { background:#fecaca; color:#991b1b }
 </style>
 </head>
 
@@ -51,7 +48,7 @@ body {
     <hr class="my-6">
 </header>
 
-<!-- WhatsApp Action Box -->
+<!-- WhatsApp -->
 <div class="mb-6 p-5 bg-green-50 border-l-4 border-green-500 rounded-lg shadow">
     <h4 class="text-lg font-bold text-green-800 mb-2">ACTION REQUIRED</h4>
     <p class="text-gray-700 mb-3">
@@ -70,11 +67,10 @@ body {
     <div id="statusBadge" class="mt-2"></div>
 </div>
 
-<!-- Application Details -->
+<!-- Details -->
 <h3 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Application Details</h3>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
 <div>
     <p class="text-gray-600 font-medium">ID Number</p>
     <p id="detailID" class="font-semibold"></p>
@@ -104,19 +100,18 @@ body {
     <p class="text-gray-600 font-medium">Countdown</p>
     <p id="countdown" class="font-extrabold text-red-700"></p>
 </div>
-
 </div>
 
-<!-- Preferred Payment Type Box -->
+<!-- Payment -->
 <div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
     <h4 class="font-bold text-gray-800 mb-1">Preferred Payment Type</h4>
     <p id="paymentType" class="font-semibold text-indigo-600"></p>
 </div>
 
-<!-- Footer Note -->
+<!-- Footer -->
 <div class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
     <p class="text-gray-700 font-medium">
-        ⏳ Our team will review your application and get back to you within <strong>24 hours</strong>.
+        ⏳ Our team will review your application and respond within <strong>24 hours</strong>.
     </p>
 </div>
 
@@ -126,11 +121,11 @@ body {
 
 </main>
 
-<script type="module">
-import { createClient } from "https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm";
-
-const config = document.getElementById("supabase-config");
-const supabase = createClient(config.dataset.url, config.dataset.anonKey);
+<script>
+const supabase = supabase.createClient(
+  "https://kujvvupdqvtkncolhcul.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt1anZ2dXBkcXZ0a25jb2xoY3VsIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjM4MDM0MzgsImV4cCI6MjA3OTM3OTQzOH0.VBnQywbTQwwWFLmjUAZggfIWC1_J5opHdFwyqMDD3QE"
+);
 
 const userId = localStorage.getItem("currentUserId");
 
@@ -139,53 +134,47 @@ const zar = new Intl.NumberFormat("en-ZA", {
   currency: "ZAR"
 });
 
-function monthEnd() {
-  const d = new Date();
-  return new Date(d.getFullYear(), d.getMonth()+1, 0, 23,59,59);
-}
-
 async function loadDashboard() {
   if (!userId) return;
 
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("borrowers")
     .select("*")
     .eq("id_number", userId)
     .single();
 
-  if (!data) return;
+  if (error || !data) return;
 
-  const repay = data.requested_amount * 1.5;
-  const due = monthEnd();
+  const dueDate = new Date(data.repayment_due_date);
+  const repayAmount = data.requested_amount * 1.5;
 
   document.getElementById("detailID").textContent = data.id_number;
   document.getElementById("detailName").textContent = data.full_name;
   document.getElementById("detailRequested").textContent = zar.format(data.requested_amount);
-  document.getElementById("detailFinal").textContent = zar.format(repay);
+  document.getElementById("detailFinal").textContent = zar.format(repayAmount);
   document.getElementById("detailDueDate").textContent =
-    due.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+    dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
 
   document.getElementById("paymentType").textContent =
     data.preferred_payment_type || "Not selected";
 
-  const badge = document.getElementById("statusBadge");
   const status = (data.status || "pending").toLowerCase();
-  badge.innerHTML = `<span class="status-badge status-${status}">${status}</span>`;
+  document.getElementById("statusBadge").innerHTML =
+    `<span class="status-badge status-${status}">${status}</span>`;
 
-  const cd = document.getElementById("countdown");
-  setInterval(()=>{
-    const diff = due - new Date();
-    if (diff <= 0) cd.textContent = "OVERDUE";
+  const countdownEl = document.getElementById("countdown");
+  setInterval(() => {
+    const diff = dueDate - new Date();
+    if (diff <= 0) countdownEl.textContent = "OVERDUE";
     else {
-      const d = Math.floor(diff/86400000);
-      const h = Math.floor(diff/3600000)%24;
-      cd.textContent = `${d}d ${h}h`;
+      const d = Math.floor(diff / 86400000);
+      const h = Math.floor(diff / 3600000) % 24;
+      countdownEl.textContent = `${d} days ${h} hours`;
     }
-  },1000);
+  }, 1000);
 }
 
 loadDashboard();
 </script>
-
 </body>
 </html>
