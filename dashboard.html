@@ -6,7 +6,6 @@
 <title>Loan Application Dashboard</title>
 
 <script src="https://cdn.tailwindcss.com"></script>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js"></script>
 
 <style>
@@ -67,7 +66,7 @@ body {
     <div id="statusBadge" class="mt-2"></div>
 </div>
 
-<!-- Details -->
+<!-- Application Details -->
 <h3 class="text-2xl font-bold mb-4 text-gray-800 border-b pb-2">Application Details</h3>
 
 <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
@@ -108,6 +107,12 @@ body {
     <p id="paymentType" class="font-semibold text-indigo-600"></p>
 </div>
 
+<!-- Documents Submitted -->
+<div class="mt-6 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+  <h4 class="font-bold text-gray-800 mb-2">Documents Submitted</h4>
+  <div id="documentsStatus" class="grid grid-cols-2 gap-2 text-sm text-gray-700"></div>
+</div>
+
 <!-- Footer -->
 <div class="mt-6 p-4 bg-yellow-50 border-l-4 border-yellow-500 rounded">
     <p class="text-gray-700 font-medium">
@@ -128,17 +133,10 @@ const supabaseClient = supabase.createClient(
 );
 
 const userId = localStorage.getItem("currentUserId");
-
-const zar = new Intl.NumberFormat("en-ZA", {
-  style: "currency",
-  currency: "ZAR"
-});
+const zar = new Intl.NumberFormat("en-ZA", { style: "currency", currency: "ZAR" });
 
 async function loadDashboard() {
-  if (!userId) {
-    console.log("❌ No userId in localStorage");
-    return;
-  }
+  if (!userId) return;
 
   const { data, error } = await supabaseClient
     .from("borrowers")
@@ -146,13 +144,9 @@ async function loadDashboard() {
     .eq("id_number", userId)
     .single();
 
-  if (error) {
-    console.error("❌ Supabase error:", error.message);
-    return;
-  }
+  if (error) return console.error(error);
 
-  console.log("✅ Borrower data:", data);
-
+  // Application details
   const dueDate = new Date(data.repayment_due_date);
   const repayAmount = data.requested_amount * 1.5;
 
@@ -160,15 +154,11 @@ async function loadDashboard() {
   document.getElementById("detailName").textContent = data.full_name;
   document.getElementById("detailRequested").textContent = zar.format(data.requested_amount);
   document.getElementById("detailFinal").textContent = zar.format(repayAmount);
-  document.getElementById("detailDueDate").textContent =
-    dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
-
-  document.getElementById("paymentType").textContent =
-    data.preferred_payment_type || "Not selected";
+  document.getElementById("detailDueDate").textContent = dueDate.toLocaleDateString("en-GB",{day:"numeric",month:"long",year:"numeric"});
+  document.getElementById("paymentType").textContent = data.preferred_payment_type || "Not selected";
 
   const status = (data.status || "pending").toLowerCase();
-  document.getElementById("statusBadge").innerHTML =
-    `<span class="status-badge status-${status}">${status}</span>`;
+  document.getElementById("statusBadge").innerHTML = `<span class="status-badge status-${status}">${status}</span>`;
 
   const countdownEl = document.getElementById("countdown");
   setInterval(() => {
@@ -180,10 +170,32 @@ async function loadDashboard() {
       countdownEl.textContent = `${d} days ${h} hours`;
     }
   }, 1000);
+
+  // Documents Submitted
+  function getDocumentStatusHTML(data) {
+    return `
+      <div class="flex justify-between px-2 py-1 border rounded bg-gray-100">
+        <span>ID Document</span>
+        <span>${data.id_document_url ? '✅' : '❌'}</span>
+      </div>
+      <div class="flex justify-between px-2 py-1 border rounded bg-gray-100">
+        <span>Bank Statement</span>
+        <span>${data.bank_statement_url ? '✅' : '❌'}</span>
+      </div>
+      <div class="flex justify-between px-2 py-1 border rounded bg-gray-100">
+        <span>Proof of Address</span>
+        <span>${data.proof_of_address_url ? '✅' : '❌'}</span>
+      </div>
+      <div class="flex justify-between px-2 py-1 border rounded bg-gray-100">
+        <span>Selfie</span>
+        <span>${data.selfie_document_url ? '✅' : '❌'}</span>
+      </div>
+    `;
+  }
+  document.getElementById("documentsStatus").innerHTML = getDocumentStatusHTML(data);
 }
 
 loadDashboard();
 </script>
 </body>
 </html>
-
